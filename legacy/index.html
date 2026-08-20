@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forgebyte — Freelance Web Application Development</title>
+<meta name="description" content="Forgebyte builds fast, scalable web applications for founders who need to ship. Full-stack development, MVP sprints, and ongoing support.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #060907;
+    --bg-elevated: #0D130F;
+    --bg-elevated-2: #121A15;
+    --border: #1E2B22;
+    --border-soft: #151F19;
+    --text: #E4F5EA;
+    --text-muted: #93AC9D;
+    --text-dim: #57695D;
+    --accent: #39FF88;
+    --accent-soft: rgba(57,255,136,0.12);
+    --accent-2: #7CFFC4;
+    --accent-2-soft: rgba(124,255,196,0.12);
+    --accent-on: #04140B;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --sans: 'Inter', system-ui, sans-serif;
+    --max: 1100px;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  body{
+    background:
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0) 0 0/28px 28px,
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:inherit; text-decoration:none;}
+  ul{list-style:none;}
+  img{max-width:100%; display:block;}
+
+  ::selection{background:var(--accent); color:#0B0D10;}
+
+  :focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+
+  .wrap{max-width:var(--max); margin:0 auto; padding:0 24px;}
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--accent);
+    letter-spacing:0.02em;
+    margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .eyebrow::before{content:"//"; color:var(--text-dim);}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,13,16,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  nav{
+    max-width:var(--max); margin:0 auto; padding:18px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo{
+    font-family:var(--mono); font-weight:700; font-size:18px;
+    display:flex; align-items:center; gap:2px;
+  }
+  .logo .bracket{color:var(--accent);}
+  .nav-links{display:flex; align-items:center; gap:32px;}
+  .nav-links a{
+    font-size:14px; color:var(--text-muted);
+    transition:color 0.15s ease;
+  }
+  .nav-links a:hover{color:var(--text);}
+  .nav-cta{
+    font-family:var(--mono); font-size:13px; font-weight:600;
+    background:var(--accent); color:var(--accent-on);
+    padding:9px 16px; border-radius:6px;
+    border:1px solid var(--accent);
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .nav-cta:hover{transform:translateY(-1px); box-shadow:0 6px 20px -6px var(--accent-soft);}
+  .nav-toggle{display:none; background:none; border:none; color:var(--text); font-size:22px; cursor:pointer;}
+
+  @media (max-width:760px){
+    .nav-links{
+      position:absolute; top:100%; left:0; right:0;
+      background:var(--bg-elevated); border-bottom:1px solid var(--border);
+      flex-direction:column; align-items:flex-start; gap:0;
+      padding:8px 24px 20px;
+      display:none;
+    }
+    .nav-links.open{display:flex;}
+    .nav-links a{padding:12px 0; width:100%; border-bottom:1px solid var(--border-soft);}
+    .nav-toggle{display:block;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{padding:96px 0 80px;}
+  .badge{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--mono); font-size:12px; color:var(--accent-2);
+    background:var(--accent-2-soft); border:1px solid rgba(124,255,196,0.25);
+    padding:6px 12px; border-radius:100px; margin-bottom:28px;
+  }
+  .badge .dot{
+    width:6px; height:6px; border-radius:50%; background:var(--accent-2);
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1; box-shadow:0 0 0 0 rgba(124,255,196,0.5);}
+    50%{opacity:0.6; box-shadow:0 0 0 6px rgba(124,255,196,0);}
+  }
+
+  .hero-grid{
+    display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center;
+  }
+  @media (max-width:900px){ .hero-grid{grid-template-columns:1fr;} }
+
+  h1.hero-title{
+    font-family:var(--sans); font-weight:700;
+    font-size:clamp(34px, 5vw, 52px);
+    line-height:1.08; letter-spacing:-0.02em;
+    margin-bottom:22px;
+  }
+  h1.hero-title .accent-text{color:var(--accent);}
+
+  .hero-sub{
+    color:var(--text-muted); font-size:17px; max-width:46ch; margin-bottom:34px;
+  }
+
+  .btn-row{display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{
+    font-family:var(--mono); font-size:14px; font-weight:600;
+    padding:13px 22px; border-radius:7px;
+    display:inline-flex; align-items:center; gap:8px;
+    transition:transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .btn-primary{background:var(--accent); color:var(--accent-on); border:1px solid var(--accent);}
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 10px 28px -10px var(--accent-soft);}
+  .btn-ghost{background:transparent; color:var(--text); border:1px solid var(--border);}
+  .btn-ghost:hover{border-color:var(--text-dim); transform:translateY(-2px);}
+
+  /* Terminal */
+  .terminal{
+    background:var(--bg-elevated);
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,0.6);
+  }
+  .terminal-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:12px 16px; border-bottom:1px solid var(--border-soft);
+    background:var(--bg-elevated-2);
+  }
+  .terminal-bar span{width:10px; height:10px; border-radius:50%; background:var(--border);}
+  .terminal-title{
+    font-family:var(--mono); font-size:12px; color:var(--text-dim); margin-left:6px;
+  }
+  .terminal-body{
+    padding:24px; font-family:var(--mono); font-size:14px; min-height:210px;
+  }
+  .term-line{color:var(--text-muted); margin-bottom:6px;}
+  .term-line .prompt{color:var(--accent-2);}
+  .term-output{color:var(--text); margin-bottom:18px; padding-left:2px;}
+  .term-output.accent{color:var(--accent); font-weight:600;}
+  .cursor{
+    display:inline-block; width:8px; height:16px; background:var(--accent-2);
+    vertical-align:middle; animation:blink 1s step-end infinite;
+  }
+  @keyframes blink{50%{opacity:0;}}
+  .typed-hidden{visibility:hidden;}
+
+  /* ---------- SECTIONS shared ---------- */
+  section{padding:88px 0; border-top:1px solid var(--border-soft);}
+  .section-head{margin-bottom:48px; max-width:60ch;}
+  .section-title{font-size:clamp(24px,3vw,32px); font-weight:700; letter-spacing:-0.01em; margin-bottom:12px;}
+  .section-desc{color:var(--text-muted); font-size:15.5px;}
+
+  /* ---------- ABOUT / STACK ---------- */
+  .stack-grid{display:flex; flex-wrap:wrap; gap:10px;}
+  .chip{
+    font-family:var(--mono); font-size:13px; color:var(--text-muted);
+    border:1px solid var(--border); background:var(--bg-elevated);
+    padding:8px 14px; border-radius:6px;
+  }
+
+  /* ---------- SERVICES ---------- */
+  .services-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
+  @media (max-width:700px){ .services-grid{grid-template-columns:1fr;} }
+  .service-card{
+    background:var(--bg-elevated); border:1px solid var(--border);
+    border-radius:10px; padding:26px; transition:border-color 0.2s ease, transform 0.2s ease;
+  }
+  .service-card:hover{border-color:rgba(57,255,136,0.35); transform:translateY(-3px);}
+  .service-tag{font-family:var(--mono); font-size:12px; color:var(--accent); margin-bottom:12px;}
+  .service-card h3{font-size:18px; font-weight:600; margin-bottom:10px;}
+  .service-card p{color:var(--text-muted); font-size:14.5px;}
+
+  /* ---------- WORK ---------- */
+  .work-note{
+    font-size:14px; color:var(--text-muted);
+    background:var(--bg-elevated); border:1px dashed var(--border);
+    padding:14px 18px; border-radius:8px; margin-bottom:36px;
+  }
+  .work-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  @media (max-width:900px){ .work-grid{grid-template-columns:1fr;} }
+  .work-card{
+    border:1px solid var(--border); border-radius:10px; overflow:hidden;
+    background:linear-gradient(180deg, var(--bg-elevated), var(--bg-elevated-2));
+  }
+  .work-thumb{
+    height:130px;
+    background:
+      repeating-linear-gradient(135deg, rgba(57,255,136,0.06) 0 2px, transparent 2px 14px),
+      var(--bg-elevated-2);
+    border-bottom:1px solid var(--border-soft);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:12px; color:var(--text-dim);
+  }
+  .work-body{padding:20px;}
+  .work-body h3{font-size:16px; font-weight:600; margin-bottom:8px;}
+  .work-body p{font-size:14px; color:var(--text-muted); margin-bottom:14px;}
+  .work-tags{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;}
+  .work-tags span{font-family:var(--mono); font-size:11px; color:var(--text-dim); border:1px solid var(--border-soft); padding:3px 8px; border-radius:4px;}
+  .work-status{
+    font-family:var(--mono); font-size:11.5px; color:var(--accent-2);
+    display:inline-flex; align-items:center; gap:6px;
+  }
+
+  /* ---------- PROCESS ---------- */
+  .process-list{display:flex; flex-direction:column;}
+  .process-item{
+    display:flex; gap:24px; padding:26px 0; border-top:1px solid var(--border-soft);
+  }
+  .process-item:first-child{border-top:none;}
+  .process-num{
+    font-family:var(--mono); font-size:14px; color:var(--accent);
+    min-width:40px; padding-top:2px;
+  }
+  .process-item h3{font-size:17px; font-weight:600; margin-bottom:6px;}
+  .process-item p{color:var(--text-muted); font-size:14.5px; max-width:56ch;}
+
+  /* ---------- CONTACT ---------- */
+  .contact-box{
+    background:var(--bg-elevated); border:1px solid var(--border);
+    border-radius:14px; padding:48px; text-align:center;
+  }
+  .contact-box h2{font-size:clamp(24px,3.5vw,34px); font-weight:700; margin-bottom:14px; letter-spacing:-0.01em;}
+  .contact-box p{color:var(--text-muted); max-width:50ch; margin:0 auto 30px;}
+  .contact-links{display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:28px;}
+  .social-row{display:flex; gap:20px; justify-content:center;}
+  .social-row a{font-family:var(--mono); font-size:13px; color:var(--text-muted); transition:color 0.15s ease;}
+  .social-row a:hover{color:var(--accent-2);}
+
+  /* Contact form */
+  .contact-form{
+    text-align:left; max-width:560px; margin:0 auto 30px;
+    display:grid; gap:16px;
+  }
+  .form-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:560px){ .form-row{grid-template-columns:1fr;} }
+  .field label{
+    font-family:var(--mono); font-size:12px; color:var(--text-muted);
+    display:block; margin-bottom:7px;
+  }
+  .field input, .field textarea{
+    width:100%; background:var(--bg); color:var(--text);
+    border:1px solid var(--border); border-radius:7px;
+    padding:12px 14px; font-family:var(--sans); font-size:14.5px;
+    transition:border-color 0.15s ease;
+  }
+  .field textarea{min-height:120px; resize:vertical;}
+  .field input:focus, .field textarea:focus{
+    border-color:var(--accent); outline:none;
+  }
+
+  /* Custom select — native <select> popups can't be themed, so this is a
+     button + listbox pair backed by a hidden input for form submission. */
+  .select{position:relative;}
+  .select-trigger{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--bg); color:var(--text);
+    border:1px solid var(--border); border-radius:7px;
+    padding:12px 14px; font-family:var(--sans); font-size:14.5px; text-align:left;
+    cursor:pointer; transition:border-color 0.15s ease, background 0.15s ease;
+  }
+  .select-trigger:hover{border-color:var(--text-dim);}
+  .select-trigger:focus-visible{border-color:var(--accent); outline:none;}
+  .select.open .select-trigger{border-color:var(--accent); background:var(--bg-elevated);}
+  .select-arrow{
+    width:10px; height:10px; flex:none; color:var(--text-dim);
+    transition:transform 0.2s ease, color 0.15s ease;
+  }
+  .select.open .select-arrow{transform:rotate(180deg); color:var(--accent);}
+  .select-list{
+    position:absolute; z-index:30; top:calc(100% + 6px); left:0; right:0;
+    margin:0; padding:5px; list-style:none;
+    background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px;
+    box-shadow:0 18px 40px -18px rgba(0,0,0,0.85);
+    max-height:250px; overflow-y:auto;
+    opacity:0; transform:translateY(-6px); pointer-events:none;
+    transition:opacity 0.15s ease, transform 0.15s ease;
+  }
+  .select.open .select-list{opacity:1; transform:translateY(0); pointer-events:auto;}
+  .select-option{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 12px; border-radius:6px; cursor:pointer;
+    font-family:var(--sans); font-size:14px; color:var(--text-muted);
+    transition:background 0.12s ease, color 0.12s ease;
+  }
+  .select-option::after{
+    content:'✓'; font-family:var(--mono); font-size:12px;
+    color:var(--accent); opacity:0; transition:opacity 0.12s ease;
+  }
+  .select-option[aria-selected="true"]{color:var(--text);}
+  .select-option[aria-selected="true"]::after{opacity:1;}
+  .select-option.active{background:var(--accent-soft); color:var(--accent-2);}
+  @media (prefers-reduced-motion:reduce){
+    .select-list, .select-arrow{transition:none;}
+  }
+
+  .honeypot{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
+  .form-submit-row{display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
+  .form-status{font-family:var(--mono); font-size:13px; color:var(--text-dim); min-height:18px;}
+  .form-status.success{color:var(--accent-2);}
+  .form-status.error{color:var(--accent);}
+  .contact-divider{
+    display:flex; align-items:center; gap:14px; max-width:560px; margin:6px auto 26px;
+    font-family:var(--mono); font-size:12px; color:var(--text-dim);
+  }
+  .contact-divider::before, .contact-divider::after{
+    content:""; flex:1; height:1px; background:var(--border);
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{border-top:1px solid var(--border-soft); padding:32px 0;}
+  .footer-row{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+  }
+  .footer-row p{font-family:var(--mono); font-size:12.5px; color:var(--text-dim);}
+
+  /* ---------- INTRO LOADER (ABI -> Architecting Bold Ideas) ---------- */
+  body.intro-lock{overflow:hidden; height:100vh;}
+
+  #introOverlay{
+    position:fixed; inset:0; z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--bg);
+    transition:opacity 0.7s ease, visibility 0.7s ease;
+  }
+  #introOverlay.hide{opacity:0; visibility:hidden; pointer-events:none;}
+
+  .intro-letters{
+    display:flex; flex-wrap:wrap; justify-content:center; align-items:baseline;
+    gap:clamp(18px, 4vw, 48px); padding:0 24px;
+  }
+  .intro-word{
+    font-family:var(--mono); font-weight:700; white-space:nowrap;
+    font-size:clamp(30px, 6vw, 58px); letter-spacing:-0.01em;
+  }
+  .intro-word .intro-first{color:var(--accent);}
+  .intro-word .intro-rest{color:var(--text);}
+  .intro-cursor{
+    display:inline-block; width:0.5em; height:0.85em; background:var(--accent-2);
+    vertical-align:-0.1em; margin-left:2px;
+    animation:blink 0.9s step-end infinite;
+  }
+  .intro-cursor.done{display:none;}
+
+  .intro-skip{
+    position:fixed; bottom:22px; right:22px; z-index:10000;
+    font-family:var(--mono); font-size:12px; color:var(--text-dim);
+    background:transparent; border:1px solid var(--border);
+    padding:8px 14px; border-radius:6px; cursor:pointer;
+    transition:color 0.15s ease, border-color 0.15s ease;
+  }
+  .intro-skip:hover{color:var(--text); border-color:var(--text-dim);}
+
+  @media (prefers-reduced-motion: reduce){
+    #introOverlay{display:none;}
+  }
+</style>
+</head>
+<body class="intro-lock">
+
+<!-- Intro loader: ABI -> Architecting Bold Ideas, then reveals the site -->
+<div id="introOverlay" aria-hidden="true">
+  <button class="intro-skip" id="introSkip" type="button">Skip →</button>
+  <div class="intro-letters">
+    <span class="intro-word"><span class="intro-first">A</span><span class="intro-rest" id="introRestA"></span></span>
+    <span class="intro-word"><span class="intro-first">B</span><span class="intro-rest" id="introRestB"></span></span>
+    <span class="intro-word"><span class="intro-first">I</span><span class="intro-rest" id="introRestI"></span><span class="intro-cursor" id="introCursor"></span></span>
+  </div>
+</div>
+
+<header>
+  <nav>
+    <a href="#top" class="logo"><span class="bracket">{</span>forgebyte<span class="bracket">}</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#contact" class="nav-cta">Start a project</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero" style="border-top:none;">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <div class="badge"><span class="dot"></span> Available for new projects — Q4 2026</div>
+          <h1 class="hero-title">Code that ships.<br><span class="accent-text">Products that scale.</span></h1>
+          <p class="hero-sub">Forgebyte is a freelance web application development studio. I design, build, and ship full-stack products for founders and teams who need to move fast without cutting corners.</p>
+          <div class="btn-row">
+            <a href="#contact" class="btn btn-primary">Start a project →</a>
+            <a href="#work" class="btn btn-ghost">See how I work</a>
+          </div>
+        </div>
+
+        <div class="terminal" role="img" aria-label="Terminal window showing: who am i returns forgebyte, freelance full-stack web development. cat mission.txt returns Code that ships. Products that scale.">
+          <div class="terminal-bar">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="terminal-body" id="termBody">
+            <div class="term-line"><span class="prompt">➜</span> who am i</div>
+            <div class="term-output" id="line1"></div>
+            <div class="term-line"><span class="prompt">➜</span> cat mission.txt</div>
+            <div class="term-output accent" id="line2"></div>
+            <span class="cursor" id="cursor"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT / STACK -->
+  <section id="about">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">about</div>
+        <h2 class="section-title">One developer. A studio-grade process.</h2>
+        <p class="section-desc">Forgebyte is built around a single, opinionated stack — chosen for speed, reliability, and low running cost — so every project starts from a proven foundation instead of a blank page.</p>
+      </div>
+      <div class="stack-grid">
+        <span class="chip">Next.js</span>
+        <span class="chip">TypeScript</span>
+        <span class="chip">Tailwind CSS</span>
+        <span class="chip">Node.js</span>
+        <span class="chip">PostgreSQL</span>
+        <span class="chip">Supabase</span>
+        <span class="chip">Prisma</span>
+        <span class="chip">Stripe</span>
+        <span class="chip">Docker</span>
+        <span class="chip">Vercel</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">services</div>
+        <h2 class="section-title">What I take on</h2>
+        <p class="section-desc">Focused engagements, not open-ended retainers — you always know what you're getting and when it ships.</p>
+      </div>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-tag">service_01</div>
+          <h3>Web Application Development</h3>
+          <p>End-to-end product builds — from first commit to a production deploy your users can rely on.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-tag">service_02</div>
+          <h3>API & Backend Systems</h3>
+          <p>Well-structured APIs, database design, and third-party integrations that hold up under real traffic.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-tag">service_03</div>
+          <h3>MVP Sprints</h3>
+          <p>A working, testable prototype in weeks — built to validate an idea before you commit to more.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-tag">service_04</div>
+          <h3>Ongoing Support</h3>
+          <p>Bug fixes, new features, and maintenance after launch, so the product keeps moving with your business.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section id="work">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">work</div>
+        <h2 class="section-title">Recent work</h2>
+        <p class="section-desc">Forgebyte is newly launched — real case studies are on the way. Below is the kind of work I take on, so you know what to expect.</p>
+      </div>
+      <div class="work-note">⚠ Placeholder content — swap these three cards for real case studies (problem → approach → result) once you've shipped your first client projects.</div>
+      <div class="work-grid">
+        <article class="work-card">
+          <div class="work-thumb">saas-dashboard/</div>
+          <div class="work-body">
+            <h3>SaaS Analytics Dashboard</h3>
+            <p>Example of a data-heavy internal tool: auth, role-based access, and live charts.</p>
+            <div class="work-tags"><span>Next.js</span><span>Postgres</span><span>Recharts</span></div>
+            <div class="work-status">● Case study coming soon</div>
+          </div>
+        </article>
+        <article class="work-card">
+          <div class="work-thumb">marketplace-mvp/</div>
+          <div class="work-body">
+            <h3>Two-Sided Marketplace MVP</h3>
+            <p>Example of a launch-ready MVP: listings, checkout, and messaging between users.</p>
+            <div class="work-tags"><span>Next.js</span><span>Stripe</span><span>Supabase</span></div>
+            <div class="work-status">● Case study coming soon</div>
+          </div>
+        </article>
+        <article class="work-card">
+          <div class="work-thumb">internal-tooling/</div>
+          <div class="work-body">
+            <h3>Internal Ops Tooling</h3>
+            <p>Example of workflow automation: cutting a manual process down to a few clicks.</p>
+            <div class="work-tags"><span>Node.js</span><span>Prisma</span><span>Docker</span></div>
+            <div class="work-status">● Case study coming soon</div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section id="process">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">process</div>
+        <h2 class="section-title">How a project runs</h2>
+        <p class="section-desc">Four stages, start to finish. No surprises in scope or timeline.</p>
+      </div>
+      <div class="process-list">
+        <div class="process-item">
+          <div class="process-num">01</div>
+          <div><h3>Discover</h3><p>A short call to define the problem, scope, and success criteria before any code gets written.</p></div>
+        </div>
+        <div class="process-item">
+          <div class="process-num">02</div>
+          <div><h3>Design & Build</h3><p>Iterative development with regular check-ins, so you see progress every week, not just at the end.</p></div>
+        </div>
+        <div class="process-item">
+          <div class="process-num">03</div>
+          <div><h3>Test & Ship</h3><p>QA passes, performance checks, and a deploy to production once everything holds up.</p></div>
+        </div>
+        <div class="process-item">
+          <div class="process-num">04</div>
+          <div><h3>Support</h3><p>A window of post-launch support to fix what comes up and hand off a stable, documented product.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="wrap">
+      <div class="contact-box">
+        <div class="eyebrow" style="justify-content:center;">contact</div>
+        <h2>Have a project in mind?</h2>
+        <p>Tell me what you're building — I'll reply within a day with next steps or a few clarifying questions.</p>
+
+        <!-- Posts to Formspree (https://formspree.io), which forwards submissions
+             to the account inbox — no backend required. -->
+        <form class="contact-form" id="contactForm" action="https://formspree.io/f/mrpzrjwa" method="POST">
+          <div class="form-row">
+            <div class="field">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" autocomplete="email" required>
+            </div>
+          </div>
+          <div class="field">
+            <label id="projectTypeLabel" for="projectTypeTrigger">Project type</label>
+            <div class="select" id="projectType">
+              <button type="button" class="select-trigger" id="projectTypeTrigger"
+                      role="combobox" aria-haspopup="listbox" aria-expanded="false"
+                      aria-controls="projectTypeList" aria-labelledby="projectTypeLabel projectTypeTrigger">
+                <span class="select-value">Web App Development</span>
+                <svg class="select-arrow" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                  <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <ul class="select-list" id="projectTypeList" role="listbox" aria-labelledby="projectTypeLabel">
+                <li class="select-option" role="option" aria-selected="true"  data-value="Web App Development">Web App Development</li>
+                <li class="select-option" role="option" aria-selected="false" data-value="API &amp; Backend">API &amp; Backend</li>
+                <li class="select-option" role="option" aria-selected="false" data-value="MVP Sprint">MVP Sprint</li>
+                <li class="select-option" role="option" aria-selected="false" data-value="Ongoing Support">Ongoing Support</li>
+                <li class="select-option" role="option" aria-selected="false" data-value="Other">Other</li>
+              </ul>
+              <input type="hidden" class="select-input" name="project_type" value="Web App Development">
+            </div>
+          </div>
+          <div class="field">
+            <label for="message">Project details</label>
+            <textarea id="message" name="message" placeholder="What are you building, and what's the timeline?" required></textarea>
+          </div>
+          <!-- Honeypot spam trap — stays empty for real visitors, hidden from view -->
+          <input type="text" name="_gotcha" class="honeypot" tabindex="-1" autocomplete="off">
+          <div class="form-submit-row">
+            <button type="submit" class="btn btn-primary">Send message →</button>
+            <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+
+        <div class="contact-divider">or</div>
+
+        <div class="contact-links">
+          <!-- TODO: replace with your real email -->
+          <a href="mailto:hello@forgebyte.dev" class="btn btn-ghost">Email hello@forgebyte.dev</a>
+          <!-- TODO: replace with your real Calendly link -->
+          <a href="https://calendly.com/forgebyte" class="btn btn-ghost" target="_blank" rel="noopener">Book a call →</a>
+        </div>
+        <div class="social-row">
+          <!-- TODO: replace with your real GitHub -->
+          <a href="https://github.com/forgebyte" target="_blank" rel="noopener">GitHub</a>
+          <!-- TODO: replace with your real LinkedIn -->
+          <a href="https://linkedin.com/in/forgebyte" target="_blank" rel="noopener">LinkedIn</a>
+          <!-- TODO: replace with your real X/Twitter -->
+          <a href="https://x.com/forgebyte" target="_blank" rel="noopener">X / Twitter</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <p>© 2026 Forgebyte. All rights reserved.</p>
+    <p>Built with Next.js-ready structure.</p>
+  </div>
+</footer>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function typeText(el, text, speed, onDone){
+    let i = 0;
+    (function step(){
+      if(i <= text.length){
+        el.textContent = text.slice(0, i);
+        i++;
+        setTimeout(step, speed);
+      } else if(onDone){
+        onDone();
+      }
+    })();
+  }
+
+  // ---------- Intro loader: A / B / I -> Architecting Bold Ideas ----------
+  (function initIntro(){
+    const overlay = document.getElementById('introOverlay');
+    const skipBtn = document.getElementById('introSkip');
+    const cursor = document.getElementById('introCursor');
+
+    function closeIntro(){
+      overlay.classList.add('hide');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('intro-lock');
+    }
+
+    if(reduceMotion){
+      overlay.style.transition = 'none';
+      closeIntro();
+      return;
+    }
+
+    skipBtn.addEventListener('click', closeIntro);
+
+    const words = [
+      { restEl: document.getElementById('introRestA'), rest: 'rchitecting' },
+      { restEl: document.getElementById('introRestB'), rest: 'old' },
+      { restEl: document.getElementById('introRestI'), rest: 'deas' }
+    ];
+
+    setTimeout(() => {
+      typeText(words[0].restEl, words[0].rest, 34, () => {
+        typeText(words[1].restEl, words[1].rest, 34, () => {
+          typeText(words[2].restEl, words[2].rest, 34, () => {
+            cursor.classList.add('done');
+            setTimeout(closeIntro, 900);
+          });
+        });
+      });
+    }, 500);
+  })();
+
+  // Mobile nav toggle
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => {
+    const isOpen = navLinks.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', isOpen);
+  });
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    navLinks.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+  }));
+
+  // Terminal typing animation
+  const line1Text = 'forgebyte — freelance full-stack web development';
+  const line2Text = 'Code that ships. Products that scale.';
+  const line1El = document.getElementById('line1');
+  const line2El = document.getElementById('line2');
+  const cursorEl = document.getElementById('cursor');
+
+  if(reduceMotion){
+    line1El.textContent = line1Text;
+    line2El.textContent = line2Text;
+  } else {
+    typeText(line1El, line1Text, 28, () => {
+      setTimeout(() => {
+        typeText(line2El, line2Text, 32);
+      }, 250);
+    });
+  }
+
+  // Custom select: keyboard-accessible listbox writing to a hidden input
+  document.querySelectorAll('.select').forEach((select) => {
+    const trigger = select.querySelector('.select-trigger');
+    const valueEl = select.querySelector('.select-value');
+    const input   = select.querySelector('.select-input');
+    const options = Array.from(select.querySelectorAll('.select-option'));
+    options.forEach((o, i) => { o.id = select.id + '-opt-' + i; });
+
+    // On a hidden input, .value writes the content attribute, so form.reset()
+    // has no default left to restore — keep our own copy.
+    const defaultValue = input.value;
+
+    const selectedIndex = () => Math.max(0, options.findIndex(o => o.getAttribute('aria-selected') === 'true'));
+    let activeIndex = selectedIndex();
+
+    const setActive = (i) => {
+      activeIndex = (i + options.length) % options.length;
+      options.forEach((o, idx) => o.classList.toggle('active', idx === activeIndex));
+      options[activeIndex].scrollIntoView({ block: 'nearest' });
+      trigger.setAttribute('aria-activedescendant', options[activeIndex].id);
+    };
+
+    const open = () => {
+      select.classList.add('open');
+      trigger.setAttribute('aria-expanded', 'true');
+      setActive(selectedIndex());
+    };
+
+    const close = () => {
+      select.classList.remove('open');
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.removeAttribute('aria-activedescendant');
+      options.forEach(o => o.classList.remove('active'));
+    };
+
+    const paint = (i) => {
+      options.forEach((o, idx) => o.setAttribute('aria-selected', idx === i ? 'true' : 'false'));
+      valueEl.textContent = options[i].dataset.value;
+      input.value = options[i].dataset.value;
+    };
+
+    const choose = (i) => { paint(i); close(); trigger.focus(); };
+
+    trigger.addEventListener('click', () => {
+      select.classList.contains('open') ? close() : open();
+    });
+
+    options.forEach((option, i) => {
+      option.addEventListener('click', () => choose(i));
+      option.addEventListener('mousemove', () => setActive(i));
+    });
+
+    select.addEventListener('keydown', (e) => {
+      const isOpen = select.classList.contains('open');
+
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (!isOpen) { open(); return; }
+        setActive(activeIndex + (e.key === 'ArrowDown' ? 1 : -1));
+      } else if (isOpen && (e.key === 'Home' || e.key === 'End')) {
+        e.preventDefault();
+        setActive(e.key === 'Home' ? 0 : options.length - 1);
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        isOpen ? choose(activeIndex) : open();
+      } else if (e.key === 'Escape' && isOpen) {
+        e.preventDefault();
+        close();
+      } else if (e.key.length === 1 && e.key.trim()) {
+        // type-ahead: jump to the next option starting with this letter
+        const q = e.key.toLowerCase();
+        const from = isOpen ? activeIndex + 1 : 0;
+        for (let n = 0; n < options.length; n++) {
+          const i = (from + n) % options.length;
+          if (options[i].dataset.value.toLowerCase().startsWith(q)) {
+            if (!isOpen) open();
+            setActive(i);
+            break;
+          }
+        }
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!select.contains(e.target)) close();
+    });
+
+    // put the trigger label and hidden input back to the default on form reset
+    const form = select.closest('form');
+    if (form) form.addEventListener('reset', () => {
+      const i = options.findIndex(o => o.dataset.value === defaultValue);
+      paint(i < 0 ? 0 : i);
+      close();
+    });
+  });
+
+  // Contact form submission (Formspree — no backend required)
+  const contactForm = document.getElementById('contactForm');
+  const formStatus = document.getElementById('formStatus');
+
+  contactForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Honeypot: if this hidden field got filled in, silently drop it (bot)
+    if (contactForm._gotcha.value) {
+      formStatus.textContent = '✓ message sent — I\'ll reply within a day.';
+      formStatus.className = 'form-status success';
+      contactForm.reset();
+      return;
+    }
+
+    const submitBtn = contactForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    formStatus.textContent = '$ sending message...';
+    formStatus.className = 'form-status';
+
+    try {
+      const response = await fetch(contactForm.action, {
+        method: 'POST',
+        body: new FormData(contactForm),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (response.ok) {
+        formStatus.textContent = '✓ message sent — I\'ll reply within a day.';
+        formStatus.className = 'form-status success';
+        contactForm.reset();
+      } else {
+        throw new Error('Submission failed');
+      }
+    } catch (err) {
+      formStatus.textContent = '✗ something went wrong — email hello@forgebyte.dev directly.';
+      formStatus.className = 'form-status error';
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
