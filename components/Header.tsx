@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
+import mark from '@/public/logo/forgebyte-mark.png';
 
 const NAV_LINKS = [
   { href: '#work', label: 'Work' },
@@ -15,6 +17,15 @@ export default function Header() {
     <header>
       <nav>
         <a href="#top" className="logo">
+          {/* decorative: the wordmark beside it already names the site */}
+          <Image
+            src={mark}
+            alt=""
+            width={26}
+            height={26}
+            className="logo-mark"
+            priority
+          />
           <span className="bracket">{'{'}</span>forgebyte
           <span className="bracket">{'}'}</span>
         </a>
