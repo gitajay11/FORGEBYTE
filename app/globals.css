@@ -67,17 +67,45 @@
     background:rgba(11,13,16,0.85);
     backdrop-filter:blur(10px);
     border-bottom:1px solid var(--border-soft);
+    transition:background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  /* tightens and lifts once the page moves under it */
+  header.scrolled{
+    background:rgba(11,13,16,0.94);
+    border-bottom-color:var(--border);
+    box-shadow:0 10px 34px -22px rgba(0,0,0,0.95);
   }
   nav{
     max-width:var(--max); margin:0 auto; padding:18px 24px;
     display:flex; align-items:center; justify-content:space-between;
+    transition:padding 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  header.scrolled nav{padding:11px 24px;}
+
+  /* reading progress — scaleX is written straight to the node each frame */
+  .scroll-progress{
+    position:absolute; left:0; right:0; bottom:-1px; height:2px;
+    background:linear-gradient(90deg, var(--accent), var(--accent-2));
+    transform:scaleX(0); transform-origin:left center;
+    will-change:transform; pointer-events:none;
   }
   .logo{
     font-family:var(--mono); font-weight:700; font-size:18px;
     display:flex; align-items:center; gap:2px;
+    transition:color 0.2s ease;
   }
+  .logo:hover{color:var(--accent-2);}
+  .logo:hover .logo-lockup{
+    transform:scale(1.08) rotate(-4deg);
+    filter:drop-shadow(0 0 10px var(--accent-soft));
+  }
+  header.scrolled .logo-lockup{height:30px;}
   .logo .bracket{color:var(--accent);}
-  .logo-lockup{flex:none; display:block; height:36px; width:auto; margin-right:6px;}
+  .logo-lockup{
+    flex:none; display:block; height:36px; width:auto; margin-right:6px;
+    transition:transform 0.35s cubic-bezier(0.34,1.4,0.64,1),
+               filter 0.3s ease, height 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
   .nav-links{display:flex; align-items:center; gap:32px;}
   .nav-links a{
     font-size:14px; font-weight:500; letter-spacing:0.01em;
@@ -86,6 +114,18 @@
   }
   /* hover moves to the accent, since --text is now the resting colour */
   .nav-links a:hover{color:var(--accent-2);}
+  .nav-links a:not(.nav-cta){position:relative;}
+  /* underline wipes in from the left on hover, and stays for the section
+     you're currently reading (driven by the scroll-spy observer) */
+  .nav-links a:not(.nav-cta)::after{
+    content:''; position:absolute; left:0; right:0; bottom:-7px; height:2px;
+    border-radius:2px; background:var(--accent);
+    transform:scaleX(0); transform-origin:left center;
+    transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  }
+  .nav-links a:not(.nav-cta):hover::after,
+  .nav-links a.active::after{transform:scaleX(1);}
+  .nav-links a.active{color:var(--accent);}
   .nav-cta{
     font-family:var(--mono); font-size:13px; font-weight:600;
     background:var(--accent); color:var(--accent-on);
@@ -131,6 +171,8 @@
 
     .nav-links li{width:100%;}
     .nav-links li + li{border-top:1px solid var(--border-soft);}
+    /* stacked rows already have separators — the underline would fight them */
+    .nav-links a:not(.nav-cta)::after{display:none;}
     /* display:block is what makes width and vertical padding actually apply */
     .nav-links a{display:block; width:100%; padding:15px 2px; font-size:15px;}
 
