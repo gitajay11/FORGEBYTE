@@ -62,7 +62,7 @@ export default function ChatWidget() {
 
   const panelRef = useRef<HTMLDivElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
-  const logEndRef = useRef<HTMLDivElement>(null);
+  const logRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(1);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -76,9 +76,14 @@ export default function ChatWidget() {
     []
   );
 
-  // keep the newest message in view
+  // Pin to the newest message. scrollIntoView on a trailing marker stopped a
+  // few pixels short of the end, so drive scrollTop directly.
   useEffect(() => {
-    if (open) logEndRef.current?.scrollIntoView({ block: 'nearest' });
+    if (!open) return;
+    const log = logRef.current;
+    if (!log) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    log.scrollTo({ top: log.scrollHeight, behavior: reduce ? 'auto' : 'smooth' });
   }, [messages, typing, open]);
 
   // Escape closes and hands focus back to the launcher
@@ -165,7 +170,7 @@ export default function ChatWidget() {
           </button>
         </div>
 
-        <div className="chat-log" role="log" aria-live="polite">
+        <div className="chat-log" role="log" aria-live="polite" ref={logRef}>
           {messages.map((m) => (
             <p key={m.id} className={`chat-msg ${m.from}`}>
               {m.text}
@@ -178,7 +183,6 @@ export default function ChatWidget() {
               <span />
             </p>
           )}
-          <div ref={logEndRef} />
         </div>
 
         <div className="chat-actions">
