@@ -1,23 +1,25 @@
-// TODO: placeholder case studies — swap for real client work (problem →
-// approach → result) and delete the .work-note banner below once shipped.
+import Image from 'next/image';
+import loopaShot from '@/public/work/loopa.png';
+import nutriyahShot from '@/public/work/nutriyah.png';
+
 const WORK = [
   {
-    slug: 'saas-dashboard/',
-    title: 'SaaS Analytics Dashboard',
-    copy: 'Example of a data-heavy internal tool: auth, role-based access, and live charts.',
-    tags: ['Next.js', 'Postgres', 'Recharts'],
+    slug: 'loopa.nutriyah.com/',
+    title: 'Loopa — Sparkling Drinks Brand Site',
+    copy: 'Product site for a natural sparkling drink range. Flavour pages, an ingredient-transparency section, and a bulk-order form that turns distributor enquiries into quote requests.',
+    tags: ['HTML', 'CSS', 'JavaScript', 'Formspree'],
+    href: 'https://loopa.nutriyah.com/',
+    image: loopaShot,
+    alt: 'Loopa homepage: a green sparkling drink bottle beside the headline "Be in the Moment"',
   },
   {
-    slug: 'marketplace-mvp/',
-    title: 'Two-Sided Marketplace MVP',
-    copy: 'Example of a launch-ready MVP: listings, checkout, and messaging between users.',
-    tags: ['Next.js', 'Stripe', 'Supabase'],
-  },
-  {
-    slug: 'internal-tooling/',
-    title: 'Internal Ops Tooling',
-    copy: 'Example of workflow automation: cutting a manual process down to a few clicks.',
-    tags: ['Node.js', 'Prisma', 'Docker'],
+    slug: 'nutriyah.com/',
+    title: 'Nutriyah — Food & Beverage Company Site',
+    copy: 'Corporate site for the parent F&B business: mission, capabilities, and product portfolio, built to open conversations with distributors and trade partners.',
+    tags: ['HTML', 'CSS', 'JavaScript', 'Vercel'],
+    href: 'https://www.nutriyah.com/',
+    image: nutriyahShot,
+    alt: 'Nutriyah homepage with the headline "Developing the next generation of food products"',
   },
 ];
 
@@ -29,19 +31,21 @@ export default function Work() {
           <div className="eyebrow">work</div>
           <h2 className="section-title">Recent work</h2>
           <p className="section-desc">
-            Forgebyte is newly launched — real case studies are on the way. Below
-            is the kind of work I take on, so you know what to expect.
+            Live client projects, shipped and running in production.
           </p>
-        </div>
-        <div className="work-note">
-          ⚠ Placeholder content — swap these three cards for real case studies
-          (problem → approach → result) once you&apos;ve shipped your first
-          client projects.
         </div>
         <div className="work-grid">
           {WORK.map((item) => (
             <article className="work-card" key={item.slug}>
-              <div className="work-thumb">{item.slug}</div>
+              <div className="work-thumb">
+                <Image
+                  src={item.image}
+                  alt={item.alt}
+                  fill
+                  sizes="(max-width: 900px) 100vw, 50vw"
+                  placeholder="blur"
+                />
+              </div>
               <div className="work-body">
                 <h3>{item.title}</h3>
                 <p>{item.copy}</p>
@@ -50,7 +54,14 @@ export default function Work() {
                     <span key={tag}>{tag}</span>
                   ))}
                 </div>
-                <div className="work-status">● Case study coming soon</div>
+                <a
+                  className="work-status"
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Visit site ↗
+                </a>
               </div>
             </article>
           ))}
