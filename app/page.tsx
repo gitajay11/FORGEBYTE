@@ -7,7 +7,13 @@ import Work from '@/components/Work';
 import Process from '@/components/Process';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
+import {
+  SITE_URL,
+  SITE_NAME,
+  SITE_DESCRIPTION,
+  CONTACT_EMAIL,
+  CONTACT_PHONE_E164,
+} from '@/lib/site';
 
 // Deliberately limited to what the page actually states. No address, phone,
 // founder or rating fields — inventing them is a structured-data violation
@@ -20,6 +26,8 @@ const jsonLd = {
   url: SITE_URL,
   description: SITE_DESCRIPTION,
   slogan: 'We code. You grow.',
+  email: CONTACT_EMAIL,
+  telephone: CONTACT_PHONE_E164,
   logo: `${SITE_URL}/logo/forgebyte-mark.png`,
   image: `${SITE_URL}/opengraph-image.png`,
   knowsAbout: [

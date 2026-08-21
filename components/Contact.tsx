@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import Select from './Select';
+import { CONTACT_EMAIL, CONTACT_PHONE_E164 } from '@/lib/site';
 
 // Posts to Formspree, which forwards submissions to the account inbox.
 const FORM_ENDPOINT = 'https://formspree.io/f/mrpzrjwa';
+
 
 const PROJECT_TYPES = [
   'Web App Development',
@@ -58,7 +60,7 @@ export default function Contact() {
       resetForm();
     } catch {
       setStatus({
-        text: '✗ something went wrong — email hello@forgebyte.dev directly.',
+        text: `✗ something went wrong — email ${CONTACT_EMAIL} directly.`,
         tone: 'error',
       });
     } finally {
@@ -152,18 +154,13 @@ export default function Contact() {
           <div className="contact-divider">or</div>
 
           <div className="contact-links">
-            {/* TODO: replace with your real email */}
-            <a href="mailto:hello@forgebyte.dev" className="btn btn-ghost">
-              Email hello@forgebyte.dev
+            <a href={`mailto:${CONTACT_EMAIL}`} className="btn btn-ghost">
+              Email {CONTACT_EMAIL}
             </a>
-            {/* TODO: replace with your real Calendly link */}
-            <a
-              href="https://calendly.com/forgebyte"
-              className="btn btn-ghost"
-              target="_blank"
-              rel="noopener"
-            >
-              Book a call →
+            {/* tel: opens the dialer on mobile and hands off to FaceTime/Skype
+                on desktop; the href carries E.164, the label stays readable */}
+            <a href={`tel:${CONTACT_PHONE_E164}`} className="btn btn-ghost">
+              Call now
             </a>
           </div>
           <div className="social-row">
