@@ -62,29 +62,46 @@
   .eyebrow::before{content:"//"; color:var(--text-dim);}
 
   /* ---------- NAV ---------- */
+  /* Sits flush over the hero, then condenses into a floating glass island
+     once the page scrolls. The bar itself stays transparent — all the
+     surface treatment lives on <nav>, which is what actually floats. */
   header{
     position:sticky; top:0; z-index:50;
-    background:rgba(11,13,16,0.85);
-    backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--border-soft);
-    transition:background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    padding:10px 20px;
+    transition:padding 0.35s cubic-bezier(0.4,0,0.2,1);
   }
-  /* tightens and lifts once the page moves under it */
-  header.scrolled{
-    background:rgba(11,13,16,0.94);
-    border-bottom-color:var(--border);
-    box-shadow:0 10px 34px -22px rgba(0,0,0,0.95);
-  }
-  nav{
-    max-width:var(--max); margin:0 auto; padding:18px 24px;
-    display:flex; align-items:center; justify-content:space-between;
-    transition:padding 0.3s cubic-bezier(0.4,0,0.2,1);
-  }
-  header.scrolled nav{padding:11px 24px;}
+  header.scrolled{padding:10px 20px;}
 
-  /* reading progress — scaleX is written straight to the node each frame */
+  nav{
+    position:relative;
+    max-width:var(--max); margin:0 auto; padding:14px 22px;
+    display:flex; align-items:center; justify-content:space-between;
+    border:1px solid transparent; border-radius:16px;
+    transition:padding 0.32s cubic-bezier(0.4,0,0.2,1),
+               background 0.35s ease, border-color 0.35s ease,
+               box-shadow 0.35s ease, backdrop-filter 0.35s ease;
+  }
+  header.scrolled nav{
+    padding:9px 20px;
+    background:linear-gradient(180deg, rgba(18,26,21,0.91), rgba(11,13,16,0.95));
+    backdrop-filter:blur(16px) saturate(150%);
+    border-color:var(--border);
+    box-shadow:
+      0 20px 44px -26px rgba(0,0,0,0.95),
+      0 0 0 1px rgba(57,255,136,0.05),
+      inset 0 1px 0 rgba(228,245,234,0.06);
+  }
+  /* faint accent bloom under the island, strongest at centre */
+  header.scrolled nav::before{
+    content:''; position:absolute; inset:auto 12% -1px 12%; height:1px;
+    background:linear-gradient(90deg, transparent, var(--accent-soft), transparent);
+    pointer-events:none;
+  }
+
+  /* reading progress — pinned to the viewport edge, above the island.
+     scaleX is written straight to the node each frame. */
   .scroll-progress{
-    position:absolute; left:0; right:0; bottom:-1px; height:2px;
+    position:absolute; top:0; left:0; right:0; height:2px;
     background:linear-gradient(90deg, var(--accent), var(--accent-2));
     transform:scaleX(0); transform-origin:left center;
     will-change:transform; pointer-events:none;
@@ -156,14 +173,30 @@
   .nav-toggle.open .nav-toggle-bars span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 
   @media (max-width:760px){
+    header{padding:8px 12px;}
+    header.scrolled{padding:8px 12px;}
+    nav{padding:10px 14px;}
+    header.scrolled nav{padding:8px 14px;}
+    /* an open menu needs the island behind it even at the top of the page */
+    nav:has(.nav-links.open){
+      background:linear-gradient(180deg, rgba(18,26,21,0.86), rgba(11,13,16,0.92));
+      backdrop-filter:blur(16px) saturate(150%);
+      border-color:var(--border);
+    }
+
     /* stays display:flex so it can animate — visibility keeps it out of the
        tab order and the a11y tree while closed */
+    /* the panel is its own island, tucked under the nav one */
     .nav-links{
-      position:absolute; top:100%; left:0; right:0;
-      background:var(--bg-elevated); border-bottom:1px solid var(--border);
+      position:absolute; top:calc(100% + 9px); left:0; right:0;
+      /* opaque, not glass: menu text has to stay readable over whatever the
+         hero happens to be showing, and it drops a compositing layer */
+      background:linear-gradient(180deg, var(--bg-elevated-2), var(--bg-elevated));
+      border:1px solid var(--border); border-radius:14px;
       flex-direction:column; align-items:stretch; gap:0;
-      padding:4px 24px 18px;
-      box-shadow:0 22px 44px -26px rgba(0,0,0,0.9);
+      padding:6px 18px 16px;
+      box-shadow:0 24px 48px -26px rgba(0,0,0,0.95),
+                 inset 0 1px 0 rgba(228,245,234,0.05);
       opacity:0; visibility:hidden; transform:translateY(-10px);
       transition:opacity 0.22s ease, transform 0.26s cubic-bezier(0.4,0,0.2,1), visibility 0.26s;
     }
