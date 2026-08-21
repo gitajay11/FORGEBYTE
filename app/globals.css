@@ -77,7 +77,7 @@
     display:flex; align-items:center; gap:2px;
   }
   .logo .bracket{color:var(--accent);}
-  .logo-mark{flex:none; margin-right:7px;}
+  .logo-lockup{flex:none; display:block; height:36px; width:auto; margin-right:6px;}
   .nav-links{display:flex; align-items:center; gap:32px;}
   .nav-links a{
     font-size:14px; color:var(--text-muted);

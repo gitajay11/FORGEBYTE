@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import mark from '@/public/logo/forgebyte-mark.png';
+import logo from '@/public/logo/forgebyte-logo.png';
 
 const NAV_LINKS = [
   { href: '#work', label: 'Work' },
@@ -17,17 +17,16 @@ export default function Header() {
     <header>
       <nav>
         <a href="#top" className="logo">
-          {/* decorative: the wordmark beside it already names the site */}
+          {/* the mark supplies the braces, so the wordmark goes without them */}
           <Image
-            src={mark}
+            src={logo}
             alt=""
-            width={26}
-            height={26}
-            className="logo-mark"
+            width={54}
+            height={36}
+            className="logo-lockup"
             priority
           />
-          <span className="bracket">{'{'}</span>forgebyte
-          <span className="bracket">{'}'}</span>
+          forgebyte
         </a>
         <ul className={`nav-links${open ? ' open' : ''}`} id="navLinks">
           {NAV_LINKS.map((link) => (
