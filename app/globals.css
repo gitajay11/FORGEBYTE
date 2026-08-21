@@ -91,19 +91,65 @@
     border:1px solid var(--accent);
     transition:transform 0.15s ease, box-shadow 0.15s ease;
   }
+  /* `.nav-links a` (0,1,1) outranks `.nav-cta` (0,1,0), so the button was
+     inheriting muted text on the accent fill — 1.84:1 contrast. */
+  .nav-links .nav-cta, .nav-links .nav-cta:hover{color:var(--accent-on);}
   .nav-cta:hover{transform:translateY(-1px); box-shadow:0 6px 20px -6px var(--accent-soft);}
-  .nav-toggle{display:none; background:none; border:none; color:var(--text); font-size:22px; cursor:pointer;}
+  .nav-toggle{
+    display:none; background:none; border:none; cursor:pointer;
+    padding:10px; margin-right:-10px; line-height:0;
+  }
+  .nav-toggle-bars{display:block; position:relative; width:22px; height:16px;}
+  .nav-toggle-bars span{
+    position:absolute; left:0; width:100%; height:2px; border-radius:2px;
+    background:var(--text);
+    transition:transform 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease, background 0.2s ease;
+  }
+  .nav-toggle-bars span:nth-child(1){top:0;}
+  .nav-toggle-bars span:nth-child(2){top:7px;}
+  .nav-toggle-bars span:nth-child(3){top:14px;}
+  .nav-toggle.open .nav-toggle-bars span{background:var(--accent);}
+  .nav-toggle.open .nav-toggle-bars span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .nav-toggle.open .nav-toggle-bars span:nth-child(2){opacity:0; transform:scaleX(0.4);}
+  .nav-toggle.open .nav-toggle-bars span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 
   @media (max-width:760px){
+    /* stays display:flex so it can animate — visibility keeps it out of the
+       tab order and the a11y tree while closed */
     .nav-links{
       position:absolute; top:100%; left:0; right:0;
       background:var(--bg-elevated); border-bottom:1px solid var(--border);
-      flex-direction:column; align-items:flex-start; gap:0;
-      padding:8px 24px 20px;
-      display:none;
+      flex-direction:column; align-items:stretch; gap:0;
+      padding:4px 24px 18px;
+      box-shadow:0 22px 44px -26px rgba(0,0,0,0.9);
+      opacity:0; visibility:hidden; transform:translateY(-10px);
+      transition:opacity 0.22s ease, transform 0.26s cubic-bezier(0.4,0,0.2,1), visibility 0.26s;
     }
-    .nav-links.open{display:flex;}
-    .nav-links a{padding:12px 0; width:100%; border-bottom:1px solid var(--border-soft);}
+    .nav-links.open{opacity:1; visibility:visible; transform:translateY(0);}
+
+    .nav-links li{width:100%;}
+    .nav-links li + li{border-top:1px solid var(--border-soft);}
+    /* display:block is what makes width and vertical padding actually apply */
+    .nav-links a{display:block; width:100%; padding:15px 2px; font-size:15px;}
+
+    /* the CTA is a button, not another row — no separator, keeps its shape */
+    .nav-links li:last-child{border-top:none; margin-top:16px;}
+    .nav-links .nav-cta{
+      padding:13px 16px; text-align:center; border-radius:7px; font-size:13.5px;
+    }
+    .nav-links .nav-cta:hover{transform:none;}
+
+    /* each row eases in just behind the panel */
+    .nav-links li{
+      opacity:0; transform:translateY(-6px);
+      transition:opacity 0.2s ease, transform 0.2s ease;
+    }
+    .nav-links.open li{opacity:1; transform:translateY(0);}
+    .nav-links.open li:nth-child(1){transition-delay:0.06s;}
+    .nav-links.open li:nth-child(2){transition-delay:0.10s;}
+    .nav-links.open li:nth-child(3){transition-delay:0.14s;}
+    .nav-links.open li:nth-child(4){transition-delay:0.18s;}
+
     .nav-toggle{display:block;}
   }
 

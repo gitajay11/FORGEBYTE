@@ -43,13 +43,19 @@ export default function Header() {
           </li>
         </ul>
         <button
-          className="nav-toggle"
+          className={`nav-toggle${open ? ' open' : ''}`}
           type="button"
-          aria-label="Toggle menu"
+          aria-label={open ? 'Close menu' : 'Open menu'}
           aria-expanded={open}
+          aria-controls="navLinks"
           onClick={() => setOpen((v) => !v)}
         >
-          ☰
+          {/* three bars that cross into an X — a text glyph can't animate */}
+          <span className="nav-toggle-bars" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
         </button>
       </nav>
     </header>
