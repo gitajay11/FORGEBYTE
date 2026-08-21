@@ -6,7 +6,7 @@ const LINE_1 = 'forgebyte — freelance full-stack web development';
 const LINE_2 = 'Code that ships. Products that scale.';
 
 const TERMINAL_LABEL =
-  'Terminal window showing: whoami returns forgebyte, freelance full-stack web development. cat mission.txt returns Code that ships. Products that scale.';
+  'Terminal window showing: who am i returns forgebyte, freelance full-stack web development. cat mission.txt returns Code that ships. Products that scale.';
 
 export default function Terminal() {
   const [line1, setLine1] = useState('');
@@ -59,7 +59,7 @@ export default function Terminal() {
       </div>
       <div className="terminal-body">
         <div className="term-line">
-          <span className="prompt">➜</span> whoami
+          <span className="prompt">➜</span> who am i
         </div>
         <div className="term-output">{line1}</div>
         <div className="term-line">
