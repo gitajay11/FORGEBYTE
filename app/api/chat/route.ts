@@ -7,8 +7,10 @@ export const dynamic = 'force-dynamic';
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // Groq retires model ids periodically — override with GROQ_MODEL if this one
-// starts returning 404 / decommissioned.
-const MODEL = process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile';
+// starts failing. llama-3.3-70b-versatile was shut off on 2026-08-16; Groq
+// recommends openai/gpt-oss-120b as its replacement.
+// https://console.groq.com/docs/deprecations
+const MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b';
 
 const MAX_MESSAGE_CHARS = 1000;
 const MAX_TURNS = 12;
@@ -125,10 +127,20 @@ export async function POST(request: Request) {
   }
 
   if (!upstream.ok || !upstream.body) {
-    // Log upstream detail server-side; don't leak it to the client.
-    console.error('Groq error', upstream.status, await upstream.text().catch(() => ''));
+    // Full detail goes to the server log only.
+    const detail = await upstream.text().catch(() => '');
+    console.error('Groq error', upstream.status, MODEL, detail);
+
+    // The status code and model id are echoed back because without them a
+    // production failure is undiagnosable from outside — a retired model and
+    // a bad key both look identical. Neither value is sensitive; the upstream
+    // body, which can carry account detail, is not included.
     return Response.json(
-      { error: 'The assistant is unavailable right now.' },
+      {
+        error: 'The assistant is unavailable right now.',
+        upstreamStatus: upstream.status,
+        model: MODEL,
+      },
       { status: 502 }
     );
   }

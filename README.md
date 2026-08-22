@@ -64,7 +64,8 @@ Quick answers tab keeps working.
    existing deployment.
 
 `GROQ_MODEL` optionally overrides the model. Groq retires model ids
-periodically, so if replies start failing check
+periodically (llama-3.3-70b-versatile was shut off on 2026-08-16), so if
+replies start failing check
 <https://console.groq.com/docs/models>.
 
 ### Limits worth knowing
