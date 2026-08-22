@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import Select from './Select';
-import { CONTACT_EMAIL, CONTACT_PHONE_E164 } from '@/lib/site';
+import { CONTACT_EMAIL, CONTACT_PHONE_E164, FORM_ENDPOINT } from '@/lib/site';
 
 // Posts to Formspree, which forwards submissions to the account inbox.
-const FORM_ENDPOINT = 'https://formspree.io/f/mrpzrjwa';
+
 
 
 const PROJECT_TYPES = [

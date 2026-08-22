@@ -327,6 +327,11 @@ export default function ChatWidget() {
                 />
               </svg>
             </button>
+            {/* details typed here are forwarded — say so rather than
+                collecting them quietly */}
+            <p className="chat-privacy">
+              Share an email or phone number here and it goes straight to Ajay.
+            </p>
           </form>
         )}
 

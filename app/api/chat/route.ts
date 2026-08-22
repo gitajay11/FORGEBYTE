@@ -1,6 +1,9 @@
 // Server-side proxy to Groq. The API key stays here — it is never sent to
 // the browser, and the client only ever talks to this route.
 
+import { after } from 'next/server';
+import { extractContact, forwardLead } from '@/lib/leads';
+
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
@@ -46,6 +49,11 @@ Process, four stages: Discover (a short call to define scope and success criteri
 Shipped work: Loopa (loopa.nutriyah.com), a sparkling drinks brand site with a distributor bulk-order flow, and Nutriyah (nutriyah.com), the parent food and beverage company site.
 
 Contact: the form on this page, WhatsApp, or email ajayak15012004@gmail.com.
+
+Callbacks and contact details:
+- An email address or phone number typed into this chat IS forwarded to Ajay automatically, so you may confirm that it has been passed on.
+- If someone asks for a callback but has NOT given an email or phone number, do not say you will pass anything on — there is nothing to pass. Ask them for an email or phone number, or point them to the contact form or WhatsApp.
+- Never claim to have scheduled a call, booked a time, or checked availability. You cannot do any of those.
 
 Rules:
 - Be brief. Two or three sentences unless asked for detail. This is a chat bubble, not a document.
@@ -189,8 +197,25 @@ export async function POST(request: Request) {
     );
   }
 
+  const answer = reply.trim();
+
+  // If the visitor left contact details, forward them to the same inbox the
+  // contact form feeds. after() runs once the reply is sent, so capture never
+  // delays the response — and a plain fire-and-forget would be killed when
+  // the serverless invocation ends.
+  const latestUserMessage = [...messages].reverse().find((m) => m.role === 'user');
+  const contact = latestUserMessage
+    ? extractContact(latestUserMessage.content)
+    : null;
+
+  if (contact) {
+    after(() =>
+      forwardLead(contact, [...messages, { role: 'assistant', content: answer }])
+    );
+  }
+
   return Response.json(
-    { reply: reply.trim() },
+    { reply: answer, captured: Boolean(contact) },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }

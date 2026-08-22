@@ -21,3 +21,7 @@ export const CONTACT_WHATSAPP = CONTACT_PHONE_E164.replace(/\D/g, '');
 export const WHATSAPP_URL = `https://wa.me/${CONTACT_WHATSAPP}?text=${encodeURIComponent(
   "Hi! I found Forgebyte and I'd like to talk about a project."
 )}`;
+
+// Shared by the contact form and the chat widget's lead capture, so leads from
+// both land in the same inbox.
+export const FORM_ENDPOINT = 'https://formspree.io/f/mrpzrjwa';

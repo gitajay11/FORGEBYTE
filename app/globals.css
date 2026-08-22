@@ -640,8 +640,13 @@
   .chat-modes button.active{color:var(--accent); border-bottom-color:var(--accent);}
 
   .chat-compose{
-    display:flex; align-items:center; gap:8px;
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
     padding:0 14px 14px;
+  }
+  .chat-privacy{
+    flex-basis:100%; margin:0;
+    font-family:var(--mono); font-size:10.5px; line-height:1.5;
+    color:var(--text-dim); text-align:center;
   }
   .chat-compose input{
     flex:1; min-width:0;
