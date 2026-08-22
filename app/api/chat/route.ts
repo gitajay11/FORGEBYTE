@@ -14,6 +14,7 @@ const MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b';
 
 const MAX_MESSAGE_CHARS = 1000;
 const MAX_TURNS = 12;
+const UPSTREAM_TIMEOUT_MS = 25_000;
 
 // Crude per-instance limiter. On serverless each instance has its own map, so
 // this trims casual abuse but is NOT a real quota guard — see README.
@@ -115,14 +116,31 @@ export async function POST(request: Request) {
         model: MODEL,
         stream: true,
         temperature: 0.6,
-        max_tokens: 500,
+        // gpt-oss uses max_completion_tokens; max_tokens is ignored, which
+        // lets the model run toward its 33k output ceiling.
+        // reasoning tokens count against this too, so leave headroom above
+        // what the answer itself needs
+        max_completion_tokens: 700,
+        // gpt-oss reasons before answering, and reasoning arrives in a
+        // separate field this route deliberately doesn't forward. At the
+        // default 'medium' that means a long silent gap before any content.
+        reasoning_effort: 'low',
         messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
       }),
+      // never let a stalled upstream hang the request indefinitely
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
-  } catch {
+  } catch (err) {
+    const timedOut = (err as Error)?.name === 'TimeoutError';
+    console.error('Groq request failed', MODEL, err);
     return Response.json(
-      { error: 'Could not reach the assistant.' },
-      { status: 502 }
+      {
+        error: timedOut
+          ? 'The assistant took too long to reply.'
+          : 'Could not reach the assistant.',
+        model: MODEL,
+      },
+      { status: 504 }
     );
   }
 
