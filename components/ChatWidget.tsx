@@ -59,12 +59,17 @@ export default function ChatWidget() {
   ]);
   const [askedIds, setAskedIds] = useState<string[]>([]);
   const [typing, setTyping] = useState(false);
+  const [mode, setMode] = useState<'faq' | 'ai'>('faq');
+  const [draft, setDraft] = useState('');
+  const [sending, setSending] = useState(false);
 
   const panelRef = useRef<HTMLDivElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const nextId = useRef(1);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const abortRef = useRef<AbortController | null>(null);
 
   const remaining = TOPICS.filter((t) => !askedIds.includes(t.id));
 
@@ -75,6 +80,9 @@ export default function ChatWidget() {
     },
     []
   );
+
+  // abort any in-flight completion if the widget goes away mid-stream
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   // Pin to the newest message. scrollIntoView on a trailing marker stopped a
   // few pixels short of the end, so drive scrollTop directly.
@@ -128,6 +136,97 @@ export default function ChatWidget() {
     );
   };
 
+  const sendToAi = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = draft.trim();
+    if (!text || sending) return;
+
+    setDraft('');
+    setSending(true);
+    setTyping(true);
+
+    const userMsg: Message = { id: nextId.current++, from: 'user', text };
+    // build the history from what's on screen, before adding the placeholder
+    const history = [...messages, userMsg]
+      .filter((m) => m.text !== GREETING)
+      .map((m) => ({
+        role: m.from === 'bot' ? ('assistant' as const) : ('user' as const),
+        content: m.text,
+      }));
+
+    const replyId = nextId.current++;
+    setMessages((prev) => [...prev, userMsg]);
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history }),
+        signal: controller.signal,
+      });
+
+      if (!res.ok || !res.body) {
+        const { error } = await res.json().catch(() => ({ error: null }));
+        throw new Error(error ?? 'The assistant is unavailable right now.');
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let acc = '';
+      let started = false;
+
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        acc += decoder.decode(value, { stream: true });
+
+        if (!started) {
+          // swap the typing dots for the reply on the first token
+          started = true;
+          setTyping(false);
+          setMessages((prev) => [
+            ...prev,
+            { id: replyId, from: 'bot', text: acc },
+          ]);
+        } else {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === replyId ? { ...m, text: acc } : m))
+          );
+        }
+      }
+
+      if (!started) {
+        setTyping(false);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: replyId,
+            from: 'bot',
+            text: "I didn't catch that — try asking again, or reach out on WhatsApp.",
+          },
+        ]);
+      }
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') return;
+      setTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: nextId.current++,
+          from: 'bot',
+          text: `${(err as Error).message} You can still reach Ajay on WhatsApp or through the form.`,
+        },
+      ]);
+    } finally {
+      abortRef.current = null;
+      setSending(false);
+      inputRef.current?.focus();
+    }
+  };
+
   const restart = () => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
@@ -170,6 +269,30 @@ export default function ChatWidget() {
           </button>
         </div>
 
+        <div className="chat-modes" role="tablist" aria-label="Chat mode">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'faq'}
+            className={mode === 'faq' ? 'active' : undefined}
+            onClick={() => setMode('faq')}
+          >
+            Quick answers
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'ai'}
+            className={mode === 'ai' ? 'active' : undefined}
+            onClick={() => {
+              setMode('ai');
+              setTimeout(() => inputRef.current?.focus(), 0);
+            }}
+          >
+            Ask AI
+          </button>
+        </div>
+
         <div className="chat-log" role="log" aria-live="polite" ref={logRef}>
           {messages.map((m) => (
             <p key={m.id} className={`chat-msg ${m.from}`}>
@@ -185,24 +308,55 @@ export default function ChatWidget() {
           )}
         </div>
 
-        <div className="chat-actions">
-          {remaining.map((topic) => (
+        {mode === 'faq' ? (
+          <div className="chat-actions">
+            {remaining.map((topic) => (
+              <button
+                key={topic.id}
+                type="button"
+                className="chat-chip"
+                onClick={() => ask(topic)}
+                disabled={typing}
+              >
+                {topic.question}
+              </button>
+            ))}
+            {remaining.length === 0 && (
+              <button type="button" className="chat-chip" onClick={restart}>
+                Start over
+              </button>
+            )}
+          </div>
+        ) : (
+          <form className="chat-compose" onSubmit={sendToAi}>
+            <input
+              ref={inputRef}
+              type="text"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder="Ask anything about Forgebyte…"
+              aria-label="Message"
+              maxLength={1000}
+              disabled={sending}
+              autoComplete="off"
+            />
             <button
-              key={topic.id}
-              type="button"
-              className="chat-chip"
-              onClick={() => ask(topic)}
-              disabled={typing}
+              type="submit"
+              aria-label="Send message"
+              disabled={sending || !draft.trim()}
             >
-              {topic.question}
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 12h15M13 6l6 6-6 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
-          ))}
-          {remaining.length === 0 && (
-            <button type="button" className="chat-chip" onClick={restart}>
-              Start over
-            </button>
-          )}
-        </div>
+          </form>
+        )}
 
         <div className="chat-foot">
           <a
