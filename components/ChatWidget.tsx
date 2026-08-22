@@ -168,47 +168,19 @@ export default function ChatWidget() {
         signal: controller.signal,
       });
 
-      if (!res.ok || !res.body) {
-        const { error } = await res.json().catch(() => ({ error: null }));
-        throw new Error(error ?? 'The assistant is unavailable right now.');
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data?.reply) {
+        throw new Error(
+          data?.error ?? 'The assistant is unavailable right now.'
+        );
       }
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let acc = '';
-      let started = false;
-
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        acc += decoder.decode(value, { stream: true });
-
-        if (!started) {
-          // swap the typing dots for the reply on the first token
-          started = true;
-          setTyping(false);
-          setMessages((prev) => [
-            ...prev,
-            { id: replyId, from: 'bot', text: acc },
-          ]);
-        } else {
-          setMessages((prev) =>
-            prev.map((m) => (m.id === replyId ? { ...m, text: acc } : m))
-          );
-        }
-      }
-
-      if (!started) {
-        setTyping(false);
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: replyId,
-            from: 'bot',
-            text: "I didn't catch that — try asking again, or reach out on WhatsApp.",
-          },
-        ]);
-      }
+      setTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        { id: replyId, from: 'bot', text: data.reply as string },
+      ]);
     } catch (err) {
       if ((err as Error).name === 'AbortError') return;
       setTyping(false);

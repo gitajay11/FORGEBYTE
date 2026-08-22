@@ -114,7 +114,11 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         model: MODEL,
-        stream: true,
+        // Deliberately NOT streaming. A streamed ReadableStream response sat
+        // behind Vercel returning zero bytes for 150s+; one JSON response has
+        // nothing for the platform to buffer and is far easier to diagnose.
+        // Groq is fast enough that the typing indicator covers the wait.
+        stream: false,
         temperature: 0.6,
         // gpt-oss uses max_completion_tokens; max_tokens is ignored, which
         // lets the model run toward its 33k output ceiling.
@@ -144,7 +148,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!upstream.ok || !upstream.body) {
+  if (!upstream.ok) {
     // Full detail goes to the server log only.
     const detail = await upstream.text().catch(() => '');
     console.error('Groq error', upstream.status, MODEL, detail);
@@ -163,55 +167,30 @@ export async function POST(request: Request) {
     );
   }
 
-  // Groq speaks OpenAI-style SSE. Unwrap it and emit plain text so the client
-  // can just append chunks as they arrive.
-  const decoder = new TextDecoder();
-  const encoder = new TextEncoder();
-  const reader = upstream.body.getReader();
+  let reply: unknown;
+  try {
+    const data = await upstream.json();
+    reply = data?.choices?.[0]?.message?.content;
+  } catch (err) {
+    console.error('Groq response parse failed', MODEL, err);
+    return Response.json(
+      { error: 'The assistant sent something unreadable.', model: MODEL },
+      { status: 502 }
+    );
+  }
 
-  // Network chunks don't align to SSE lines, so an event can straddle two
-  // reads. Hold the incomplete tail between pulls instead of dropping it.
-  let buffer = '';
+  if (typeof reply !== 'string' || !reply.trim()) {
+    // gpt-oss can spend its whole budget on reasoning and return empty
+    // content — surface that rather than showing a blank bubble.
+    console.error('Groq returned no content', MODEL);
+    return Response.json(
+      { error: 'The assistant had nothing to say — try rephrasing.', model: MODEL },
+      { status: 502 }
+    );
+  }
 
-  const stream = new ReadableStream<Uint8Array>({
-    async pull(controller) {
-      const { done, value } = await reader.read();
-      if (done) {
-        controller.close();
-        return;
-      }
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() ?? '';
-
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed.startsWith('data:')) continue;
-
-        const payload = trimmed.slice(5).trim();
-        if (payload === '[DONE]') continue;
-
-        try {
-          const delta = JSON.parse(payload)?.choices?.[0]?.delta?.content;
-          if (typeof delta === 'string' && delta) {
-            controller.enqueue(encoder.encode(delta));
-          }
-        } catch {
-          // a malformed event — skip it rather than killing the stream
-        }
-      }
-    },
-    cancel() {
-      reader.cancel().catch(() => {});
-    },
-  });
-
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'no-store',
-      'X-Accel-Buffering': 'no',
-    },
-  });
+  return Response.json(
+    { reply: reply.trim() },
+    { headers: { 'Cache-Control': 'no-store' } }
+  );
 }
