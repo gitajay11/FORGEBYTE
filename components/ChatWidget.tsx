@@ -306,6 +306,19 @@ export default function ChatWidget() {
               type="text"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
+              // Implicit form submission proved unreliable here, and Enter is
+              // how people send a chat message. isComposing guards IME users,
+              // for whom Enter confirms a candidate rather than sending.
+              onKeyDown={(e) => {
+                if (
+                  e.key === 'Enter' &&
+                  !e.shiftKey &&
+                  !e.nativeEvent.isComposing
+                ) {
+                  e.preventDefault();
+                  e.currentTarget.form?.requestSubmit();
+                }
+              }}
               placeholder="Ask anything about Forgebyte…"
               aria-label="Message"
               maxLength={1000}
