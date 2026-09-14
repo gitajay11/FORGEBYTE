@@ -46,7 +46,7 @@ Stack: Next.js, TypeScript, Tailwind CSS, Node.js, PostgreSQL, Supabase, Prisma,
 
 Process, four stages: Discover (a short call to define scope and success criteria), Design and Build (iterative, weekly check-ins), Test and Ship (QA, performance checks, production deploy), Support (a post-launch window).
 
-Shipped work: Loopa (loopa.nutriyah.com), a sparkling drinks brand site with a distributor bulk-order flow, and Nutriyah (nutriyah.com), the parent food and beverage company site.
+Shipped work: Loopa (loopa.nutriyah.com), a sparkling drinks brand site with a distributor bulk-order flow; Nutriyah (nutriyah.com), the parent food and beverage company site; and Sri Cauvery Electronics (sricauveryelectronics.shop), a bilingual Tamil/English e-commerce store with cart, cash-on-delivery checkout, PWA install and an admin app, built on Next.js, Prisma and PostgreSQL.
 
 Contact: the form on this page, WhatsApp, or email ajayak15012004@gmail.com.
 

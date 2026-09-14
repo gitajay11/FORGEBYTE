@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import loopaShot from '@/public/work/loopa.png';
 import nutriyahShot from '@/public/work/nutriyah.png';
+import sriCauveryShot from '@/public/work/sri-cauvery-electronics.png';
 
 const WORK = [
   {
@@ -20,6 +21,15 @@ const WORK = [
     href: 'https://www.nutriyah.com/',
     image: nutriyahShot,
     alt: 'Nutriyah homepage with the headline "Developing the next generation of food products"',
+  },
+  {
+    slug: 'sricauveryelectronics.shop/',
+    title: 'Sri Cauvery Electronics — E-commerce Store',
+    copy: 'Bilingual Tamil/English storefront for a Madurai electronics and return-gifts retailer: product catalogue, cart and checkout with cash on delivery, installable as a PWA, plus an admin app for orders and stock.',
+    tags: ['Next.js', 'Prisma', 'PostgreSQL', 'PWA'],
+    href: 'https://www.sricauveryelectronics.shop/',
+    image: sriCauveryShot,
+    alt: 'Sri Cauvery Electronics homepage with the headline "Everyday electronics. Unforgettable gifts."',
   },
 ];
 
@@ -42,7 +52,7 @@ export default function Work() {
                   src={item.image}
                   alt={item.alt}
                   fill
-                  sizes="(max-width: 900px) 100vw, 50vw"
+                  sizes="(max-width: 900px) 100vw, 33vw"
                   placeholder="blur"
                 />
               </div>
