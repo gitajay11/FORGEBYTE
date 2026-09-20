@@ -2,7 +2,7 @@
 
 import { after } from 'next/server';
 import { INBOX, sendMail, smtpConfigured } from '@/lib/mail';
-import { studioNotification, visitorConfirmation } from '@/lib/emailTemplates';
+import { makeReference, studioNotification, visitorConfirmation } from '@/lib/emailTemplates';
 import { clientIp, createRateLimiter } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
@@ -62,7 +62,14 @@ export async function POST(request: Request) {
     return Response.json({ error: 'That email address does not look right.' }, { status: 400 });
   }
 
-  const enquiry = { name, email, projectType, message };
+  const enquiry = {
+    name,
+    email,
+    projectType,
+    message,
+    reference: makeReference(),
+    receivedAt: new Date(),
+  };
 
   // The studio copy is the one that matters: send it first and report
   // failure honestly if it bounces.

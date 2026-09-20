@@ -11,7 +11,33 @@ export type Enquiry = {
   email: string;
   projectType: string;
   message: string;
+  /** Short id shown in both emails so a reply can be matched to the enquiry. */
+  reference: string;
+  receivedAt: Date;
 };
+
+/** e.g. FB-K7M2QX — time-derived, unique enough for a one-person inbox. */
+export function makeReference(now = Date.now()): string {
+  return 'FB-' + now.toString(36).slice(-6).toUpperCase();
+}
+
+function formatReceived(d: Date): string {
+  return d.toLocaleString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Asia/Kolkata',
+    timeZoneName: 'short',
+  });
+}
+
+/** Small uppercase mono label used above each section of the card. */
+function label(text: string, mb = 12): string {
+  return `<div style="font-family:${MONO};font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:${C.cardMuted};margin:0 0 ${mb}px;">${esc(text)}</div>`;
+}
 
 const C = {
   bg: '#F3F6F4',
@@ -112,7 +138,7 @@ ${rows
 /* ------------------------------------------------------------------ */
 
 export function studioNotification(e: Enquiry): { subject: string; text: string; html: string } {
-  const subject = `New enquiry from ${e.name}${e.projectType ? ` — ${e.projectType}` : ''}`;
+  const subject = `New enquiry from ${e.name}${e.projectType ? ` — ${e.projectType}` : ''} [${e.reference}]`;
   const mailto = `mailto:${e.email}?subject=${encodeURIComponent(`Re: your ${SITE_NAME} enquiry`)}`;
 
   const text = [
@@ -134,6 +160,7 @@ export function studioNotification(e: Enquiry): { subject: string; text: string;
     title: `${e.name} wants to talk about a project`,
     body: `
       ${detailRows([
+        ['Reference', `<span style="font-family:${MONO};">${esc(e.reference)}</span> &middot; ${esc(formatReceived(e.receivedAt))}`],
         ['Name', esc(e.name)],
         ['Email', `<a href="mailto:${esc(e.email)}" style="color:#1E9A55;text-decoration:none;">${esc(e.email)}</a>`],
         ['Project type', esc(e.projectType || '—')],
@@ -152,17 +179,25 @@ export function studioNotification(e: Enquiry): { subject: string; text: string;
 /* To the visitor                                                       */
 /* ------------------------------------------------------------------ */
 
+
 export function visitorConfirmation(e: Enquiry): { subject: string; text: string; html: string } {
   const first = e.name.trim().split(/\s+/)[0] || 'there';
-  const subject = `Got your message — ${SITE_NAME}`;
+  const subject = `Got your message, ${first} — ${SITE_NAME} [${e.reference}]`;
+  const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
+    `Re: ${e.reference} — ${e.projectType || 'my project'}`
+  )}`;
 
   const text = [
     `Hi ${first},`,
     '',
-    `Thanks for getting in touch with ${SITE_NAME}. Your message has arrived and I'll reply within a day with next steps or a few clarifying questions.`,
+    `Thanks for getting in touch with ${SITE_NAME}. Your message has arrived (reference ${e.reference}) and I'll reply within a day with next steps or a few clarifying questions.`,
+    '',
+    'What happens next:',
+    '  1. I read your message today.',
+    '  2. You get a reply within one working day.',
+    '  3. If it fits, we book a short discovery call to define scope.',
     '',
     'Here is what you sent:',
-    '',
     `Project type: ${e.projectType || '—'}`,
     e.message,
     '',
@@ -174,28 +209,95 @@ export function visitorConfirmation(e: Enquiry): { subject: string; text: string
     SITE_URL,
   ].join('\n');
 
+  // Three-step "what happens next" timeline; the first step is already done.
+  const steps: [string, string][] = [
+    ['Message received', `Today, ${formatReceived(e.receivedAt)}`],
+    ['Personal reply', 'Within one working day — next steps or a couple of clarifying questions.'],
+    ['Discovery call', 'If it fits, a short call to define scope and what success looks like.'],
+  ];
+
+  const timeline = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 26px;">
+${steps
+  .map(([title, sub], i) => {
+    const done = i === 0;
+    const last = i === steps.length - 1;
+    const badge = done
+      ? `background:${C.accent};color:${C.accentOn};`
+      : `background:#FFFFFF;color:#1E9A55;border:1.5px solid #BFE3CD;`;
+    const connector = last
+      ? ''
+      : `<tr><td style="height:30px;"><div style="width:2px;height:30px;margin:0 auto;background:#DDE6E0;"></div></td></tr>`;
+    return `<tr>
+  <td style="width:28px;vertical-align:top;padding:0;">
+    <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+      <td style="width:26px;height:26px;border-radius:13px;text-align:center;vertical-align:middle;font-family:${MONO};font-size:12px;font-weight:700;${badge}">${done ? '&#10003;' : i + 1}</td>
+    </tr>${connector}</table>
+  </td>
+  <td style="vertical-align:top;padding:3px 0 0 14px;">
+    <div style="font-family:${FONT};font-size:14px;font-weight:600;color:${C.cardText};line-height:1.3;">${esc(title)}</div>
+    <div style="font-family:${FONT};font-size:13px;color:${C.cardMuted};line-height:1.5;margin-top:2px;">${esc(sub)}</div>
+  </td>
+</tr>`;
+  })
+  .join('\n')}
+</table>`;
+
+  const tile = (href: string, heading: string, sub: string) =>
+    `<td style="width:33.33%;padding:0 5px;vertical-align:top;">
+  <a href="${esc(href)}" style="display:block;text-decoration:none;padding:14px 12px;border:1px solid #DDE6E0;border-radius:10px;background:#FFFFFF;">
+    <div style="font-family:${MONO};font-size:12px;font-weight:600;color:#1E9A55;margin-bottom:4px;">${esc(heading)} &rarr;</div>
+    <div style="font-family:${FONT};font-size:12px;line-height:1.45;color:${C.cardMuted};">${esc(sub)}</div>
+  </a>
+</td>`;
+
   const html = frame({
-    preheader: "Thanks for reaching out — I'll reply within a day.",
+    preheader: `Reference ${e.reference}. I'll reply within a day — here's what happens next.`,
     eyebrow: 'Message received',
     title: `Thanks, ${first} — I've got your message.`,
     body: `
-      <p style="margin:0 0 18px;font-family:${FONT};font-size:15px;line-height:1.65;color:${C.cardText};">
-        I'll read it properly and reply within a day, usually with next steps or a couple of clarifying questions. No need to do anything in the meantime.
-      </p>
-
-      <div style="font-family:${MONO};font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:${C.cardMuted};margin:0 0 8px;">Your message</div>
-      ${detailRows([['Project type', esc(e.projectType || '—')]])}
-      <div style="font-family:${FONT};font-size:14px;line-height:1.65;color:${C.cardText};padding:16px 18px;border-left:3px solid ${C.accent};background:#F6F9F7;border-radius:0 8px 8px 0;margin:-8px 0 26px;">${nl2br(e.message)}</div>
-
-      <p style="margin:0 0 14px;font-family:${FONT};font-size:14px;line-height:1.6;color:${C.cardMuted};">Need me sooner?</p>
-      <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-        <td style="padding-right:10px;">${button(WHATSAPP_URL, 'Chat on WhatsApp')}</td>
-        <td>${button(`${SITE_URL}/#work`, 'See recent work', false)}</td>
+      <!-- reference pill -->
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:-6px 0 22px;"><tr>
+        <td style="padding:6px 12px;border-radius:999px;background:#E9FBF0;border:1px solid #BFE3CD;font-family:${MONO};font-size:12px;color:#146B3A;">
+          <span style="display:inline-block;width:7px;height:7px;border-radius:4px;background:${C.accent};margin-right:7px;vertical-align:middle;"></span>Ref&nbsp;<strong>${esc(e.reference)}</strong>
+        </td>
       </tr></table>
 
-      <p style="margin:28px 0 0;font-family:${FONT};font-size:15px;line-height:1.6;color:${C.cardText};">— Ajay<br><span style="color:${C.cardMuted};font-size:13px;">${SITE_NAME}</span></p>
+      <p style="margin:0 0 22px;font-family:${FONT};font-size:15px;line-height:1.65;color:${C.cardText};">
+        I'll read it properly and get back to you within a day. No need to do anything in the meantime &mdash; but if you have a deadline, a budget range or links to anything relevant, just reply to this email and it lands in the same thread.
+      </p>
+
+      ${label('What happens next')}
+      ${timeline}
+
+      ${label('Your message', 10)}
+      <div style="padding:16px 18px;border-left:3px solid ${C.accent};background:#F6F9F7;border-radius:0 8px 8px 0;margin:0 0 26px;">
+        <span style="display:inline-block;padding:3px 9px;border-radius:999px;background:#FFFFFF;border:1px solid #DDE6E0;font-family:${MONO};font-size:11px;color:#1E9A55;margin-bottom:10px;">${esc(e.projectType || 'Project')}</span>
+        <div style="font-family:${FONT};font-size:14px;line-height:1.65;color:${C.cardText};">${nl2br(e.message)}</div>
+      </div>
+
+      ${label('Need me sooner?')}
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 28px;"><tr>
+        <td style="padding:0 10px 10px 0;">${button(WHATSAPP_URL, 'Chat on WhatsApp')}</td>
+        <td style="padding:0 0 10px;">${button(mailto, 'Reply by email', false)}</td>
+      </tr></table>
+
+      ${label('While you wait')}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 30px;"><tr>
+        ${tile(`${SITE_URL}/#work`, 'Recent work', 'Live client projects and demos')}
+        ${tile(`${SITE_URL}/#process`, 'How I work', 'Four stages, no surprises')}
+        ${tile(`${SITE_URL}/#services`, 'Services', 'Apps, APIs, MVPs, support')}
+      </tr></table>
+
+      <!-- signature -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #EEF3F0;padding-top:18px;"><tr>
+        <td style="width:40px;height:40px;border-radius:20px;background:#0F1612;text-align:center;vertical-align:middle;font-family:${MONO};font-size:14px;font-weight:700;color:${C.accent};">A</td>
+        <td style="padding-left:12px;font-family:${FONT};line-height:1.4;">
+          <div style="font-size:14px;font-weight:600;color:${C.cardText};">Ajay</div>
+          <div style="font-size:12px;color:${C.cardMuted};">Founder &amp; developer, ${SITE_NAME}</div>
+        </td>
+      </tr></table>
     `,
-    footer: `You're receiving this because you sent a message through <a href="${SITE_URL}" style="color:${C.muted};">${SITE_URL.replace(/^https?:\/\//, '')}</a>. If that wasn't you, just ignore this email — nothing else will be sent.`,
+    footer: `You're receiving this because you sent a message through <a href="${SITE_URL}" style="color:${C.muted};">${SITE_URL.replace(/^https?:\/\//, '')}</a>. If that wasn't you, just ignore this email &mdash; nothing else will be sent.`,
   });
 
   return { subject, text, html };
