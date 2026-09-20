@@ -24,7 +24,8 @@ const WORK = [
   },
   {
     slug: 'sricauveryelectronics.shop/',
-    title: 'Sri Cauvery Electronics — E-commerce Store',
+    title: 'Sri Cauvery — Electronics Store',
+    status: 'Under testing',
     copy: 'Bilingual Tamil/English storefront for a Madurai electronics and return-gifts retailer: product catalogue, cart and checkout with cash on delivery, installable as a PWA, plus an admin app for orders and stock.',
     tags: ['Next.js', 'Prisma', 'PostgreSQL', 'PWA'],
     href: 'https://www.sricauveryelectronics.shop/',
@@ -48,6 +49,9 @@ export default function Work() {
           {WORK.map((item) => (
             <article className="work-card" key={item.slug}>
               <div className="work-thumb">
+                {item.status && (
+                  <span className="work-badge">{item.status}</span>
+                )}
                 <Image
                   src={item.image}
                   alt={item.alt}
