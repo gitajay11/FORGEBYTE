@@ -60,9 +60,6 @@ export default function Work() {
           {WORK.map((item) => (
             <article className="work-card" key={item.slug}>
               <div className="work-thumb">
-                {item.status && (
-                  <span className="work-badge">{item.status}</span>
-                )}
                 <Image
                   src={item.image}
                   alt={item.alt}
@@ -79,14 +76,19 @@ export default function Work() {
                     <span key={tag}>{tag}</span>
                   ))}
                 </div>
-                <a
-                  className="work-status"
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener"
-                >
-                  Visit site ↗
-                </a>
+                <div className="work-foot">
+                  <a
+                    className="work-status"
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    Visit site ↗
+                  </a>
+                  {item.status && (
+                    <span className="work-badge">{item.status}</span>
+                  )}
+                </div>
               </div>
             </article>
           ))}
