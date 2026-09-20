@@ -1,6 +1,8 @@
 // Receives the contact form and emails it to the studio inbox.
 
-import { deliver } from '@/lib/mail';
+import { after } from 'next/server';
+import { INBOX, sendMail, smtpConfigured } from '@/lib/mail';
+import { studioNotification, visitorConfirmation } from '@/lib/emailTemplates';
 import { clientIp, createRateLimiter } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
@@ -17,6 +19,14 @@ function field(data: FormData, name: keyof typeof MAX): string {
 }
 
 export async function POST(request: Request) {
+  if (!smtpConfigured) {
+    console.error('Contact form: SMTP_HOST/SMTP_USER/SMTP_PASS not set');
+    return Response.json(
+      { error: 'The contact form is not configured yet.' },
+      { status: 503 }
+    );
+  }
+
   if (limiter.hit(clientIp(request))) {
     return Response.json(
       { error: 'Too many messages just now — give it a few minutes.' },
@@ -52,28 +62,35 @@ export async function POST(request: Request) {
     return Response.json({ error: 'That email address does not look right.' }, { status: 400 });
   }
 
-  const result = await deliver({
-    subject: `Forgebyte — new enquiry from ${name}`,
-    replyTo: `${name} <${email}>`,
-    text: [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      `Project type: ${projectType || '—'}`,
-      '',
-      message,
-      '',
-      '—',
-      `Sent from the contact form on www.forgebyte.online`,
-    ].join('\n'),
-    fields: { name, email, project_type: projectType, message },
-  });
+  const enquiry = { name, email, projectType, message };
 
-  if (!result.ok) {
+  // The studio copy is the one that matters: send it first and report
+  // failure honestly if it bounces.
+  const studio = studioNotification(enquiry);
+  try {
+    await sendMail({
+      to: INBOX,
+      replyTo: `${name} <${email}>`,
+      ...studio,
+    });
+  } catch (err) {
+    console.error('Contact form: studio email failed', err);
     return Response.json(
       { error: 'Could not send your message right now.' },
       { status: 502 }
     );
   }
+
+  // The visitor's confirmation is a courtesy — send it after the response so
+  // it never slows the form down, and log rather than fail if it bounces.
+  const confirmation = visitorConfirmation(enquiry);
+  after(async () => {
+    try {
+      await sendMail({ to: `${name} <${email}>`, replyTo: INBOX, ...confirmation });
+    } catch (err) {
+      console.error('Contact form: confirmation email failed', err);
+    }
+  });
 
   return Response.json({ ok: true }, { headers: { 'Cache-Control': 'no-store' } });
 }

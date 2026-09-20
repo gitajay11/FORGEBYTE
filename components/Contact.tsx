@@ -4,8 +4,8 @@ import { useState } from 'react';
 import Select from './Select';
 import { CONTACT_EMAIL, CONTACT_PHONE_E164 } from '@/lib/site';
 
-// Posts to our own route handler, which emails the submission via SMTP
-// (see lib/mail.ts for the fallback when SMTP is not configured).
+// Posts to our own route handler, which emails the studio and sends the
+// visitor a confirmation (see app/api/contact/route.ts).
 const CONTACT_ENDPOINT = '/api/contact';
 
 const PROJECT_TYPES = [
@@ -18,7 +18,7 @@ const PROJECT_TYPES = [
 
 const DEFAULT_PROJECT_TYPE = PROJECT_TYPES[0];
 
-const SENT_MESSAGE = "✓ message sent — I'll reply within a day.";
+const SENT_MESSAGE = "✓ sent — confirmation is on its way to your inbox.";
 
 type Status = { text: string; tone: '' | 'success' | 'error' };
 

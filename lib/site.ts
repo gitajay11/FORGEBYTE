@@ -24,4 +24,3 @@ export const WHATSAPP_URL = `https://wa.me/${CONTACT_WHATSAPP}?text=${encodeURIC
 
 // Shared by the contact form and the chat widget's lead capture, so leads from
 // both land in the same inbox.
-export const FORM_ENDPOINT = 'https://formspree.io/f/mrpzrjwa';

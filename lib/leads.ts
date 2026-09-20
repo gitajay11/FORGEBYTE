@@ -1,4 +1,4 @@
-import { deliver } from './mail';
+import { INBOX, sendMail } from './mail';
 
 // Detection is regex rather than asking the model to flag it: a deterministic
 // check can't hallucinate a lead or, worse, silently miss one.
@@ -42,28 +42,23 @@ export async function forwardLead(
     .map((t) => `${t.role === 'user' ? 'Visitor' : 'Bot'}: ${t.content}`)
     .join('\n\n');
 
-  const result = await deliver({
-    subject: 'Forgebyte — new lead from the chat widget',
-    replyTo: contact.email,
-    text: [
-      contact.email ? `Email: ${contact.email}` : null,
-      contact.phone ? `Phone: ${contact.phone}` : null,
-      '',
-      'Last few turns of the conversation:',
-      '',
-      excerpt,
-    ]
-      .filter((line) => line !== null)
-      .join('\n'),
-    fields: {
-      source: 'AI chat widget',
-      ...(contact.email ? { email: contact.email } : {}),
-      ...(contact.phone ? { phone: contact.phone } : {}),
-      message: excerpt,
-    },
-  });
-
-  if (!result.ok) {
-    console.error('Lead forward failed via', result.via, result.error);
+  try {
+    await sendMail({
+      to: INBOX,
+      replyTo: contact.email,
+      subject: 'New lead from the chat widget',
+      text: [
+        contact.email ? `Email: ${contact.email}` : null,
+        contact.phone ? `Phone: ${contact.phone}` : null,
+        '',
+        'Last few turns of the conversation:',
+        '',
+        excerpt,
+      ]
+        .filter((line) => line !== null)
+        .join('\n'),
+    });
+  } catch (err) {
+    console.error('Lead forward failed', err);
   }
 }
