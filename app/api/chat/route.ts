@@ -3,6 +3,7 @@
 
 import { after } from 'next/server';
 import { extractContact, forwardLead } from '@/lib/leads';
+import { clientIp, createRateLimiter } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -19,20 +20,7 @@ const MAX_MESSAGE_CHARS = 1000;
 const MAX_TURNS = 12;
 const UPSTREAM_TIMEOUT_MS = 25_000;
 
-// Crude per-instance limiter. On serverless each instance has its own map, so
-// this trims casual abuse but is NOT a real quota guard — see README.
-const WINDOW_MS = 60_000;
-const MAX_REQUESTS_PER_WINDOW = 12;
-const hits = new Map<string, number[]>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
-  recent.push(now);
-  hits.set(ip, recent);
-  if (hits.size > 5000) hits.clear(); // bound memory on a long-lived instance
-  return recent.length > MAX_REQUESTS_PER_WINDOW;
-}
+const limiter = createRateLimiter(12, 60_000); // 12 per minute per IP
 
 const SYSTEM_PROMPT = `You are the assistant on the website of Forgebyte, a one-person freelance web application development studio run by Ajay.
 
@@ -74,12 +62,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown';
-
-  if (isRateLimited(ip)) {
+  if (limiter.hit(clientIp(request))) {
     return Response.json(
       { error: 'Too many messages just now — give it a minute.' },
       { status: 429 }

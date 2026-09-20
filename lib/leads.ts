@@ -1,4 +1,4 @@
-import { FORM_ENDPOINT } from './site';
+import { deliver } from './mail';
 
 // Detection is regex rather than asking the model to flag it: a deterministic
 // check can't hallucinate a lead or, worse, silently miss one.
@@ -30,37 +30,40 @@ export function extractContact(text: string): Contact | null {
 type Turn = { role: 'user' | 'assistant'; content: string };
 
 /**
- * Forwards a chat lead to the same Formspree inbox the contact form uses.
- * Never throws — a capture failure must not break the visitor's reply.
+ * Forwards a chat lead to the studio inbox — the same route the contact form
+ * takes. Never throws — a capture failure must not break the visitor's reply.
  */
 export async function forwardLead(
   contact: Contact,
   transcript: Turn[]
 ): Promise<void> {
-  const body = new URLSearchParams();
-  body.set('_subject', 'Forgebyte — new lead from the chat widget');
-  body.set('source', 'AI chat widget');
-  if (contact.email) body.set('email', contact.email);
-  if (contact.phone) body.set('phone', contact.phone);
-  body.set(
-    'message',
-    transcript
-      .slice(-8)
-      .map((t) => `${t.role === 'user' ? 'Visitor' : 'Bot'}: ${t.content}`)
-      .join('\n\n')
-  );
+  const excerpt = transcript
+    .slice(-8)
+    .map((t) => `${t.role === 'user' ? 'Visitor' : 'Bot'}: ${t.content}`)
+    .join('\n\n');
 
-  try {
-    const res = await fetch(FORM_ENDPOINT, {
-      method: 'POST',
-      headers: { Accept: 'application/json' },
-      body,
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (!res.ok) {
-      console.error('Lead forward rejected', res.status, await res.text().catch(() => ''));
-    }
-  } catch (err) {
-    console.error('Lead forward failed', err);
+  const result = await deliver({
+    subject: 'Forgebyte — new lead from the chat widget',
+    replyTo: contact.email,
+    text: [
+      contact.email ? `Email: ${contact.email}` : null,
+      contact.phone ? `Phone: ${contact.phone}` : null,
+      '',
+      'Last few turns of the conversation:',
+      '',
+      excerpt,
+    ]
+      .filter((line) => line !== null)
+      .join('\n'),
+    fields: {
+      source: 'AI chat widget',
+      ...(contact.email ? { email: contact.email } : {}),
+      ...(contact.phone ? { phone: contact.phone } : {}),
+      message: excerpt,
+    },
+  });
+
+  if (!result.ok) {
+    console.error('Lead forward failed via', result.via, result.error);
   }
 }

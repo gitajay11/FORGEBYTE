@@ -80,9 +80,32 @@ site. If pricing is added, update the prompt in `app/api/chat/route.ts`.
 
 ## Contact form
 
-Posts to Formspree (endpoint in `components/Contact.tsx`). Add the production
-domain to the form's **Allowed Domains** in the Formspree dashboard before
-launch, or submissions will be rejected once deployed.
+The form posts to `/api/contact` (`app/api/contact/route.ts`), which emails
+the submission via SMTP using Nodemailer (`lib/mail.ts`). Chat-widget leads
+go through the same helper, so both land in one inbox.
+
+Set these in Vercel (Settings → Environment Variables) and redeploy:
+
+| Variable     | Example                | Notes                                   |
+| ------------ | ---------------------- | --------------------------------------- |
+| `SMTP_HOST`  | `smtp.gmail.com`       |                                         |
+| `SMTP_PORT`  | `465`                  | 465 = TLS, 587 = STARTTLS               |
+| `SMTP_USER`  | `you@gmail.com`        | The mailbox that sends                  |
+| `SMTP_PASS`  | app password           | Gmail needs an App Password, not login  |
+| `MAIL_TO`    | optional               | Defaults to the site's contact email    |
+| `MAIL_FROM`  | optional               | Defaults to `Forgebyte <SMTP_USER>`     |
+
+The visitor's address goes in `Reply-To`, so replying from the inbox goes
+straight back to them.
+
+**Fallback:** if the `SMTP_*` variables are missing, `lib/mail.ts` forwards
+the submission to Formspree (`FORM_ENDPOINT` in `lib/site.ts`) instead, so
+the form keeps working before credentials are set. Formspree's free tier is
+capped at 50 submissions/month and needs the production domain in its
+**Allowed Domains** list; once SMTP is configured neither applies.
+
+Rate limit: 5 submissions per IP per 10 minutes, per serverless instance
+(the same caveat as the chat limiter — it trims abuse, it is not a quota).
 
 ## Still outstanding
 

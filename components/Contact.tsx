@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import Select from './Select';
-import { CONTACT_EMAIL, CONTACT_PHONE_E164, FORM_ENDPOINT } from '@/lib/site';
+import { CONTACT_EMAIL, CONTACT_PHONE_E164 } from '@/lib/site';
 
-// Posts to Formspree, which forwards submissions to the account inbox.
-
-
+// Posts to our own route handler, which emails the submission via SMTP
+// (see lib/mail.ts for the fallback when SMTP is not configured).
+const CONTACT_ENDPOINT = '/api/contact';
 
 const PROJECT_TYPES = [
   'Web App Development',
@@ -48,7 +48,7 @@ export default function Contact() {
     setStatus({ text: '$ sending message...', tone: '' });
 
     try {
-      const response = await fetch(FORM_ENDPOINT, {
+      const response = await fetch(CONTACT_ENDPOINT, {
         method: 'POST',
         body: data,
         headers: { Accept: 'application/json' },
