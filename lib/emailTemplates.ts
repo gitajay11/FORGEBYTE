@@ -1,8 +1,8 @@
 // HTML email templates for the contact form. Everything is inline-styled and
 // table-based because that is still what mail clients reliably render; the
-// palette mirrors the site (dark ground, #39FF88 accent) but the message body
-// sits on a light card so it stays readable in every client, including ones
-// that ignore dark-mode hints.
+// palette borrows the site's #39FF88 accent, but on a light neutral ground —
+// a full-bleed dark email reads as a wall of black in Gmail, and light stays
+// readable in every client, including ones that ignore dark-mode hints.
 
 import { CONTACT_EMAIL, SITE_NAME, SITE_URL, WHATSAPP_URL } from './site';
 
@@ -14,13 +14,11 @@ export type Enquiry = {
 };
 
 const C = {
-  bg: '#060907',
-  panel: '#0F1612',
-  border: '#1E2B22',
+  bg: '#F3F6F4',
   accent: '#39FF88',
   accentOn: '#04140B',
-  text: '#E4F5EA',
-  muted: '#93AC9D',
+  text: '#111814',
+  muted: '#6B7A70',
   cardBg: '#FFFFFF',
   cardText: '#111814',
   cardMuted: '#5B6B60',
@@ -52,14 +50,14 @@ function button(href: string, label: string, primary = true): string {
   return `<a href="${esc(href)}" style="display:inline-block;padding:12px 20px;border-radius:8px;background:${bg};color:${color};border:1px solid ${border};font-family:${MONO};font-size:13px;font-weight:600;text-decoration:none;letter-spacing:0.01em;">${esc(label)}</a>`;
 }
 
-/** Shared frame: dark header with the wordmark, light card, dark footer. */
+/** Shared frame: wordmark, white card, small-print footer on a light ground. */
 function frame(opts: { preheader: string; eyebrow: string; title: string; body: string; footer: string }): string {
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="dark light">
+<meta name="color-scheme" content="light">
 <title>${esc(opts.title)}</title>
 </head>
 <body style="margin:0;padding:0;background:${C.bg};">
@@ -78,7 +76,7 @@ function frame(opts: { preheader: string; eyebrow: string; title: string; body: 
   </td></tr>
 
   <!-- card -->
-  <tr><td style="background:${C.cardBg};border-radius:14px;border:1px solid ${C.cardBorder};padding:32px 32px 28px;">
+  <tr><td style="background:${C.cardBg};border-radius:14px;border:1px solid #DDE6E0;padding:32px 32px 28px;">
     <div style="font-family:${MONO};font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#1E9A55;margin-bottom:12px;">${esc(opts.eyebrow)}</div>
     <h1 style="margin:0 0 18px;font-family:${FONT};font-size:24px;line-height:1.25;font-weight:700;color:${C.cardText};letter-spacing:-0.02em;">${esc(opts.title)}</h1>
     ${opts.body}
