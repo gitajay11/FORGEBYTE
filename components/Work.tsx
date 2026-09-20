@@ -2,6 +2,7 @@ import Image from 'next/image';
 import loopaShot from '@/public/work/loopa.png';
 import nutriyahShot from '@/public/work/nutriyah.png';
 import sriCauveryShot from '@/public/work/sri-cauvery-electronics.png';
+import emberOakShot from '@/public/work/ember-and-oak.jpg';
 
 const WORK = [
   {
@@ -32,6 +33,16 @@ const WORK = [
     image: sriCauveryShot,
     alt: 'Sri Cauvery Electronics homepage with the headline "Everyday electronics. Unforgettable gifts."',
   },
+  {
+    slug: 'cafecaffeine.vercel.app/',
+    title: 'Ember & Oak — Coffee House Site',
+    status: 'Demo',
+    copy: 'Concept site for a specialty coffee house: cinematic video hero, scroll-driven story and menu sections, a gallery, and a table-reservation flow. Built to show what a hospitality brand site can feel like.',
+    tags: ['React', 'Vite', 'Tailwind', 'Framer Motion'],
+    href: 'https://cafecaffeine.vercel.app/',
+    image: emberOakShot,
+    alt: 'Ember & Oak homepage: espresso pouring behind the headline "Coffee, crafted slowly."',
+  },
 ];
 
 export default function Work() {
@@ -42,7 +53,7 @@ export default function Work() {
           <div className="eyebrow">work</div>
           <h2 className="section-title">Recent work</h2>
           <p className="section-desc">
-            Client projects, built end to end and running on the open web.
+            Client projects and concept builds, running on the open web.
           </p>
         </div>
         <div className="work-grid">
@@ -56,7 +67,7 @@ export default function Work() {
                   src={item.image}
                   alt={item.alt}
                   fill
-                  sizes="(max-width: 900px) 100vw, 33vw"
+                  sizes="(max-width: 900px) 100vw, 50vw"
                   placeholder="blur"
                 />
               </div>
