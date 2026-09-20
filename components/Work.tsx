@@ -42,7 +42,7 @@ export default function Work() {
           <div className="eyebrow">work</div>
           <h2 className="section-title">Recent work</h2>
           <p className="section-desc">
-            Live client projects, shipped and running in production.
+            Client projects, built end to end and running on the open web.
           </p>
         </div>
         <div className="work-grid">
