@@ -3,7 +3,7 @@ import loopaShot from '@/public/work/loopa.png';
 import nutriyahShot from '@/public/work/nutriyah.png';
 import sriCauveryShot from '@/public/work/sri-cauvery-electronics.png';
 import emberOakShot from '@/public/work/ember-and-oak.jpg';
-import dentalHealthShot from '@/public/work/dental-health.jpg';
+import careDentalShot from '@/public/work/care-dental.jpg';
 import elareShot from '@/public/work/elare-beauty.jpg';
 
 const WORK = [
@@ -47,13 +47,13 @@ const WORK = [
   },
   {
     slug: 'cleardental.vercel.app/',
-    title: 'Dental Health — Clinic Site',
+    title: 'Care Dental — Clinic Site',
     status: 'Demo',
     copy: 'Concept site for a dental clinic: services, doctors, a smile gallery, a five-step patient journey and an FAQ, with an appointment form that emails the clinic through a small Express backend.',
     tags: ['React', 'Vite', 'Tailwind', 'Express', 'Nodemailer'],
     href: 'https://cleardental.vercel.app/',
-    image: dentalHealthShot,
-    alt: 'Dental Health homepage: a smiling patient beside the headline "Dental Care"',
+    image: careDentalShot,
+    alt: 'Care Dental homepage: a smiling patient beside the headline "Dental Care"',
   },
   {
     slug: 'elarebeauty.store/',
