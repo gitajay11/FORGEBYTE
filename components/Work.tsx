@@ -4,6 +4,7 @@ import nutriyahShot from '@/public/work/nutriyah.png';
 import sriCauveryShot from '@/public/work/sri-cauvery-electronics.png';
 import emberOakShot from '@/public/work/ember-and-oak.jpg';
 import dentalHealthShot from '@/public/work/dental-health.jpg';
+import elareShot from '@/public/work/elare-beauty.jpg';
 
 const WORK = [
   {
@@ -53,6 +54,16 @@ const WORK = [
     href: 'https://cleardental.vercel.app/',
     image: dentalHealthShot,
     alt: 'Dental Health homepage: a smiling patient beside the headline "Dental Care"',
+  },
+  {
+    slug: 'elarebeauty.store/',
+    title: 'Élaré Beauty — Makeup E-commerce',
+    status: 'Under forging',
+    copy: 'Full-stack storefront for a premium makeup brand: shade-led product pages, cart and checkout with Razorpay and cash on delivery, order-confirmation email, plus an admin back-office. Installable as a PWA.',
+    tags: ['React', 'Hono', 'Postgres', 'Razorpay', 'PWA'],
+    href: 'https://www.elarebeauty.store/',
+    image: elareShot,
+    alt: 'Élaré Beauty homepage: a model beside the headline "Beauty, defined by you."',
   },
 ];
 
