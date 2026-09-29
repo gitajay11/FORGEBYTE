@@ -533,28 +533,14 @@
   }
   .intro-skip:hover{color:var(--text); border-color:var(--text-dim);}
 
-  /* Mobile: stack the words so the accent initials read A / B / I down a
-     single column. The column is sized to the longest word up front (12ch
-     for "Architecting" plus room for the cursor), so typing fills space
-     that already exists instead of reflowing and re-centring on each key. */
-  @media (max-width:760px){
-    #introOverlay{overflow:hidden;}
+  /* Desktop stays the horizontal row above; below 900px the three words
+     stack vertically instead of wrapping into a cramped multi-line row.
+     Matches the intro on ajaykumarak.online exactly. */
+  @media (max-width:899px){
     .intro-letters{
-      flex-direction:column; flex-wrap:nowrap; align-items:flex-start;
-      gap:0.12em; padding:0;
-      font-family:var(--mono); font-size:clamp(28px, 11vw, 52px);
-      width:calc(12ch + 0.6em); max-width:calc(100vw - 32px);
+      flex-direction:column; align-items:flex-start;
+      gap:clamp(10px, 3vh, 20px);
     }
-    .intro-word{
-      font-size:inherit; line-height:1.15;
-      opacity:0; transform:translateY(0.6em);
-      animation:intro-rise 0.55s cubic-bezier(0.16,1,0.3,1) forwards;
-    }
-    .intro-word:nth-child(2){animation-delay:0.12s;}
-    .intro-word:nth-child(3){animation-delay:0.24s;}
-  }
-  @keyframes intro-rise{
-    to{opacity:1; transform:none;}
   }
 
   @media (prefers-reduced-motion: reduce){
