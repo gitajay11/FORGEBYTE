@@ -78,8 +78,9 @@ but none existed before. Keep, edit or delete:
   Past the hero, "We build things. We question things." replaces the
   wordmark on two short lines, and the button turns lime only then, so the
   hero's lime button is never doubled. A 3px blue progress line sits above it.
-  Its button reads "Contact": on the home page it smooth-scrolls to the form,
-  elsewhere it opens /contact. "Start a project" stays in the hero and footer.
+  Links: Work · Services · About · Demos · Contact, then the "Start a project"
+  button (/contact). "Contact" smooth-scrolls to the form on the home page and
+  opens /contact elsewhere. The phone menu lists the same six items.
 - **Spacing** — one section rhythm, `--section-y` (48px phones → 96px
   desktop), replaces the earlier 96–192px section padding.
 - **Plain language** — owner request: copy rewritten for non-technical

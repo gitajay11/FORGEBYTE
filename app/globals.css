@@ -217,6 +217,7 @@ main{display:block;}
 .menu[data-open="true"] .menu-list li:nth-child(3) a{transition-delay:360ms;}
 .menu[data-open="true"] .menu-list li:nth-child(4) a{transition-delay:440ms;}
 .menu[data-open="true"] .menu-list li:nth-child(5) a{transition-delay:520ms;}
+.menu[data-open="true"] .menu-list li:nth-child(6) a{transition-delay:600ms;}
 .menu-foot{display:flex; flex-direction:column; gap:16px;}
 
 /* Scroll progress: a hairline at the very top, scaled (not resized) so it

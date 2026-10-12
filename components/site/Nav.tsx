@@ -121,10 +121,15 @@ export default function Nav() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link href={contactHref} onClick={goToContact} className="ulink" aria-current={current('/contact')} data-track="nav_click:contact">
+                  Contact
+                </Link>
+              </li>
               <li><ThemeButton /></li>
               <li>
-                <Link href={contactHref} onClick={goToContact} className={`btn ${pastHero ? 'btn-primary' : 'btn-ghost'}`} data-magnetic data-track="cta_click:nav">
-                  Contact
+                <Link href="/contact" className={`btn ${pastHero ? 'btn-primary' : 'btn-ghost'}`} data-magnetic data-track="cta_click:nav">
+                  Start a project
                 </Link>
               </li>
             </ul>
@@ -158,9 +163,15 @@ export default function Nav() {
               </li>
             ))}
             <li>
-              <Link href={contactHref} onClick={goToContact} aria-current={current('/contact')} data-track="cta_click:menu">
+              <Link href={contactHref} onClick={goToContact} aria-current={current('/contact')} data-track="nav_click:contact-menu">
                 <span className="mono">05</span>
                 Contact
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" data-track="cta_click:menu">
+                <span className="mono">06</span>
+                Start a project
               </Link>
             </li>
           </ul>
