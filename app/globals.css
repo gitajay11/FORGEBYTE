@@ -682,19 +682,8 @@ html[data-motion="reduced"] .service-list .service:hover,html[data-motion="reduc
 .input:focus-visible{outline:2px solid var(--accent-blue); outline-offset:2px; border-color:var(--accent-blue);}
 .input[aria-invalid="true"]{border-color:var(--danger); box-shadow:0 0 0 1px var(--danger);}
 textarea.input{height:auto; min-height:152px; padding-block:12px; resize:vertical; line-height:1.5;}
-/* Custom select: still the native control (keyboard, screen readers, phone pickers), restyled */
-.select{position:relative;}
-.select::after{
-  content:''; position:absolute; right:16px; top:50%; width:12px; height:12px; margin-top:-6px; pointer-events:none;
-  background:var(--text-2); transition:background-color var(--dur-short), transform var(--dur-short) var(--ease-out);
-  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4.25 6 8.25l4-4' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
-  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4.25 6 8.25l4-4' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
-}
-.select:hover::after{background:var(--text-1);}
-.select:focus-within::after{background:var(--accent-blue); transform:translateY(1px);}
-select.input{-webkit-appearance:none; appearance:none; padding-right:44px; cursor:pointer;}
-select.input:has(option[value=""]:checked){color:var(--text-3);}
-select.input option{background:var(--bg-1); color:var(--text-1);}
+/* Budget / Timeline: the browser's own dropdown, only sized to line up with the other fields */
+.native-select{width:100%; height:48px; font-size:1rem; cursor:pointer;}
 .field-error{color:var(--danger); font-size:0.875rem; line-height:1.4;}
 .field-error:empty{display:none;}
 fieldset.field{border:0;}

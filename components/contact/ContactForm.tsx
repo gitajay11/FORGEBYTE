@@ -118,21 +118,17 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
       </fieldset>
       <div className="field">
         <label htmlFor="cf-budget">Budget <span className="opt">(optional)</span></label>
-        <div className="select">
-          <select id="cf-budget" name="budget" className="input" defaultValue="">
-            <option value="">Choose a range</option>
-            {BUDGETS.map((b) => <option key={b}>{b}</option>)}
-          </select>
-        </div>
+        <select id="cf-budget" name="budget" className="native-select" defaultValue="">
+          <option value="">Choose a range</option>
+          {BUDGETS.map((b) => <option key={b}>{b}</option>)}
+        </select>
       </div>
       <div className="field">
         <label htmlFor="cf-timeline">Timeline <span className="opt">(optional)</span></label>
-        <div className="select">
-          <select id="cf-timeline" name="timeline" className="input" defaultValue="">
-            <option value="">Choose one</option>
-            {TIMELINES.map((t) => <option key={t}>{t}</option>)}
-          </select>
-        </div>
+        <select id="cf-timeline" name="timeline" className="native-select" defaultValue="">
+          <option value="">Choose one</option>
+          {TIMELINES.map((t) => <option key={t}>{t}</option>)}
+        </select>
       </div>
       <div className="field full">
         <label htmlFor="cf-message">What&apos;s the problem?<span className="req" aria-hidden="true">*</span></label>
