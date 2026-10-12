@@ -534,22 +534,28 @@ html[data-motion="reduced"] .service-list .service:hover,html[data-motion="reduc
 }
 
 /* =====================================================================
-   Work — one card per project (preview beside its text), in a horizontal,
-   snapping row with arrows, dots, ←/→ keys and swipe
+   Work — one card per project (preview beside its text). Desktop: the row
+   slides sideways as the page scrolls (WorkCarousel.tsx). Phones and
+   reduced motion: a native swipe row with scroll-snap.
    ===================================================================== */
 .work-head{display:flex; justify-content:space-between; align-items:end; gap:24px; flex-wrap:wrap; margin-bottom:var(--s-7);}
-.work-track{
-  position:relative; display:flex; gap:24px; overflow-x:auto; overscroll-behavior-x:contain;
-  scroll-snap-type:x mandatory; scrollbar-width:none; -ms-overflow-style:none;
-  padding-block:8px 16px; /* room for the hover lift and shadow */
+.work-pin{
+  --cw:min(1080px, 78vw); --gap:24px;
+  /* left/right inset = the page container's content edge */
+  --pad:max(var(--margin), calc((100vw - var(--max)) / 2 + var(--margin)));
+  position:relative;
 }
-.work-track::-webkit-scrollbar{display:none;}
-.work-track:focus-visible{outline:2px solid var(--accent-blue); outline-offset:4px; border-radius:16px;}
+.work-row{
+  position:relative; display:flex; gap:var(--gap); padding:8px var(--pad) 16px;
+  overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory; scroll-padding-inline:var(--pad);
+  scrollbar-width:none; -ms-overflow-style:none;
+}
+.work-row::-webkit-scrollbar{display:none;}
 .work-card{
-  position:relative; flex:0 0 85%; scroll-snap-align:start;
+  position:relative; flex:0 0 var(--cw); scroll-snap-align:start;
   display:grid; grid-template-columns:minmax(0,58fr) minmax(0,42fr); gap:24px; align-items:center;
   padding:20px; background:var(--bg-1); border:1px solid var(--border); border-radius:14px;
-  transition:transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base);
+  transition:transform 450ms var(--ease-out), opacity 450ms var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base);
 }
 .work-card:hover{transform:translateY(-4px); border-color:var(--border-strong); box-shadow:0 22px 44px -26px rgba(0,0,0,0.5);}
 .work-card-media{aspect-ratio:16/10; overflow:hidden; border-radius:10px; border:1px solid var(--border); background:var(--bg-2);}
@@ -568,24 +574,35 @@ html[data-motion="reduced"] .service-list .service:hover,html[data-motion="reduc
 .work-card .tags li{font-size:0.78rem; color:var(--text-2); padding:3px 10px; border:1px solid var(--border); border-radius:var(--r-pill);}
 .work-card-more{font-size:0.95rem; color:var(--text-1); transition:color var(--dur-short), transform var(--dur-short) var(--ease-out);}
 .work-card:hover .work-card-more{color:var(--accent-blue); transform:translateX(3px);}
-html[data-motion="reduced"] .work-card:hover,html[data-motion="reduced"] .work-card:hover .work-card-media img{transform:none;}
-@media (prefers-reduced-motion: reduce){ html:not([data-motion="full"]) .work-card:hover,html:not([data-motion="full"]) .work-card:hover .work-card-media img{transform:none;} }
-/* controls */
-.work-controls{display:flex; align-items:center; justify-content:center; gap:16px; margin-top:var(--s-5);}
-.work-arrow{
-  width:44px; height:44px; display:grid; place-items:center; border:1px solid var(--border-strong); border-radius:var(--r-pill); color:var(--text-1);
-  transition:color var(--dur-short), border-color var(--dur-short), background-color var(--dur-short), opacity var(--dur-short);
+
+/* Desktop with motion: pin + scroll-driven slide. The pin's height is pure
+   CSS (100vh + row width - viewport), so it is final from the first paint. */
+@media (min-width:768px){
+  html:not([data-motion="reduced"]) .work-pin{
+    height:calc(100vh + var(--n) * var(--cw) + (var(--n) - 1) * var(--gap) + 2 * var(--pad) - 100vw);
+  }
+  html:not([data-motion="reduced"]) .work-sticky{
+    position:sticky; top:0; height:100vh; overflow:hidden;
+    display:flex; align-items:center; padding-top:var(--nav-h);
+  }
+  html:not([data-motion="reduced"]) .work-row{overflow:visible; scroll-snap-type:none; width:max-content; will-change:transform;}
+  /* neighbours recede; the card in the middle is full size */
+  html:not([data-motion="reduced"]) .work-card,
+  html:not([data-motion="reduced"]) .work-card:hover{opacity:0.7; transform:scale(0.95);}
+  html:not([data-motion="reduced"]) .work-card[data-active="true"],
+  html:not([data-motion="reduced"]) .work-card[data-active="true"]:hover{opacity:1; transform:none;}
 }
-.work-arrow svg{width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
-.work-arrow:hover:not(:disabled){color:var(--accent-blue); border-color:var(--accent-blue); background:var(--accent-blue-soft);}
-.work-arrow:disabled{opacity:0.35; cursor:default;}
-.work-dots{display:flex; align-items:center; gap:2px;}
-/* 24px hit area around an 8px dot */
-.work-dot{width:24px; height:24px; display:grid; place-items:center;}
-.work-dot::before{content:''; width:8px; height:8px; border-radius:var(--r-pill); background:var(--border-strong); transition:width var(--dur-base) var(--ease-out), background-color var(--dur-short);}
-.work-dot:hover::before{background:var(--text-2);}
-.work-dot[aria-current="true"]::before{width:22px; background:var(--accent-blue);}
-/* phones: preview above its text, cards at ~90% */
+/* …unless the device asks for reduced motion (and the site toggle hasn't overridden it) */
+@media (min-width:768px) and (prefers-reduced-motion: reduce){
+  html:not([data-motion="full"]) .work-pin{height:auto;}
+  html:not([data-motion="full"]) .work-sticky{position:static; height:auto; overflow:visible; display:block; padding-top:0;}
+  html:not([data-motion="full"]) .work-row{overflow-x:auto; scroll-snap-type:x mandatory; width:auto; will-change:auto;}
+  html:not([data-motion="full"]) .work-card,
+  html:not([data-motion="full"]) .work-card:hover{opacity:1; transform:none;}
+}
+html[data-motion="reduced"] .work-card:hover,html[data-motion="reduced"] .work-card:hover .work-card-media img{transform:none;}
+
+/* phones: native swipe row, preview above its text, cards ~90% wide */
 @media (max-width:767px){
   .work-card{flex-basis:90%; grid-template-columns:minmax(0,1fr); gap:16px; padding:16px;}
   .work-card h3{font-size:1.35rem;}

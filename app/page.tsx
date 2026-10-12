@@ -160,20 +160,21 @@ export default function Home() {
             <h2 id="work-title" className="display-l"><Words text="Websites we’ve built" /></h2>
             <Link href="/work" className="ulink">See all work →</Link>
           </div>
-          {/* one card per project — preview beside its text — in a horizontal row */}
-          <WorkCarousel
-            items={caseStudies.map((cs) => ({
-              slug: cs.slug,
-              title: cs.title,
-              image: cs.image,
-              imageAlt: cs.imageAlt,
-              industry: cs.industry,
-              status: cs.status,
-              oneLiner: cs.oneLiner,
-              tags: cs.services.map((slug) => services.find((x) => x.slug === slug)?.short).filter((t): t is string => !!t),
-            }))}
-          />
         </div>
+        {/* one card per project — preview beside its text. Full-bleed: on
+            desktop the row slides sideways as the page scrolls down */}
+        <WorkCarousel
+          items={caseStudies.map((cs) => ({
+            slug: cs.slug,
+            title: cs.title,
+            image: cs.image,
+            imageAlt: cs.imageAlt,
+            industry: cs.industry,
+            status: cs.status,
+            oneLiner: cs.oneLiner,
+            tags: cs.services.map((slug) => services.find((x) => x.slug === slug)?.short).filter((t): t is string => !!t),
+          }))}
+        />
       </section>
 
       {/* PROCESS ---------------------------------------------------------- */}

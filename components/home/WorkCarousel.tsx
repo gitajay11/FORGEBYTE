@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { motionReduced } from '@/lib/prefs';
 
 export type WorkItem = {
   slug: string;
@@ -16,107 +15,131 @@ export type WorkItem = {
   tags: string[];
 };
 
-// Horizontal project carousel. A native scroller does the moving (touch
-// swipe, trackpad, scroll-snap); the arrows, dots and ←/→ keys just scroll it
-// to a card, and the active dot follows the scroll position.
+// Scroll-driven horizontal row of project cards.
+//
+// Desktop with motion on: .work-pin is tall (100vh + the row's overflow — its
+// height comes from CSS, so it is right from the first paint and the pinned
+// "How it works" section below measures correctly). Inside, .work-sticky
+// sticks for that distance and this component maps the page's vertical
+// progress through it onto translateX of the row, eased with a lerp. A
+// passive scroll listener only — the page is never held or prevented.
+//
+// Phones and reduced motion: CSS turns it into a native swipe row with
+// scroll-snap; this component then does nothing.
 export default function WorkCarousel({ items }: { items: WorkItem[] }) {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [index, setIndex] = useState(0);
+  const pinRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
 
-  const cards = () => [...(trackRef.current?.querySelectorAll<HTMLElement>('.work-card') ?? [])];
-
-  const goTo = (i: number) => {
-    const track = trackRef.current;
-    const card = cards()[Math.max(0, Math.min(items.length - 1, i))];
-    if (!track || !card) return;
-    track.scrollTo({ left: card.offsetLeft, behavior: motionReduced() ? 'auto' : 'smooth' });
-  };
-
-  // which card is in front: the one nearest the left edge, or the last at the end
   useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
+    const pin = pinRef.current, sticky = stickyRef.current, row = rowRef.current;
+    if (!pin || !sticky || !row) return;
+
     let raf = 0;
-    const update = () => {
-      raf = 0;
-      const max = track.scrollWidth - track.clientWidth;
-      if (track.scrollLeft >= max - 2) return setIndex(items.length - 1);
-      const offsets = cards().map((c) => Math.abs(c.offsetLeft - track.scrollLeft));
-      setIndex(offsets.indexOf(Math.min(...offsets)));
+    let current = 0;
+    let target = 0;
+    let maxShift = 0;
+    const pinned = () => getComputedStyle(sticky).position === 'sticky';
+
+    const measure = () => {
+      maxShift = Math.max(0, row.scrollWidth - sticky.clientWidth);
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    track.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    const readTarget = () => {
+      const range = pin.offsetHeight - window.innerHeight;
+      const progress = range > 0 ? Math.min(1, Math.max(0, -pin.getBoundingClientRect().top / range)) : 0;
+      target = progress * maxShift;
+    };
+    const markActive = () => {
+      const mid = sticky.clientWidth / 2;
+      const cards = [...row.querySelectorAll<HTMLElement>('.work-card')];
+      const dist = cards.map((c) => Math.abs(c.offsetLeft - current + c.offsetWidth / 2 - mid));
+      setActive(dist.indexOf(Math.min(...dist)));
+    };
+    const frame = () => {
+      raf = 0;
+      if (!pinned()) {
+        row.style.transform = '';
+        return;
+      }
+      current += (target - current) * 0.16;
+      if (Math.abs(target - current) < 0.4) current = target;
+      row.style.transform = `translate3d(${-current}px, 0, 0)`;
+      markActive();
+      if (current !== target) raf = requestAnimationFrame(frame);
+    };
+    const onScroll = () => {
+      if (!pinned()) return;
+      // re-measure every time: the scrollbar appears after the intro, which
+      // narrows the viewport without firing a resize
+      measure();
+      readTarget();
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+    const onResize = () => {
+      measure();
+      readTarget();
+      current = target; // jump, don't glide, after a resize
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+
+    onResize();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+    window.addEventListener('fb-prefs', onResize); // motion toggle in the footer
     return () => {
       cancelAnimationFrame(raf);
-      track.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('fb-prefs', onResize);
+      row.style.transform = '';
     };
-    // cards() reads the DOM; items only changes with the page
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.length]);
+  }, []);
 
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowRight') { e.preventDefault(); goTo(index + 1); }
-    else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(index - 1); }
-    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
-    else if (e.key === 'End') { e.preventDefault(); goTo(items.length - 1); }
+  // Tabbing to a card that is off to the side: bring it to the middle by
+  // scrolling the page to the matching point (the row follows the page).
+  const onFocusCapture = (e: React.FocusEvent) => {
+    const pin = pinRef.current, sticky = stickyRef.current, row = rowRef.current;
+    const card = (e.target as HTMLElement).closest<HTMLElement>('.work-card');
+    if (!pin || !sticky || !row || !card || getComputedStyle(sticky).position !== 'sticky') return;
+    sticky.scrollLeft = 0; // focus may have scrolled the clipped box itself
+    const maxShift = row.scrollWidth - sticky.clientWidth;
+    const range = pin.offsetHeight - window.innerHeight;
+    if (maxShift <= 0 || range <= 0) return;
+    const want = Math.min(maxShift, Math.max(0, card.offsetLeft - (sticky.clientWidth - card.offsetWidth) / 2));
+    const pinTop = pin.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: pinTop + (want / maxShift) * range, behavior: 'auto' });
   };
 
   return (
-    <div className="work-carousel" role="region" aria-roledescription="carousel" aria-label="Our projects" onKeyDown={onKeyDown}>
-      <div className="work-track" ref={trackRef} tabIndex={0} aria-label="Projects — use the arrow keys to move between them">
-        {items.map((it, i) => (
-          <article
-            className="work-card"
-            key={it.slug}
-            role="group"
-            aria-roledescription="slide"
-            aria-label={`${i + 1} of ${items.length}: ${it.title}`}
-          >
-            <div className="work-card-media">
-              <Image src={it.image} alt={it.imageAlt} width={1000} height={625} sizes="(max-width: 767px) 85vw, 640px" />
-            </div>
-            <div className="work-card-body">
-              <div className="meta-row">
-                <span className="mono">{it.industry}</span>
-                <span className="status" data-status={it.status}>{it.status}</span>
-              </div>
-              <h3>
-                {/* stretched link: the whole card opens the case study */}
-                <Link href={`/work/${it.slug}`} className="work-card-link" data-cursor="view">{it.title}</Link>
-              </h3>
-              <p>{it.oneLiner}</p>
-              <div className="work-card-foot">
-                <ul className="tags" aria-label="What we did">
-                  {it.tags.map((t) => <li key={t}>{t}</li>)}
-                </ul>
-                <span className="work-card-more" aria-hidden="true">Read the story →</span>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <div className="work-controls">
-        <button type="button" className="work-arrow" aria-label="Previous project" onClick={() => goTo(index - 1)} disabled={index === 0}>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
-        </button>
-        <div className="work-dots">
+    <div className="work-pin" ref={pinRef} style={{ '--n': items.length } as React.CSSProperties}>
+      <div className="work-sticky" ref={stickyRef}>
+        <div className="work-row" ref={rowRef} onFocusCapture={onFocusCapture} role="list" aria-label="Our projects">
           {items.map((it, i) => (
-            <button
-              type="button"
-              key={it.slug}
-              className="work-dot"
-              aria-label={`Show project ${i + 1}: ${it.title}`}
-              aria-current={i === index ? 'true' : undefined}
-              onClick={() => goTo(i)}
-            />
+            <article className="work-card" key={it.slug} role="listitem" data-active={i === active} aria-label={`${i + 1} of ${items.length}: ${it.title}`}>
+              <div className="work-card-media">
+                <Image src={it.image} alt={it.imageAlt} width={1000} height={625} sizes="(max-width: 767px) 85vw, 620px" />
+              </div>
+              <div className="work-card-body">
+                <div className="meta-row">
+                  <span className="mono">{it.industry}</span>
+                  <span className="status" data-status={it.status}>{it.status}</span>
+                </div>
+                <h3>
+                  {/* stretched link: the whole card opens the case study */}
+                  <Link href={`/work/${it.slug}`} className="work-card-link" data-cursor="view">{it.title}</Link>
+                </h3>
+                <p>{it.oneLiner}</p>
+                <div className="work-card-foot">
+                  <ul className="tags" aria-label="What we did">
+                    {it.tags.map((t) => <li key={t}>{t}</li>)}
+                  </ul>
+                  <span className="work-card-more" aria-hidden="true">Read the story →</span>
+                </div>
+              </div>
+            </article>
           ))}
         </div>
-        <button type="button" className="work-arrow" aria-label="Next project" onClick={() => goTo(index + 1)} disabled={index === items.length - 1}>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
-        </button>
       </div>
     </div>
   );

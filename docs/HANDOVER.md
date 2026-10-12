@@ -71,9 +71,15 @@ but none existed before. Keep, edit or delete:
   site shows. One word per centred line on phones. Reduced motion shows the
   final text straight away.
 - **Our work** — one card per project (preview beside its title, line and
-  tags; stacked on phones) in a horizontal, snapping row: cards ~85% wide
-  (~90% on phones) so the next one peeks in, prev/next arrows, dots, ←/→
-  keys and swipe (`components/home/WorkCarousel.tsx`, native scrolling).
+  tags). Desktop: the section pins (CSS sticky) and the row slides left as
+  the page scrolls down, right as it scrolls up; the middle card is full
+  size, neighbours 0.7 opacity / 0.95 scale. The pin's height is pure CSS
+  (100vh + row overflow), so the pinned "How it works" below measures
+  correctly. Passive scroll listener + lerp; no wheel hijacking. Phones
+  (<768px) and reduced motion: native swipe row with scroll-snap, preview
+  stacked above the text on phones (`components/home/WorkCarousel.tsx`).
+  Snap-to-card on scroll stop was left out on purpose — it would move the
+  page on its own.
 - **three.js without React Three Fiber / Drei; no Lenis, no Framer Motion** —
   see `docs/AUDIT.md` → Technology decisions. Keeps bundles small and every
   GPU resource on one explicit dispose path.
