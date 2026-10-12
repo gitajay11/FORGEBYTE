@@ -23,7 +23,7 @@ export default function WorkPage() {
           <Link href="/lab" className="ulink">Demos</Link>.
         </p>
       </section>
-      <section className="container" style={{ paddingBottom: 'var(--s-10)' }} aria-label="All case studies">
+      <section className="container" style={{ paddingBottom: 'var(--section-y)' }} aria-label="All case studies">
         {/* useSearchParams needs a Suspense boundary in a static page */}
         <Suspense fallback={null}>
           <WorkIndex items={caseStudies} services={services.map(({ slug, name }) => ({ slug, name }))} />

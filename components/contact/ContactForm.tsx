@@ -7,6 +7,8 @@ import { track } from '@/lib/track';
 
 export const BUDGETS = ['Not sure yet', 'Under ₹1 lakh', '₹1–3 lakh', '₹3–8 lakh', '₹8 lakh +'];
 export const TIMELINES = ['As soon as possible', 'Within a month', '1–3 months', 'Just exploring'];
+/** Last choice in "What you need" — sent like any other option. */
+export const NOT_SURE = 'Not sure yet';
 
 type Errors = Partial<Record<'name' | 'email' | 'message', string>>;
 type State =
@@ -33,7 +35,12 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
   const started = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const onFirstInput = () => {
+  const onInput = (e: React.FormEvent<HTMLFormElement>) => {
+    // clear a field's error as soon as it becomes valid
+    const name = (e.target as HTMLInputElement).name as keyof Errors;
+    if (errors[name] && !validate(new FormData(e.currentTarget))[name]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
     if (started.current) return;
     started.current = true;
     track('form_start', { source });
@@ -82,15 +89,16 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
     errors[k] ? { 'aria-invalid': true as const, 'aria-describedby': `${k}-error` } : {};
 
   return (
-    <form ref={formRef} className="form" onSubmit={onSubmit} onInput={onFirstInput} noValidate>
+    <form ref={formRef} className="form" onSubmit={onSubmit} onInput={onInput} noValidate aria-busy={sending}>
+      <p className="form-note"><span className="req" aria-hidden="true">*</span>Required</p>
       <div className="field">
-        <label htmlFor="cf-name">Name</label>
-        <input id="cf-name" name="name" className="input" autoComplete="name" required {...err('name')} />
+        <label htmlFor="cf-name">Name<span className="req" aria-hidden="true">*</span></label>
+        <input id="cf-name" name="name" className="input" autoComplete="name" required aria-required="true" {...err('name')} />
         <p className="field-error" id="name-error" aria-live="polite">{errors.name}</p>
       </div>
       <div className="field">
-        <label htmlFor="cf-email">Email</label>
-        <input id="cf-email" name="email" type="email" className="input" autoComplete="email" inputMode="email" required {...err('email')} />
+        <label htmlFor="cf-email">Email<span className="req" aria-hidden="true">*</span></label>
+        <input id="cf-email" name="email" type="email" className="input" autoComplete="email" inputMode="email" required aria-required="true" {...err('email')} />
         <p className="field-error" id="email-error" aria-live="polite">{errors.email}</p>
       </div>
       <div className="field full">
@@ -100,31 +108,35 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
       <fieldset className="field full">
         <legend>What you need <span className="opt">(optional, pick any)</span></legend>
         <div className="chips">
-          {services.map((s) => (
-            <label className="chip" key={s.slug}>
-              <input type="checkbox" name="needs" value={s.short} />
-              <span>{s.short}</span>
+          {[...services.map((s) => s.short), NOT_SURE].map((need) => (
+            <label className="chip" key={need}>
+              <input type="checkbox" name="needs" value={need} />
+              <span>{need}</span>
             </label>
           ))}
         </div>
       </fieldset>
       <div className="field">
         <label htmlFor="cf-budget">Budget <span className="opt">(optional)</span></label>
-        <select id="cf-budget" name="budget" className="input" defaultValue="">
-          <option value="">Choose a range</option>
-          {BUDGETS.map((b) => <option key={b}>{b}</option>)}
-        </select>
+        <div className="select">
+          <select id="cf-budget" name="budget" className="input" defaultValue="">
+            <option value="">Choose a range</option>
+            {BUDGETS.map((b) => <option key={b}>{b}</option>)}
+          </select>
+        </div>
       </div>
       <div className="field">
         <label htmlFor="cf-timeline">Timeline <span className="opt">(optional)</span></label>
-        <select id="cf-timeline" name="timeline" className="input" defaultValue="">
-          <option value="">Choose one</option>
-          {TIMELINES.map((t) => <option key={t}>{t}</option>)}
-        </select>
+        <div className="select">
+          <select id="cf-timeline" name="timeline" className="input" defaultValue="">
+            <option value="">Choose one</option>
+            {TIMELINES.map((t) => <option key={t}>{t}</option>)}
+          </select>
+        </div>
       </div>
       <div className="field full">
-        <label htmlFor="cf-message">What&apos;s the problem?</label>
-        <textarea id="cf-message" name="message" className="input" placeholder="What are you trying to fix or build, and for whom?" required {...err('message')} />
+        <label htmlFor="cf-message">What&apos;s the problem?<span className="req" aria-hidden="true">*</span></label>
+        <textarea id="cf-message" name="message" className="input" placeholder="What are you trying to fix or build, and for whom?" required aria-required="true" {...err('message')} />
         <p className="field-error" id="message-error" aria-live="polite">{errors.message}</p>
       </div>
 
@@ -132,8 +144,8 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
       <input type="text" name="_gotcha" className="honeypot" tabIndex={-1} autoComplete="off" aria-hidden="true" />
 
       <div className="form-actions">
-        <button type="submit" className="btn btn-primary" disabled={sending} data-magnetic>
-          {sending ? 'Sending…' : <>Send it <span className="arrow" aria-hidden="true">→</span></>}
+        <button type="submit" className="btn btn-primary" disabled={sending} aria-busy={sending} data-magnetic>
+          {sending ? <><span className="spinner" aria-hidden="true" /> Sending…</> : <>Send it <span className="arrow" aria-hidden="true">→</span></>}
         </button>
         <p className="form-status" role="status" aria-live="polite" data-tone={state.kind === 'error' ? 'error' : undefined}>
           {sending && 'Checking the kettle…'}

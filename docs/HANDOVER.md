@@ -43,7 +43,9 @@ but none existed before. Keep, edit or delete:
 4. A booking link (Cal.com etc.) — WhatsApp stands in.
 5. A founder photo — the dithered "AK" is a typographic stand-in.
 6. Social links — Instagram, X, YouTube and Facebook icons point to `#`
-   until the accounts exist (`lib/content.ts` → `socials`). LinkedIn is real.
+   until the accounts exist (`lib/content.ts` → `socials`). LinkedIn and
+   WhatsApp are real. Icons show in the footer, the contact section and the
+   phone menu.
 
 ## Deployment notes
 
@@ -76,6 +78,10 @@ but none existed before. Keep, edit or delete:
   Past the hero, "We build things. We question things." replaces the
   wordmark on two short lines, and the button turns lime only then, so the
   hero's lime button is never doubled. A 3px blue progress line sits above it.
+  Its button reads "Contact": on the home page it smooth-scrolls to the form,
+  elsewhere it opens /contact. "Start a project" stays in the hero and footer.
+- **Spacing** — one section rhythm, `--section-y` (48px phones → 96px
+  desktop), replaces the earlier 96–192px section padding.
 - **Plain language** — owner request: copy rewritten for non-technical
   visitors; coordinates, tech stacks and the tools map removed from the main
   text (stacks remain as one small "Built with" line per case study).

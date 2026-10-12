@@ -8,6 +8,7 @@ import Glyph from '@/components/home/Glyph';
 import { LazyConstellation as Constellation, LazyPortrait as Portrait, LazyProcessPin as ProcessPin, LazyWorkTrack as WorkTrack } from '@/components/lazy';
 import ContactForm from '@/components/contact/ContactForm';
 import CopyEmail from '@/components/contact/CopyEmail';
+import SocialLinks from '@/components/site/SocialLinks';
 import HeroPoster from '@/components/home/HeroPoster';
 import BrowserFrame from '@/components/BrowserFrame';
 
@@ -344,7 +345,7 @@ export default function Home() {
       </section>
 
       {/* CONTACT ---------------------------------------------------------- */}
-      <section className="section contact" id="contact" aria-labelledby="contact-title">
+      <section className="section contact" id="contact" aria-labelledby="contact-title" tabIndex={-1}>
         <span className="contact-light" aria-hidden="true" />
         <div className="container">
           <h2 id="contact-title" className="display-l contact-head"><Words text="Got a problem worth thinking about?" /></h2>
@@ -365,10 +366,8 @@ export default function Home() {
               </div>
               <div className="alt-item">
                 <span className="mono">Elsewhere</span>
-                <div style={{ display: 'flex', gap: 20 }}>
-                  <a className="ulink" href={studio.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
-                  <a className="ulink" href={studio.github} target="_blank" rel="noopener">GitHub ↗</a>
-                </div>
+                <SocialLinks />
+                <a className="ulink" href={studio.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
               </div>
             </aside>
           </div>

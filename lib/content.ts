@@ -8,6 +8,8 @@
 // testimonial or credential that isn't real. Unconfirmed values are listed in
 // docs/HANDOVER.md.
 
+import { WHATSAPP_URL } from './site';
+
 export const studio = {
   name: 'Forgebyte',
   founder: 'Ajay Kumar',
@@ -32,6 +34,7 @@ export const socials = [
   { name: 'X', url: '#' },
   { name: 'YouTube', url: '#' },
   { name: 'Facebook', url: '#' },
+  { name: 'WhatsApp', url: WHATSAPP_URL },
 ] as const;
 
 /* ------------------------------------------------------------------ */

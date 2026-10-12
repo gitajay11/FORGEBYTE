@@ -21,7 +21,7 @@ export default function LabPage() {
           you commit to anything.
         </p>
       </section>
-      <section className="container" style={{ paddingBottom: 'var(--s-10)' }} aria-label="Demos and experiments">
+      <section className="container" style={{ paddingBottom: 'var(--section-y)' }} aria-label="Demos and experiments">
         {lab.map((l) => (
           <article className="cs-block" key={l.slug} aria-labelledby={`lab-${l.slug}`}>
             <p className="mono">{l.kind}</p>

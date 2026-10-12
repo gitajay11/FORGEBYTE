@@ -4,6 +4,7 @@ import { CONTACT_EMAIL, WHATSAPP_URL } from '@/lib/site';
 import { Words } from '@/components/motion/Text';
 import ContactForm from '@/components/contact/ContactForm';
 import CopyEmail from '@/components/contact/CopyEmail';
+import SocialLinks from '@/components/site/SocialLinks';
 
 export const metadata: Metadata = {
   title: 'Start a project',
@@ -13,10 +14,10 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <section className="contact" aria-labelledby="contact-h" style={{ paddingBottom: 'var(--s-10)' }}>
-      <span className="contact-light" aria-hidden="true" />
+    <section className="contact" aria-labelledby="contact-h" style={{ paddingBlock: 'calc(var(--nav-h) + var(--section-y)) var(--section-y)' }}>
+      <span className="contact-light" aria-hidden="true" style={{ top: 'calc(var(--nav-h) + var(--section-y) + 8px)' }} />
       <div className="container">
-        <h1 id="contact-h" className="display-xl contact-head" style={{ marginTop: 'calc(var(--nav-h) + var(--s-10))' }}>
+        <h1 id="contact-h" className="display-xl contact-head">
           <Words text="Got a problem worth thinking about?" />
         </h1>
         <p className="contact-sub">
@@ -38,10 +39,8 @@ export default function ContactPage() {
             </div>
             <div className="alt-item">
               <span className="mono">Elsewhere</span>
-              <div style={{ display: 'flex', gap: 20 }}>
-                <a className="ulink" href={studio.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
-                <a className="ulink" href={studio.github} target="_blank" rel="noopener">GitHub ↗</a>
-              </div>
+              <SocialLinks />
+              <a className="ulink" href={studio.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
             </div>
             <p className="coffee">Fill your coffee cup before booking a call with us.</p>
           </aside>

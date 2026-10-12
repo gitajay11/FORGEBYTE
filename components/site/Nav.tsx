@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { studio } from '@/lib/content';
+import { motionReduced } from '@/lib/prefs';
 import { ThemeButton } from './ThemeToggle';
 import SocialLinks from './SocialLinks';
 
@@ -77,6 +78,24 @@ export default function Nav() {
     };
   }, [open]);
 
+  // Contact: smooth-scrolls to the form on the home page, opens /contact elsewhere
+  const onHome = pathname === '/';
+  const contactHref = onHome ? '#contact' : '/contact';
+  const goToContact = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!onHome) return;
+    const target = document.getElementById('contact');
+    if (!target) return;
+    e.preventDefault();
+    const wasOpen = open;
+    setOpen(false);
+    // let the menu release its scroll lock and focus first
+    setTimeout(() => {
+      target.scrollIntoView({ behavior: motionReduced() ? 'auto' : 'smooth', block: 'start' });
+      target.focus({ preventScroll: true });
+      history.replaceState(null, '', '#contact');
+    }, wasOpen ? 60 : 0);
+  };
+
   const current = (href: string) => (pathname === href || pathname.startsWith(href + '/') ? 'page' : undefined);
 
   return (
@@ -104,8 +123,8 @@ export default function Nav() {
               ))}
               <li><ThemeButton /></li>
               <li>
-                <Link href="/contact" className={`btn ${pastHero ? 'btn-primary' : 'btn-ghost'}`} data-magnetic data-track="cta_click:nav">
-                  Start a project
+                <Link href={contactHref} onClick={goToContact} className={`btn ${pastHero ? 'btn-primary' : 'btn-ghost'}`} data-magnetic data-track="cta_click:nav">
+                  Contact
                 </Link>
               </li>
             </ul>
@@ -139,9 +158,9 @@ export default function Nav() {
               </li>
             ))}
             <li>
-              <Link href="/contact" aria-current={current('/contact')} data-track="cta_click:menu">
+              <Link href={contactHref} onClick={goToContact} aria-current={current('/contact')} data-track="cta_click:menu">
                 <span className="mono">05</span>
-                Start a project
+                Contact
               </Link>
             </li>
           </ul>
