@@ -65,7 +65,12 @@ but none existed before. Keep, edit or delete:
 
 - **Blue instead of violet, plus a light theme** — owner request.
 - **ABI intro kept** (owner request) ahead of the hero's own opening
-  sequence; it still plays on every full load.
+  sequence; it still plays on every full load. It types "Architecting Bold
+  Ideas" (~1.5s), pauses, then A/B/I turn lime while the other letters fade
+  and slide together into "ABI" (~0.8s), which holds before the site shows.
+  Reduced motion shows "ABI" straight away.
+- **Our work** — one card per project (preview, title, one line, tags) in a
+  3/2/1-column grid; the pinned horizontal scroller was removed.
 - **three.js without React Three Fiber / Drei; no Lenis, no Framer Motion** —
   see `docs/AUDIT.md` → Technology decisions. Keeps bundles small and every
   GPU resource on one explicit dispose path.

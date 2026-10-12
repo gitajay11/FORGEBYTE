@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { caseStudies, engagements, faq, lab, process, services, studio } from '@/lib/content';
 import { CONTACT_EMAIL, CONTACT_PHONE_E164, SITE_URL, WHATSAPP_URL } from '@/lib/site';
@@ -5,7 +6,7 @@ import { Index, Reveal, Words } from '@/components/motion/Text';
 import HeroStage from '@/components/home/HeroStage';
 import IdeaField from '@/components/home/IdeaField';
 import Glyph from '@/components/home/Glyph';
-import { LazyConstellation as Constellation, LazyPortrait as Portrait, LazyProcessPin as ProcessPin, LazyWorkTrack as WorkTrack } from '@/components/lazy';
+import { LazyConstellation as Constellation, LazyPortrait as Portrait, LazyProcessPin as ProcessPin } from '@/components/lazy';
 import ContactForm from '@/components/contact/ContactForm';
 import CopyEmail from '@/components/contact/CopyEmail';
 import SocialLinks from '@/components/site/SocialLinks';
@@ -159,32 +160,38 @@ export default function Home() {
             <h2 id="work-title" className="display-l"><Words text="Websites we’ve built" /></h2>
             <Link href="/work" className="ulink">See all work →</Link>
           </div>
-        </div>
-        <div className="work-track-wrap">
-          <div className="container" style={{ overflow: 'visible' }}>
-            <div className="work-track">
-              {caseStudies.map((cs) => (
-                <article className="chapter" key={cs.slug} aria-labelledby={`ch-${cs.slug}`}>
-                  <Link href={`/work/${cs.slug}`} className="chapter-shot" data-cursor="view" aria-label={`${cs.title} — read the story`} tabIndex={-1}>
-                    <Reveal variant="scale">
-                      <BrowserFrame src={cs.image} alt={cs.imageAlt} url={cs.url} sizes="(max-width: 1023px) 92vw, 700px" />
-                    </Reveal>
-                  </Link>
-                  <div className="chapter-body">
+          {/* one card per project: preview on top, its text underneath */}
+          <ul className="work-grid">
+            {caseStudies.map((cs) => (
+              <li key={cs.slug}>
+                <article className="work-card" aria-labelledby={`wc-${cs.slug}`}>
+                  <div className="work-card-media">
+                    <Image src={cs.image} alt={cs.imageAlt} width={1000} height={625} sizes="(max-width: 599px) 92vw, (max-width: 1023px) 46vw, 420px" />
+                  </div>
+                  <div className="work-card-body">
                     <div className="meta-row">
                       <span className="mono">{cs.industry}</span>
                       <span className="status" data-status={cs.status}>{cs.status}</span>
                     </div>
-                    <h3 className="h3" id={`ch-${cs.slug}`}>{cs.title}</h3>
-                    <div className="pair"><span className="mono">The challenge</span><p>{cs.problem}</p></div>
-                    <div className="pair"><span className="mono">The result</span><p>{cs.outcome}</p></div>
-                    <Link href={`/work/${cs.slug}`} className="ulink" data-cursor="view">Read the story →</Link>
+                    <h3 id={`wc-${cs.slug}`}>
+                      {/* stretched link: the whole card opens the case study */}
+                      <Link href={`/work/${cs.slug}`} className="work-card-link" data-cursor="view">{cs.title}</Link>
+                    </h3>
+                    <p>{cs.oneLiner}</p>
+                    <div className="work-card-foot">
+                      <ul className="tags" aria-label="What we did">
+                        {cs.services.map((slug) => {
+                          const s = services.find((x) => x.slug === slug);
+                          return s ? <li key={slug}>{s.short}</li> : null;
+                        })}
+                      </ul>
+                      <span className="work-card-more" aria-hidden="true">Read the story →</span>
+                    </div>
                   </div>
                 </article>
-              ))}
-            </div>
-          </div>
-          <WorkTrack />
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

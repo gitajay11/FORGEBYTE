@@ -51,40 +51,6 @@ function useDesktopStory(setup: (lib: Awaited<ReturnType<typeof loadGsap>>, root
   return anchor;
 }
 
-/** Bounded horizontal track for the Work chapters (desktop only). */
-export function WorkTrack() {
-  const anchor = useDesktopStory(({ gsap, ScrollTrigger }, root) => {
-    const track = root.querySelector<HTMLElement>('.work-track');
-    if (!track) return () => {};
-    track.dataset.horizontal = 'true';
-    const ctx = gsap.context(() => {
-      const distance = () => Math.max(0, track.scrollWidth - document.documentElement.clientWidth + 64);
-      gsap.to(track, {
-        x: () => -distance(),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: root,
-          start: 'top top+=80',
-          end: () => `+=${distance()}`,
-          pin: true,
-          scrub: 0.6,
-          invalidateOnRefresh: true,
-          anticipatePin: 1,
-          // refreshed before the process pin below it, whatever order the two
-          // lazy islands mount in — see ProcessPin
-          refreshPriority: 1,
-        },
-      });
-    }, root);
-    ScrollTrigger.refresh();
-    return () => {
-      ctx.revert();
-      delete track.dataset.horizontal;
-    };
-  });
-  return <span ref={anchor} hidden />;
-}
-
 /** One pinned section: the process line draws through each stage. */
 export function ProcessPin() {
   const anchor = useDesktopStory(({ gsap, ScrollTrigger }, root) => {
@@ -101,11 +67,6 @@ export function ProcessPin() {
           pin: true,
           scrub: 0.4,
           invalidateOnRefresh: true,
-          // Must be measured after the Work pin above has added its spacer.
-          // Without this, when this island mounted first its start was
-          // computed ~1,600px too early: it pinned mid-Work and left a dead
-          // gap after the section.
-          refreshPriority: 0,
           onUpdate: (self) => {
             const p = self.progress;
             steps.style.setProperty('--p', `${(p * 100).toFixed(1)}%`);

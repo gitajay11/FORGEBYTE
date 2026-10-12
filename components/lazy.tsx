@@ -13,7 +13,6 @@ export const LazyConstellation = dynamic(() => import('./home/Constellation'), {
   ssr: false,
   loading: () => <div className="constellation" aria-hidden="true" />,
 });
-export const LazyWorkTrack = dynamic(() => import('./home/ScrollStories').then((m) => m.WorkTrack), { ssr: false });
 export const LazyProcessPin = dynamic(() => import('./home/ScrollStories').then((m) => m.ProcessPin), { ssr: false });
 export const LazyChat = dynamic(() => import('./ChatWidget'), { ssr: false });
 export const LazyCursor = dynamic(() => import('./site/Cursor'), { ssr: false });
