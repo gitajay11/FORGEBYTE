@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { services, studio } from '@/lib/content';
 import { CONTACT_EMAIL } from '@/lib/site';
 import { track } from '@/lib/track';
+import Dropdown from './Dropdown';
 
 export const BUDGETS = ['Not sure yet', 'Under ₹1 lakh', '₹1–3 lakh', '₹3–8 lakh', '₹8 lakh +'];
 export const TIMELINES = ['As soon as possible', 'Within a month', '1–3 months', 'Just exploring'];
@@ -117,18 +118,12 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
         </div>
       </fieldset>
       <div className="field">
-        <label htmlFor="cf-budget">Budget <span className="opt">(optional)</span></label>
-        <select id="cf-budget" name="budget" className="native-select" defaultValue="">
-          <option value="">Choose a range</option>
-          {BUDGETS.map((b) => <option key={b}>{b}</option>)}
-        </select>
+        <label htmlFor="cf-budget" id="cf-budget-label">Budget <span className="opt">(optional)</span></label>
+        <Dropdown id="cf-budget" name="budget" labelId="cf-budget-label" placeholder="Choose a range" options={BUDGETS} />
       </div>
       <div className="field">
-        <label htmlFor="cf-timeline">Timeline <span className="opt">(optional)</span></label>
-        <select id="cf-timeline" name="timeline" className="native-select" defaultValue="">
-          <option value="">Choose one</option>
-          {TIMELINES.map((t) => <option key={t}>{t}</option>)}
-        </select>
+        <label htmlFor="cf-timeline" id="cf-timeline-label">Timeline <span className="opt">(optional)</span></label>
+        <Dropdown id="cf-timeline" name="timeline" labelId="cf-timeline-label" placeholder="Choose one" options={TIMELINES} />
       </div>
       <div className="field full">
         <label htmlFor="cf-message">What&apos;s the problem?<span className="req" aria-hidden="true">*</span></label>

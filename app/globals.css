@@ -682,8 +682,39 @@ html[data-motion="reduced"] .service-list .service:hover,html[data-motion="reduc
 .input:focus-visible{outline:2px solid var(--accent-blue); outline-offset:2px; border-color:var(--accent-blue);}
 .input[aria-invalid="true"]{border-color:var(--danger); box-shadow:0 0 0 1px var(--danger);}
 textarea.input{height:auto; min-height:152px; padding-block:12px; resize:vertical; line-height:1.5;}
-/* Budget / Timeline: the browser's own dropdown, only sized to line up with the other fields */
-.native-select{width:100%; height:48px; font-size:1rem; cursor:pointer;}
+/* Budget / Timeline dropdown (components/contact/Dropdown.tsx) */
+.dd{position:relative;}
+.dd[data-open="true"]{z-index:30;}
+.dd-trigger{display:flex; align-items:center; justify-content:space-between; gap:12px; text-align:left; cursor:pointer;}
+.dd-trigger:hover{background:color-mix(in srgb, var(--accent-blue) 5%, var(--bg-2));}
+.dd[data-open="true"] .dd-trigger{border-color:var(--accent-blue); box-shadow:0 0 0 3px var(--accent-blue-soft);}
+.dd-value{min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; animation:dd-value-in 260ms var(--ease-out);}
+.dd-value[data-empty="true"]{color:var(--text-3); animation:none;}
+@keyframes dd-value-in{from{opacity:0; transform:translateY(6px);}}
+.dd-chevron{width:12px; height:12px; flex:none; fill:none; stroke:var(--text-2); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;
+  transition:transform 300ms cubic-bezier(.34,1.56,.64,1), stroke var(--dur-short);}
+.dd-trigger:hover .dd-chevron{stroke:var(--text-1);}
+.dd[data-open="true"] .dd-chevron{transform:rotate(180deg); stroke:var(--accent-blue);}
+.dd-list{
+  position:absolute; left:0; right:0; top:calc(100% + 8px); padding:6px; max-height:280px; overflow:auto; overscroll-behavior:contain;
+  background:var(--bg-1); border:1px solid var(--border-strong); border-radius:12px;
+  box-shadow:0 24px 48px -20px rgba(0,0,0,0.5), 0 4px 12px -4px rgba(0,0,0,0.18);
+  opacity:0; visibility:hidden; pointer-events:none; transform:translateY(-8px) scale(0.97); transform-origin:top center;
+  transition:opacity 180ms var(--ease-out), transform 240ms var(--ease-out), visibility 0s linear 240ms;
+}
+.dd[data-open="true"] .dd-list{opacity:1; visibility:visible; pointer-events:auto; transform:none; transition:opacity 180ms var(--ease-out), transform 260ms cubic-bezier(.34,1.4,.64,1), visibility 0s;}
+.dd-list li{
+  display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:44px; padding:0 12px; border-radius:8px;
+  color:var(--text-2); cursor:pointer; user-select:none;
+  opacity:0; transform:translateY(-4px);
+  transition:opacity 200ms var(--ease-out), transform 240ms var(--ease-out), background-color 140ms, color 140ms, padding-left 180ms var(--ease-out);
+}
+.dd[data-open="true"] .dd-list li{opacity:1; transform:none; transition-delay:calc(var(--i) * 28ms), calc(var(--i) * 28ms), 0s, 0s, 0s;}
+.dd-list li[data-active="true"]{background:var(--accent-blue-soft); color:var(--text-1); padding-left:16px;}
+.dd-list li[aria-selected="true"]{color:var(--text-1); font-weight:500;}
+.dd-check{width:14px; height:14px; flex:none; fill:none; stroke:var(--accent-blue); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+  opacity:0; transform:scale(0.4); transition:opacity 160ms, transform 260ms cubic-bezier(.34,1.56,.64,1);}
+.dd-list li[aria-selected="true"] .dd-check{opacity:1; transform:none;}
 .field-error{color:var(--danger); font-size:0.875rem; line-height:1.4;}
 .field-error:empty{display:none;}
 fieldset.field{border:0;}
