@@ -70,8 +70,10 @@ but none existed before. Keep, edit or delete:
   0.3s apart — ending on "Architecting Bold Ideas", which holds before the
   site shows. One word per centred line on phones. Reduced motion shows the
   final text straight away.
-- **Our work** — one card per project (preview, title, one line, tags) in a
-  3/2/1-column grid; the pinned horizontal scroller was removed.
+- **Our work** — one card per project (preview beside its title, line and
+  tags; stacked on phones) in a horizontal, snapping row: cards ~85% wide
+  (~90% on phones) so the next one peeks in, prev/next arrows, dots, ←/→
+  keys and swipe (`components/home/WorkCarousel.tsx`, native scrolling).
 - **three.js without React Three Fiber / Drei; no Lenis, no Framer Motion** —
   see `docs/AUDIT.md` → Technology decisions. Keeps bundles small and every
   GPU resource on one explicit dispose path.

@@ -534,40 +534,61 @@ html[data-motion="reduced"] .service-list .service:hover,html[data-motion="reduc
 }
 
 /* =====================================================================
-   Work — one card per project: preview on top, its text underneath
+   Work — one card per project (preview beside its text), in a horizontal,
+   snapping row with arrows, dots, ←/→ keys and swipe
    ===================================================================== */
 .work-head{display:flex; justify-content:space-between; align-items:end; gap:24px; flex-wrap:wrap; margin-bottom:var(--s-7);}
-.work-grid{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:24px;}
-.work-grid > li{display:flex;}
+.work-track{
+  position:relative; display:flex; gap:24px; overflow-x:auto; overscroll-behavior-x:contain;
+  scroll-snap-type:x mandatory; scrollbar-width:none; -ms-overflow-style:none;
+  padding-block:8px 16px; /* room for the hover lift and shadow */
+}
+.work-track::-webkit-scrollbar{display:none;}
+.work-track:focus-visible{outline:2px solid var(--accent-blue); outline-offset:4px; border-radius:16px;}
 .work-card{
-  position:relative; display:flex; flex-direction:column; width:100%; overflow:hidden;
-  background:var(--bg-1); border:1px solid var(--border); border-radius:14px;
+  position:relative; flex:0 0 85%; scroll-snap-align:start;
+  display:grid; grid-template-columns:minmax(0,58fr) minmax(0,42fr); gap:24px; align-items:center;
+  padding:20px; background:var(--bg-1); border:1px solid var(--border); border-radius:14px;
   transition:transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base);
 }
-.work-card:hover{transform:translateY(-6px); border-color:var(--border-strong); box-shadow:0 24px 48px -24px rgba(0,0,0,0.5);}
-.work-card-media{aspect-ratio:16/10; overflow:hidden; background:var(--bg-2); border-bottom:1px solid var(--border);}
+.work-card:hover{transform:translateY(-4px); border-color:var(--border-strong); box-shadow:0 22px 44px -26px rgba(0,0,0,0.5);}
+.work-card-media{aspect-ratio:16/10; overflow:hidden; border-radius:10px; border:1px solid var(--border); background:var(--bg-2);}
 .work-card-media img{width:100%; height:100%; object-fit:cover; object-position:top; transition:transform 900ms var(--ease-out);}
-.work-card:hover .work-card-media img{transform:scale(1.04);}
-.work-card-body{display:flex; flex-direction:column; gap:var(--s-2); flex:1; padding:20px;}
+.work-card:hover .work-card-media img{transform:scale(1.03);}
+.work-card-body{display:flex; flex-direction:column; gap:var(--s-3); min-width:0;}
 .work-card .meta-row{display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 16px;}
-.work-card h3{font-size:1.35rem; font-weight:600; line-height:1.25; letter-spacing:-0.015em; margin-top:var(--s-1);}
+.work-card h3{font-size:clamp(1.4rem, 1.1rem + 0.9vw, 2rem); font-weight:600; line-height:1.15; letter-spacing:-0.02em;}
 .work-card-link::after{content:''; position:absolute; inset:0; z-index:1; border-radius:inherit;}
 .work-card-link:focus-visible{outline:none;}
 .work-card:has(.work-card-link:focus-visible){outline:2px solid var(--accent-blue); outline-offset:3px;}
-.work-card p{color:var(--text-2); font-size:0.95rem; line-height:1.6;
-  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
-.work-card-foot{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px; margin-top:auto; padding-top:var(--s-3);}
+.work-card p{color:var(--text-2); font-size:1rem; line-height:1.6; max-width:42ch;
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+.work-card-foot{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px; margin-top:var(--s-2);}
 .work-card .tags{display:flex; flex-wrap:wrap; gap:6px;}
 .work-card .tags li{font-size:0.78rem; color:var(--text-2); padding:3px 10px; border:1px solid var(--border); border-radius:var(--r-pill);}
-.work-card-more{font-size:0.9rem; color:var(--text-1); transition:color var(--dur-short), transform var(--dur-short) var(--ease-out);}
+.work-card-more{font-size:0.95rem; color:var(--text-1); transition:color var(--dur-short), transform var(--dur-short) var(--ease-out);}
 .work-card:hover .work-card-more{color:var(--accent-blue); transform:translateX(3px);}
 html[data-motion="reduced"] .work-card:hover,html[data-motion="reduced"] .work-card:hover .work-card-media img{transform:none;}
 @media (prefers-reduced-motion: reduce){ html:not([data-motion="full"]) .work-card:hover,html:not([data-motion="full"]) .work-card:hover .work-card-media img{transform:none;} }
-@media (max-width:1023px){ .work-grid{grid-template-columns:repeat(2, minmax(0,1fr));} }
-@media (max-width:599px){
-  .work-grid{grid-template-columns:minmax(0,1fr);}
-  /* a single column has room for the whole line; don't cut it mid-word */
-  .work-card p{display:block; -webkit-line-clamp:unset; overflow:visible;}
+/* controls */
+.work-controls{display:flex; align-items:center; justify-content:center; gap:16px; margin-top:var(--s-5);}
+.work-arrow{
+  width:44px; height:44px; display:grid; place-items:center; border:1px solid var(--border-strong); border-radius:var(--r-pill); color:var(--text-1);
+  transition:color var(--dur-short), border-color var(--dur-short), background-color var(--dur-short), opacity var(--dur-short);
+}
+.work-arrow svg{width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+.work-arrow:hover:not(:disabled){color:var(--accent-blue); border-color:var(--accent-blue); background:var(--accent-blue-soft);}
+.work-arrow:disabled{opacity:0.35; cursor:default;}
+.work-dots{display:flex; align-items:center; gap:2px;}
+/* 24px hit area around an 8px dot */
+.work-dot{width:24px; height:24px; display:grid; place-items:center;}
+.work-dot::before{content:''; width:8px; height:8px; border-radius:var(--r-pill); background:var(--border-strong); transition:width var(--dur-base) var(--ease-out), background-color var(--dur-short);}
+.work-dot:hover::before{background:var(--text-2);}
+.work-dot[aria-current="true"]::before{width:22px; background:var(--accent-blue);}
+/* phones: preview above its text, cards at ~90% */
+@media (max-width:767px){
+  .work-card{flex-basis:90%; grid-template-columns:minmax(0,1fr); gap:16px; padding:16px;}
+  .work-card h3{font-size:1.35rem;}
 }
 
 /* =====================================================================
