@@ -330,7 +330,7 @@ html[data-cursor="custom"] body.cursor-on input,
 html[data-cursor="custom"] body.cursor-on textarea{cursor:text;}
 
 /* =====================================================================
-   Intro (ABI) — types "Architecting Bold Ideas", then merges into "ABI"
+   Intro (ABI) — "A B I" arrive, then each grows into "Architecting Bold Ideas"
    ===================================================================== */
 #introOverlay{
   position:fixed; inset:0; z-index:var(--z-intro);
@@ -346,35 +346,33 @@ html[data-cursor="custom"] body.cursor-on textarea{cursor:text;}
 .intro-meta{position:absolute; left:var(--margin); right:var(--margin); display:flex; justify-content:space-between; gap:16px;}
 .intro-meta.top{top:24px;}
 .intro-meta.bottom{bottom:24px; align-items:center;}
-.intro-letters{
-  position:relative;
-  display:flex; flex-wrap:wrap; justify-content:center; align-items:baseline;
-  gap:clamp(18px, 4vw, 48px); padding:0 24px;
+.intro-letters{display:grid; place-items:center; max-width:100%; padding:0 24px;}
+/* the invisible final text and the animated line share one grid cell, so the
+   finished size is reserved from the first paint */
+.intro-line{
+  grid-area:1 / 1; display:flex; justify-content:center; align-items:baseline; gap:0.35em; white-space:nowrap;
+  font-family:var(--font-sans-stack); font-weight:600; font-size:clamp(30px, 6vw, 58px); letter-spacing:-0.035em; line-height:1.15;
 }
+.intro-ghost{visibility:hidden;}
 @media (max-width:899px){
-  .intro-letters{flex-direction:column; align-items:flex-start; gap:clamp(10px, 3vh, 20px);}
+  /* phones: one word per line, centred */
+  .intro-line{flex-direction:column; align-items:center; gap:clamp(4px, 1.4vh, 12px);}
 }
-.intro-word{
-  font-family:var(--font-sans-stack); font-weight:600; white-space:nowrap;
-  font-size:clamp(30px, 6vw, 58px); letter-spacing:-0.035em;
+.intro-word{display:inline-flex; align-items:baseline;}
+/* 1. A, B, I arrive one by one, in lime */
+.il-key{
+  display:inline-block; color:var(--lime-ink); opacity:0; transform:translateY(0.35em);
+  transition:opacity 300ms ease-out, transform 300ms ease-out; transition-delay:calc(var(--i) * 150ms);
 }
-.intro-word{display:inline-flex;}
-/* every letter is laid out from the start and only revealed: no reflow while typing */
-.il{display:inline-block; position:relative; color:var(--text-1); opacity:0; transition:opacity 120ms linear;}
-.il.on{opacity:1;}
-/* caret: a thin, faint line after the newest letter — never mistaken for an "I" */
-.il.caret::after{
-  content:''; position:absolute; left:calc(100% + 0.05em); bottom:0.14em; width:2px; height:0.74em; border-radius:1px;
-  background:var(--accent-blue); opacity:0.55; animation:intro-blink 0.9s step-end infinite;
+.il-key.in{opacity:1; transform:none;}
+/* 2. each word unfolds from its capital (0fr -> 1fr: no measuring, no jumps) */
+.il-rest{display:inline-grid; grid-template-columns:0fr; transition:grid-template-columns 500ms ease-in-out;}
+.il-rest > span{
+  min-width:0; overflow:hidden; color:var(--text-1); opacity:0; transform:translateX(-0.25em);
+  transition:opacity 500ms ease-in-out, transform 500ms ease-in-out;
 }
-@keyframes intro-blink{50%{opacity:0;}}
-/* merge: A, B, I turn lime while the rest fades… */
-.il-key{transition:opacity 120ms linear, color 350ms ease-in-out;}
-#introOverlay[data-phase="fade"] .il-key,#introOverlay[data-phase="merged"] .il-key{color:var(--lime-ink);}
-#introOverlay[data-phase="fade"] .il-rest{opacity:0; transition:opacity 350ms ease-in-out;}
-/* …then the rest collapses and A, B, I slide into one row (FLIP in IntroOverlay.tsx) */
-#introOverlay[data-phase="merged"] .il-rest{display:none;}
-#introOverlay[data-phase="merged"] .intro-letters{flex-direction:row; align-items:baseline; justify-content:center; gap:calc(clamp(30px, 6vw, 58px) * 0.1);}
+.intro-word.open .il-rest{grid-template-columns:1fr;}
+.intro-word.open .il-rest > span{opacity:1; transform:none;}
 .intro-skip{ white-space:nowrap;
   font-family:var(--font-mono-stack); font-size:var(--fs-mono); letter-spacing:0.08em; text-transform:uppercase;
   color:var(--text-2); background:transparent; border:1px solid var(--border-strong);
@@ -382,15 +380,15 @@ html[data-cursor="custom"] body.cursor-on textarea{cursor:text;}
   transition:color var(--dur-short), border-color var(--dur-short);
 }
 .intro-skip:hover{color:var(--text-1); border-color:var(--accent-blue);}
-/* Reduced motion: "ABI" from the first paint, no typing or sliding */
+/* Reduced motion: the finished "Architecting Bold Ideas" from the first paint */
 @media (prefers-reduced-motion: reduce){
-  html:not([data-motion="full"]) #introOverlay .il-rest{display:none;}
-  html:not([data-motion="full"]) #introOverlay .il-key{opacity:1; color:var(--lime-ink);}
-  html:not([data-motion="full"]) #introOverlay .intro-letters{flex-direction:row; align-items:baseline; justify-content:center; gap:calc(clamp(30px, 6vw, 58px) * 0.1);}
+  html:not([data-motion="full"]) #introOverlay .il-key{opacity:1; transform:none;}
+  html:not([data-motion="full"]) #introOverlay .il-rest{grid-template-columns:1fr;}
+  html:not([data-motion="full"]) #introOverlay .il-rest > span{opacity:1; transform:none;}
 }
-html[data-motion="reduced"] #introOverlay .il-rest{display:none;}
-html[data-motion="reduced"] #introOverlay .il-key{opacity:1; color:var(--lime-ink);}
-html[data-motion="reduced"] #introOverlay .intro-letters{flex-direction:row; align-items:baseline; justify-content:center; gap:calc(clamp(30px, 6vw, 58px) * 0.1);}
+html[data-motion="reduced"] #introOverlay .il-key{opacity:1; transform:none;}
+html[data-motion="reduced"] #introOverlay .il-rest{grid-template-columns:1fr;}
+html[data-motion="reduced"] #introOverlay .il-rest > span{opacity:1; transform:none;}
 
 /* =====================================================================
    Hero

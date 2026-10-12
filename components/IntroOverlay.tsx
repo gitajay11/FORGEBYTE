@@ -1,31 +1,32 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motionReduced } from '@/lib/prefs';
 import { studio } from '@/lib/content';
 
-// ABI intro, on every full page load:
-//   1. type "Architecting Bold Ideas" (~1.5s) — every letter is rendered from
-//      the start and only revealed, so nothing reflows while it types;
-//   2. pause (~0.3s);
-//   3. merge (~0.8s): A, B and I turn lime while the other letters fade, then
-//      A, B and I slide together into "ABI" (a FLIP move, so the stacked phone
-//      layout slides into the same single row);
-//   4. "ABI" holds, then the overlay fades away. Skip ends it at any point.
-// Reduced motion shows "ABI" straight away (CSS), then the overlay goes.
+// ABI intro, once per full page load:
+//   1. "A", "B", "I" fade/slide in one by one (150ms stagger);
+//   2. after a 0.4s pause each letter grows into its word, one after the
+//      other (0.5s each, 0.3s apart). The lime capital stays put and the rest
+//      of the word unfolds from it;
+//   3. "Architecting Bold Ideas" holds, then the overlay fades away.
+// An invisible copy of the final text reserves its full size from the first
+// paint, so nothing around it moves. Reduced motion shows the final text
+// straight away (CSS). Skip ends it at any point.
 
-const NAME = 'Architecting Bold Ideas';
-const WORDS = NAME.split(' ');
-const TOTAL = WORDS.join('').length;
+const WORDS = [
+  { key: 'A', rest: 'rchitecting' },
+  { key: 'B', rest: 'old' },
+  { key: 'I', rest: 'deas' },
+] as const;
+const NAME = WORDS.map((w) => w.key + w.rest).join(' ');
 
-const START_DELAY = 300;
-const TYPE_TOTAL = 1500;
-const PAUSE = 300;
-const FADE = 350; // other letters fade, A/B/I turn lime
-const SLIDE = 450; // A/B/I slide together (FADE + SLIDE = the ~0.8s merge)
-const HOLD = 700;
-
-type Phase = 'typing' | 'fade' | 'merged';
+const START_DELAY = 200;
+const LETTERS_IN = 3 * 150 + 300; // stagger + one letter's entrance
+const PAUSE = 400;
+const WORD = 500;
+const BETWEEN = 300;
+const HOLD = 800;
 
 /** The hero waits for this before running its own opening sequence. */
 function announceDone() {
@@ -33,11 +34,23 @@ function announceDone() {
   window.dispatchEvent(new Event('intro:done'));
 }
 
+function Line({ lettersIn, opened }: { lettersIn: boolean; opened: number }) {
+  return (
+    <>
+      {WORDS.map((w, i) => (
+        <span className={`intro-word${i < opened ? ' open' : ''}`} key={w.key} style={{ '--i': i } as React.CSSProperties}>
+          <span className={`il-key${lettersIn ? ' in' : ''}`}>{w.key}</span>
+          <span className="il-rest"><span>{w.rest}</span></span>
+        </span>
+      ))}
+    </>
+  );
+}
+
 export default function IntroOverlay() {
-  const [shown, setShown] = useState(0);
-  const [phase, setPhase] = useState<Phase>('typing');
+  const [lettersIn, setLettersIn] = useState(false);
+  const [opened, setOpened] = useState(0); // how many words have expanded
   const [hidden, setHidden] = useState(false);
-  const lettersRef = useRef<HTMLDivElement>(null);
 
   function closeIntro() {
     setHidden(true);
@@ -50,45 +63,24 @@ export default function IntroOverlay() {
     const timers: ReturnType<typeof setTimeout>[] = [];
     const sleep = (ms: number) => new Promise<void>((resolve) => timers.push(setTimeout(resolve, ms)));
 
-    if (motionReduced()) {
-      setShown(TOTAL);
-      setPhase('merged');
-      sleep(HOLD).then(() => !cancelled && closeIntro());
-      return () => { cancelled = true; timers.forEach(clearTimeout); };
-    }
-
     (async () => {
-      await sleep(START_DELAY);
-      const step = TYPE_TOTAL / TOTAL;
-      for (let i = 1; i <= TOTAL; i++) {
-        await sleep(step);
+      if (motionReduced()) {
+        setLettersIn(true);
+        setOpened(WORDS.length);
+        await sleep(HOLD);
+      } else {
+        await sleep(START_DELAY);
         if (cancelled) return;
-        setShown(i);
+        setLettersIn(true);
+        await sleep(LETTERS_IN + PAUSE);
+        for (let i = 1; i <= WORDS.length; i++) {
+          if (cancelled) return;
+          setOpened(i);
+          await sleep(WORD + (i < WORDS.length ? BETWEEN : 0));
+        }
+        await sleep(HOLD);
       }
-      await sleep(PAUSE);
-      if (cancelled) return;
-      setPhase('fade');
-      await sleep(FADE);
-      if (cancelled) return;
-
-      // FLIP: note where A/B/I are, switch to the final "ABI" layout, then
-      // animate each letter from its old spot to its new one.
-      const root = lettersRef.current;
-      const keys = root ? [...root.querySelectorAll<HTMLElement>('.il-key')] : [];
-      const first = keys.map((k) => k.getBoundingClientRect());
-      setPhase('merged');
-      await new Promise<void>((r) => requestAnimationFrame(() => r()));
-      if (cancelled) return;
-      keys.forEach((k, i) => {
-        const last = k.getBoundingClientRect();
-        k.animate(
-          [{ transform: `translate(${first[i].left - last.left}px, ${first[i].top - last.top}px)` }, { transform: 'none' }],
-          { duration: SLIDE, easing: 'ease-in-out' }
-        );
-      });
-      await sleep(SLIDE + HOLD);
-      if (cancelled) return;
-      closeIntro();
+      if (!cancelled) closeIntro();
     })();
 
     return () => {
@@ -97,28 +89,20 @@ export default function IntroOverlay() {
     };
   }, []);
 
-  let n = 0; // running letter index across the three words
   return (
-    <div id="introOverlay" className={hidden ? 'hide' : undefined} data-phase={phase}>
+    <div id="introOverlay" className={hidden ? 'hide' : undefined}>
       <div className="intro-meta top" aria-hidden="true">
         <span className="mono">{studio.name}</span>
         <span className="mono">{studio.city}, {studio.country}</span>
       </div>
-      <div className="intro-letters" ref={lettersRef} role="img" aria-label={NAME}>
-        {WORDS.map((word) => (
-          <span className="intro-word" key={word} aria-hidden="true">
-            {[...word].map((ch, i) => {
-              const idx = n++;
-              const cls = [
-                'il',
-                i === 0 ? 'il-key' : 'il-rest',
-                idx < shown ? 'on' : '',
-                phase === 'typing' && idx === shown - 1 ? 'caret' : '',
-              ].filter(Boolean).join(' ');
-              return <span className={cls} key={i}>{ch}</span>;
-            })}
-          </span>
-        ))}
+      <div className="intro-letters" role="img" aria-label={NAME}>
+        {/* invisible final text: reserves the finished width and height */}
+        <span className="intro-line intro-ghost" aria-hidden="true">
+          <Line lettersIn opened={WORDS.length} />
+        </span>
+        <span className="intro-line intro-live" aria-hidden="true">
+          <Line lettersIn={lettersIn} opened={opened} />
+        </span>
       </div>
       <div className="intro-meta bottom">
         <span className="mono" aria-hidden="true">Websites · Online stores · Apps</span>
