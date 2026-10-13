@@ -253,7 +253,7 @@ export default function Home() {
                 <Words text={`You’ll work with ${team[0].short} and ${team[1].short}.`} />
               </h2>
               <p>
-                We&apos;re {team[0].name} and {team[1].display}. We run every project at {studio.name} ourselves, from the
+                We&apos;re {team[0].display} and {team[1].display}. We run every project at {studio.name} ourselves, from the
                 first call to the day it goes live. No middlemen, and no handing you over to someone you&apos;ve never met.
               </p>
               <p>

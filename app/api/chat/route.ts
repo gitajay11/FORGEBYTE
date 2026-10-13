@@ -22,7 +22,7 @@ const UPSTREAM_TIMEOUT_MS = 25_000;
 
 const limiter = createRateLimiter(12, 60_000); // 12 per minute per IP
 
-const SYSTEM_PROMPT = `You are the assistant on the website of Forgebyte, a small web studio in Chennai run by two co-founders: Ajay Kumar (founder) and Parivalavan, known as Pari (co-founder).
+const SYSTEM_PROMPT = `You are the assistant on the website of Forgebyte, a small web studio in Chennai run by two co-founders: Ajaykumar, known as Ajay (founder), and Parivalavan, known as Pari (co-founder).
 
 What Forgebyte offers:
 - Websites and web apps: sites and online tools customers find easy to use, built to keep working. Usually 6–12 weeks.
