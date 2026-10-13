@@ -35,9 +35,11 @@ export default function Nav() {
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const linksRef = useRef<HTMLUListElement>(null);
+  const capsuleRef = useRef<HTMLSpanElement>(null);
+  // while a nav click is smooth-scrolling, ignore the sections it passes
+  const clickLock = useRef(false);
 
-  // Always visible (sticky). Track the hero and, on the home page, which
-  // section sits under a reading line ~35% down the screen.
+  // Always visible (sticky). Track whether the hero is still on screen.
   useEffect(() => {
     let ticking = false;
     const update = () => {
@@ -46,16 +48,6 @@ export default function Nav() {
       const hero = document.querySelector<HTMLElement>('.hero');
       const navH = document.querySelector<HTMLElement>('.nav')?.offsetHeight ?? 72;
       setPastHero(!hero || hero.getBoundingClientRect().bottom <= navH + 1);
-      if (pathname === '/') {
-        const line = window.innerHeight * 0.35;
-        const hit = LINKS.find(({ id }) => {
-          const r = document.getElementById(id)?.getBoundingClientRect();
-          return r && r.top <= line && r.bottom > line;
-        });
-        setSection(hit ? hit.id : null);
-      } else {
-        setSection(null);
-      }
     };
     const onScroll = () => {
       if (ticking) return;
@@ -69,6 +61,28 @@ export default function Nav() {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
+  }, [pathname]);
+
+  // Home page: which section is in view. A thin band across the middle of the
+  // screen; the section crossing it becomes active. Between linked sections
+  // the last one stays active; over the hero, none (the capsule fades out).
+  useEffect(() => {
+    if (pathname !== '/') { setSection(null); return; }
+    const targets = [document.querySelector<HTMLElement>('.hero'), ...LINKS.map(({ id }) => document.getElementById(id))]
+      .filter((el): el is HTMLElement => !!el);
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (clickLock.current) return;
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const id = e.target.id as SectionId;
+          setSection(e.target.classList.contains('hero') ? null : id);
+        }
+      },
+      { rootMargin: '-45% 0px -54% 0px', threshold: 0 }
+    );
+    targets.forEach((t) => io.observe(t));
+    return () => io.disconnect();
   }, [pathname]);
 
   // Close the menu on navigation, and when the window grows to desktop
@@ -117,6 +131,11 @@ export default function Nav() {
     e.preventDefault();
     const wasOpen = open;
     setOpen(false);
+    setSection(id);
+    clickLock.current = true;
+    const unlock = () => { clickLock.current = false; window.removeEventListener('scrollend', unlock); };
+    window.addEventListener('scrollend', unlock);
+    setTimeout(unlock, 1500); // browsers without scrollend
     // let the menu release its scroll lock and focus first
     setTimeout(() => {
       target.scrollIntoView({ behavior: motionReduced() ? 'auto' : 'smooth', block: 'start' });
@@ -130,24 +149,29 @@ export default function Nav() {
   // the link the indicator sits under: the section being read (home) or the page you're on
   const activeId = onHome ? section : LINKS.find((l) => isPage(l.href))?.id ?? null;
   const ariaCurrent = (l: (typeof LINKS)[number]) =>
-    onHome ? (l.id === section ? 'location' : undefined) : isPage(l.href) ? 'page' : undefined;
+    onHome ? (l.id === section ? 'true' : undefined) : isPage(l.href) ? 'page' : undefined;
 
-  // Slide the underline to the active link (transform/width only)
+  // Size and place the capsule behind the active link (transform + width).
+  // Re-measured on resize, font load and when the bar changes size.
   useLayoutEffect(() => {
-    const ul = linksRef.current;
-    if (!ul) return;
+    const ul = linksRef.current, cap = capsuleRef.current;
+    if (!ul || !cap) return;
     const place = () => {
       const a = ul.querySelector<HTMLElement>('a[data-active="true"]');
-      if (!a) { ul.style.setProperty('--ind-o', '0'); return; }
+      if (!a) { cap.dataset.visible = 'false'; return; }
       const ur = ul.getBoundingClientRect(), ar = a.getBoundingClientRect();
-      ul.style.setProperty('--ind-x', `${ar.left - ur.left}px`);
-      ul.style.setProperty('--ind-w', `${ar.width}px`);
-      ul.style.setProperty('--ind-o', '1');
+      cap.style.setProperty('--cap-x', `${ar.left - ur.left - 14}px`);
+      cap.style.setProperty('--cap-w', `${ar.width + 28}px`);
+      cap.dataset.visible = 'true';
+      // first placement jumps into place; later moves spring
+      if (!cap.dataset.ready) requestAnimationFrame(() => { cap.dataset.ready = 'true'; });
     };
     place();
+    const ro = new ResizeObserver(place);
+    ro.observe(ul);
     window.addEventListener('resize', place);
     document.fonts?.ready.then(place);
-    return () => window.removeEventListener('resize', place);
+    return () => { ro.disconnect(); window.removeEventListener('resize', place); };
   }, [activeId]);
 
   return (
@@ -166,6 +190,8 @@ export default function Nav() {
           </div>
           <nav aria-label="Primary">
             <ul className="nav-links" ref={linksRef}>
+              {/* one shared capsule that slides behind the active link */}
+              <li className="nav-capsule-slot" aria-hidden="true"><span className="nav-capsule" ref={capsuleRef} data-visible="false" /></li>
               {LINKS.map((l, i) => (
                 <li key={l.id}>
                   <Link

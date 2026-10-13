@@ -186,15 +186,42 @@ main{display:block;}
 /* numbered links, in landing-page order */
 .nav-link{display:inline-flex; align-items:baseline; gap:5px; padding-block:6px; font-size:0.95rem; color:var(--text-2); transition:color var(--dur-short);}
 .nav-num{font-family:var(--font-mono-stack); font-size:10px; letter-spacing:0.04em; color:var(--text-3); transition:color var(--dur-short);}
+.nav-link{position:relative; z-index:1;}
 .nav-link:hover,.nav-link[data-active="true"]{color:var(--text-1);}
+/* active: a touch bolder without changing the text's width (no reflow) */
+.nav-link[data-active="true"]{text-shadow:0 0 0.4px currentColor;}
 .nav-link[data-active="true"] .nav-num{color:var(--accent-blue);}
-/* scroll indicator: one bar that slides to the section being read (home) or
-   the current page (elsewhere). Position/width come from Nav.tsx. */
-.nav-links::after{
-  content:''; position:absolute; left:0; top:calc(50% + 15px); height:2px; border-radius:2px; pointer-events:none;
-  width:var(--ind-w, 0px); transform:translateX(var(--ind-x, 0px)); opacity:var(--ind-o, 0); background:var(--accent-blue);
-  transition:transform 400ms var(--ease-out), width 400ms var(--ease-out), opacity 200ms ease;
+
+/* Sliding capsule behind the active link: brand tint + a glowing ring that
+   runs round its edge. Nav.tsx sets --cap-x / --cap-w. */
+@property --cap-angle{syntax:'<angle>'; inherits:false; initial-value:0deg;}
+@keyframes cap-spin{to{--cap-angle:360deg;}}
+.nav-capsule-slot{position:absolute; inset:0; pointer-events:none;}
+.nav-capsule{
+  position:absolute; left:0; top:50%; height:34px; width:var(--cap-w, 0px); border-radius:9999px;
+  transform:translate(var(--cap-x, 0px), -50%);
+  background:color-mix(in srgb, var(--accent-blue) 13%, transparent);
+  box-shadow:0 0 18px -4px color-mix(in srgb, var(--accent-blue) 55%, transparent);
+  opacity:0;
 }
+.nav-capsule[data-visible="true"]{opacity:1;}
+/* springy travel (slight overshoot), only after the first placement */
+.nav-capsule[data-ready="true"]{
+  transition:transform 420ms cubic-bezier(.34,1.45,.64,1), width 420ms cubic-bezier(.34,1.45,.64,1), opacity 250ms ease;
+}
+.nav-capsule::before{
+  content:''; position:absolute; inset:0; border-radius:inherit; padding:1.5px;
+  background:conic-gradient(from var(--cap-angle), transparent 0deg 200deg, var(--accent-blue) 290deg, transparent 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+  animation:cap-spin 3s linear infinite; animation-play-state:paused;
+}
+.nav-capsule[data-visible="true"]::before{animation-play-state:running;}
+/* reduced motion: no rotation (a still, faint ring); moves are instant */
+@media (prefers-reduced-motion: reduce){
+  html:not([data-motion="full"]) .nav-capsule::before{animation:none; background:color-mix(in srgb, var(--accent-blue) 45%, transparent);}
+}
+html[data-motion="reduced"] .nav-capsule::before{animation:none; background:color-mix(in srgb, var(--accent-blue) 45%, transparent);}
 .nav-links .btn{min-height:40px; padding:0 18px; font-size:0.9rem;}
 .theme-btn{width:40px; height:40px; display:grid; place-items:center; border:1px solid var(--border); border-radius:var(--r-pill); color:var(--text-2); transition:color var(--dur-short), border-color var(--dur-short); -webkit-tap-highlight-color:transparent;}
 .theme-btn:hover{color:var(--accent-blue); border-color:var(--accent-blue);}
@@ -269,7 +296,21 @@ main{display:block;}
 .menu[data-open="true"] .menu-list a{opacity:1; transform:none; transition-delay:calc(120ms + var(--i) * 40ms), calc(120ms + var(--i) * 40ms), 0s, 0s;}
 /* current page in the brand colour; tap = a light tint, never an outline box */
 .menu-list a[data-active="true"],.menu-list a[data-active="true"] .mono{color:var(--accent-blue);}
-.menu-list a[data-active="true"]{background:var(--accent-blue-soft);}
+.menu-list a[data-active="true"]{
+  position:relative; border-radius:9999px; background:color-mix(in srgb, var(--accent-blue) 13%, transparent);
+  box-shadow:0 0 18px -4px color-mix(in srgb, var(--accent-blue) 55%, transparent);
+}
+.menu-list a[data-active="true"]::before{
+  content:''; position:absolute; inset:0; border-radius:inherit; padding:1.5px; pointer-events:none;
+  background:conic-gradient(from var(--cap-angle), transparent 0deg 200deg, var(--accent-blue) 290deg, transparent 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+  animation:cap-spin 3s linear infinite;
+}
+@media (prefers-reduced-motion: reduce){
+  html:not([data-motion="full"]) .menu-list a[data-active="true"]::before{animation:none; background:color-mix(in srgb, var(--accent-blue) 45%, transparent);}
+}
+html[data-motion="reduced"] .menu-list a[data-active="true"]::before{animation:none; background:color-mix(in srgb, var(--accent-blue) 45%, transparent);}
 @media (hover:hover){ .menu-list a:hover{background:color-mix(in srgb, var(--accent-blue) 6%, transparent);} }
 .menu-list a:active{background:var(--accent-blue-soft);}
 .menu-list a:focus,.menu-cta:focus{outline:none;}
