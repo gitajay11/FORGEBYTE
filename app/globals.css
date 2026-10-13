@@ -359,16 +359,28 @@ html[data-cursor="custom"] body.cursor-on textarea{cursor:text;}
   .intro-line{flex-direction:column; align-items:center; gap:clamp(4px, 1.4vh, 12px);}
 }
 @media (max-width:767px){
-  /* phones: the block is centred but its text is left-aligned, so A, B and I
-     sit in one fixed column and each word unfolds to the right. The live line
-     stretches to the reserved (ghost) width; the size keeps "Architecting"
-     on one line: it is ~5.7em wide, plus the 24px side padding. */
-  .intro-line{
-    justify-self:stretch; align-items:flex-start; gap:0.25em;
-    font-size:clamp(28px, calc((100vw - 48px) / 6.2), 56px);
+  /* phones: the block sits at a left inset, vertically centred; A, B, I
+     share one fixed column and each word unfolds to the right of it */
+  .intro-letters{
+    --inset:clamp(24px, 10vw, 40px);
+    width:100%; place-items:center start; padding-inline:var(--inset);
   }
-  /* a clean left-to-right reveal: no slide, so nothing passes over the capital */
-  .intro-line .il-rest > span{transform:none;}
+  .intro-line{
+    justify-self:start; align-items:flex-start; gap:0.25em;
+    /* "Architecting" is ~5.7em wide: keep it on one line inside the insets */
+    font-size:clamp(28px, calc((100vw - 2 * var(--inset)) / 6.2), 56px);
+  }
+  /* the column starts centred on screen (offset measured in IntroOverlay)
+     and slides home — transform only */
+  .intro-live{transform:translateX(var(--shift, 0px));}
+  .intro-live.shifted{transform:none; transition:transform 500ms ease-in-out;}
+  /* words: full width reserved from the start, revealed left to right by a
+     wipe — the clipping window slides right while the text inside slides
+     back by the same amount, so the letters stay put. Transform only. */
+  .intro-line .il-rest{grid-template-columns:1fr; overflow:hidden;}
+  .intro-line .il-rest > span{transform:translateX(-100%);}
+  .intro-line .il-rest > span > span{display:inline-block; transform:translateX(100%); transition:transform 500ms ease-in-out;}
+  .intro-line .intro-word.open .il-rest > span > span{transform:none;}
 }
 .intro-word{display:inline-flex; align-items:baseline;}
 /* 1. A, B, I arrive one by one, in lime */
@@ -396,11 +408,11 @@ html[data-cursor="custom"] body.cursor-on textarea{cursor:text;}
 @media (prefers-reduced-motion: reduce){
   html:not([data-motion="full"]) #introOverlay .il-key{opacity:1; transform:none;}
   html:not([data-motion="full"]) #introOverlay .il-rest{grid-template-columns:1fr;}
-  html:not([data-motion="full"]) #introOverlay .il-rest > span{opacity:1; transform:none;}
+  html:not([data-motion="full"]) #introOverlay .il-rest span{opacity:1; transform:none;}
 }
 html[data-motion="reduced"] #introOverlay .il-key{opacity:1; transform:none;}
 html[data-motion="reduced"] #introOverlay .il-rest{grid-template-columns:1fr;}
-html[data-motion="reduced"] #introOverlay .il-rest > span{opacity:1; transform:none;}
+html[data-motion="reduced"] #introOverlay .il-rest span{opacity:1; transform:none;}
 
 /* =====================================================================
    Hero

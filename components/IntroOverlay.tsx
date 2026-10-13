@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motionReduced } from '@/lib/prefs';
 import { studio } from '@/lib/content';
 
@@ -10,6 +10,10 @@ import { studio } from '@/lib/content';
 //      other (0.5s each, 0.3s apart). The lime capital stays put and the rest
 //      of the word unfolds from it;
 //   3. "Architecting Bold Ideas" holds, then the overlay fades away.
+// Phones (<768px) add a step between 1 and 2: the letters arrive as a column
+// centred on screen, then the column slides left to its final inset (FLIP:
+// measured from the final layout, so it lands exactly where the words start)
+// and "Architecting" begins unfolding as the slide finishes.
 // An invisible copy of the final text reserves its full size from the first
 // paint, so nothing around it moves. Reduced motion shows the final text
 // straight away (CSS). Skip ends it at any point.
@@ -27,6 +31,9 @@ const PAUSE = 400;
 const WORD = 500;
 const BETWEEN = 300;
 const HOLD = 800;
+const SHIFT = 500; // phones: the column's slide to the left
+const OVERLAP = 150; // …which "Architecting" starts before the slide ends
+const PHONE = '(max-width: 767px)';
 
 /** The hero waits for this before running its own opening sequence. */
 function announceDone() {
@@ -40,7 +47,8 @@ function Line({ lettersIn, opened }: { lettersIn: boolean; opened: number }) {
       {WORDS.map((w, i) => (
         <span className={`intro-word${i < opened ? ' open' : ''}`} key={w.key} style={{ '--i': i } as React.CSSProperties}>
           <span className={`il-key${lettersIn ? ' in' : ''}`}>{w.key}</span>
-          <span className="il-rest"><span>{w.rest}</span></span>
+          {/* window > text: phones wipe the window right while the text counter-slides */}
+          <span className="il-rest"><span><span>{w.rest}</span></span></span>
         </span>
       ))}
     </>
@@ -51,6 +59,22 @@ export default function IntroOverlay() {
   const [lettersIn, setLettersIn] = useState(false);
   const [opened, setOpened] = useState(0); // how many words have expanded
   const [hidden, setHidden] = useState(false);
+  const [shifted, setShifted] = useState(false);
+  const liveRef = useRef<HTMLSpanElement>(null);
+
+  // Phones: before the letters show, offset the column (already in its final,
+  // left-aligned spot) so it sits in the middle of the screen. FLIP "invert".
+  useLayoutEffect(() => {
+    const live = liveRef.current;
+    if (!live || motionReduced() || !window.matchMedia(PHONE).matches) return;
+    // measure the final layout, not an offset left by an earlier run
+    // (React runs this twice in development)
+    live.style.removeProperty('--shift');
+    const keys = [...live.querySelectorAll<HTMLElement>('.il-key')].map((k) => k.getBoundingClientRect());
+    const left = keys[0].left;
+    const width = Math.max(...keys.map((r) => r.width));
+    live.style.setProperty('--shift', `${Math.round(window.innerWidth / 2 - (left + width / 2))}px`);
+  }, []);
 
   function closeIntro() {
     setHidden(true);
@@ -73,6 +97,11 @@ export default function IntroOverlay() {
         if (cancelled) return;
         setLettersIn(true);
         await sleep(LETTERS_IN + PAUSE);
+        if (cancelled) return;
+        if (liveRef.current?.style.getPropertyValue('--shift')) {
+          setShifted(true); // FLIP "play": slide the column home
+          await sleep(SHIFT - OVERLAP);
+        }
         for (let i = 1; i <= WORDS.length; i++) {
           if (cancelled) return;
           setOpened(i);
@@ -100,7 +129,7 @@ export default function IntroOverlay() {
         <span className="intro-line intro-ghost" aria-hidden="true">
           <Line lettersIn opened={WORDS.length} />
         </span>
-        <span className="intro-line intro-live" aria-hidden="true">
+        <span className={`intro-line intro-live${shifted ? ' shifted' : ''}`} ref={liveRef} aria-hidden="true">
           <Line lettersIn={lettersIn} opened={opened} />
         </span>
       </div>

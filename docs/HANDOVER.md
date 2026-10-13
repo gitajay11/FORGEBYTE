@@ -68,10 +68,12 @@ but none existed before. Keep, edit or delete:
   sequence; it still plays on every full load. Lime "A", "B", "I" arrive one
   by one, then (after 0.4s) each grows into its word in turn — 0.5s each,
   0.3s apart — ending on "Architecting Bold Ideas", which holds before the
-  site shows. Phones (<768px): one word per line, the block centred but the
-  text left-aligned, so A/B/I sit in one fixed column and each word unfolds
-  to the right; the size scales so "Architecting" fits on one line. Reduced
-  motion shows the final text straight away.
+  site shows. Phones (<768px): A/B/I arrive as a column centred on screen,
+  the column slides left (0.5s, FLIP-measured) to a 24–40px inset, then each
+  word is wiped in left to right from its capital (transform only); final
+  text left-aligned at the inset, vertically centred, one word per line,
+  sized so "Architecting" fits. Reduced motion shows the final text straight
+  away.
 - **Our work** — one card per project (preview beside its title, line and
   tags). Desktop: the section pins (CSS sticky) and the row slides left as
   the page scrolls down, right as it scrolls up; the middle card is full
