@@ -84,7 +84,7 @@ export default function Home() {
       </section>
 
       {/* ABOUT ------------------------------------------------------------ */}
-      <section className="section manifesto" id="about" aria-labelledby="about-title">
+      <section className="section manifesto" id="about" aria-labelledby="about-title" tabIndex={-1}>
         <div className="container">
           <Index n="01" label="About us" />
           <div className="grid">
@@ -111,7 +111,7 @@ export default function Home() {
       </section>
 
       {/* SERVICES --------------------------------------------------------- */}
-      <section className="section" id="services" aria-labelledby="services-title">
+      <section className="section" id="services" aria-labelledby="services-title" tabIndex={-1}>
         <div className="container">
           <Index n="02" label="What we do" />
           <div className="grid" style={{ marginBottom: 'var(--s-8)' }}>
@@ -153,7 +153,7 @@ export default function Home() {
       </section>
 
       {/* WORK ------------------------------------------------------------- */}
-      <section className="section" id="work" aria-labelledby="work-title">
+      <section className="section" id="work" aria-labelledby="work-title" tabIndex={-1}>
         <div className="container">
           <Index n="03" label="Our work" />
           <div className="work-head">
@@ -271,7 +271,7 @@ export default function Home() {
       </section>
 
       {/* DEMOS ------------------------------------------------------------ */}
-      <section className="section" id="lab" aria-labelledby="lab-title">
+      <section className="section" id="lab" aria-labelledby="lab-title" tabIndex={-1}>
         <div className="container">
           <Index n="07" label="Demos" />
           <div className="work-head">

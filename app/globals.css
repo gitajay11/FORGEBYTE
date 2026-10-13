@@ -56,7 +56,7 @@ body::before{
 }
 
 body.intro-lock{overflow:hidden; height:100vh;}
-#contact:focus{outline:none;}
+main section[tabindex="-1"]:focus{outline:none;}
 /* Without JavaScript the intro can never finish, so it never shows */
 html:not(.js) body.intro-lock{overflow:visible; height:auto;}
 html:not(.js) #introOverlay{display:none;}
@@ -182,15 +182,43 @@ main{display:block;}
 .nav[data-past-hero="true"] .logo-word{opacity:0;}
 .logo{display:inline-flex; align-items:center; gap:10px; font-weight:600; font-size:1.125rem; letter-spacing:-0.02em;}
 .logo-mark{width:30px; height:30px; display:grid; place-items:center; border:1px solid var(--border-strong); border-radius:2px; font-family:var(--font-mono-stack); font-size:12px; color:var(--accent-blue);}
-.nav-links{display:flex; align-items:center; gap:clamp(18px, 2.4vw, 34px);}
-.nav-links a:not(.btn){font-size:0.95rem; color:var(--text-2);}
-.nav-links a:not(.btn):hover,.nav-links a[aria-current="page"]{color:var(--text-1);}
-.nav-links a[aria-current="page"]{background-size:100% 1px; background-position:left bottom;}
+.nav-links{position:relative; display:flex; align-items:center; gap:clamp(16px, 2vw, 28px);}
+/* numbered links, in landing-page order */
+.nav-link{display:inline-flex; align-items:baseline; gap:5px; padding-block:6px; font-size:0.95rem; color:var(--text-2); transition:color var(--dur-short);}
+.nav-num{font-family:var(--font-mono-stack); font-size:10px; letter-spacing:0.04em; color:var(--text-3); transition:color var(--dur-short);}
+.nav-link:hover,.nav-link[data-active="true"]{color:var(--text-1);}
+.nav-link[data-active="true"] .nav-num{color:var(--accent-blue);}
+/* scroll indicator: one bar that slides to the section being read (home) or
+   the current page (elsewhere). Position/width come from Nav.tsx. */
+.nav-links::after{
+  content:''; position:absolute; left:0; top:calc(50% + 15px); height:2px; border-radius:2px; pointer-events:none;
+  width:var(--ind-w, 0px); transform:translateX(var(--ind-x, 0px)); opacity:var(--ind-o, 0); background:var(--accent-blue);
+  transition:transform 400ms var(--ease-out), width 400ms var(--ease-out), opacity 200ms ease;
+}
 .nav-links .btn{min-height:40px; padding:0 18px; font-size:0.9rem;}
 .theme-btn{width:40px; height:40px; display:grid; place-items:center; border:1px solid var(--border); border-radius:var(--r-pill); color:var(--text-2); transition:color var(--dur-short), border-color var(--dur-short); -webkit-tap-highlight-color:transparent;}
 .theme-btn:hover{color:var(--accent-blue); border-color:var(--accent-blue);}
 .theme-btn svg{width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round;}
 .nav-mobile{display:none; align-items:center; gap:6px;}
+/* phones/tablets: "Start a project" in the bar, compact */
+.nav-mobile-cta{min-height:36px; padding:0 14px; font-size:0.82rem; white-space:nowrap; -webkit-tap-highlight-color:transparent;}
+.nav-mobile-cta .cta-short{display:none;}
+.menu-theme{display:none; align-items:center; gap:12px;}
+/* narrow phones: the bar holds logo/tagline + Start project + menu; the
+   theme toggle moves into the menu panel */
+@media (max-width:419px){
+  .nav-mobile > .theme-btn{display:none;}
+  .menu-theme{display:flex;}
+  .nav-tagline{font-size:0.76rem;}
+  .nav-mobile-cta .cta-long{display:none;}
+  .nav-mobile-cta .cta-short{display:inline;}
+}
+@media (max-width:379px){ .nav-tagline{font-size:0.72rem;} }
+/* very narrow: once the bar floats, only the logo mark sits beside the button */
+@media (max-width:359px){
+  .nav-tagline,.nav[data-floating="true"] .logo-word{display:none;}
+  .nav-mobile-cta{padding:0 12px; font-size:0.78rem;}
+}
 
 /* Menu button: 44px round target, two 2px lines that turn into an X.
    No tap-highlight box; a ring only for keyboard focus. */
@@ -240,8 +268,8 @@ main{display:block;}
 .menu-list a .mono{font-size:11px; color:var(--text-3);}
 .menu[data-open="true"] .menu-list a{opacity:1; transform:none; transition-delay:calc(120ms + var(--i) * 40ms), calc(120ms + var(--i) * 40ms), 0s, 0s;}
 /* current page in the brand colour; tap = a light tint, never an outline box */
-.menu-list a[aria-current="page"],.menu-list a[aria-current="page"] .mono{color:var(--accent-blue);}
-.menu-list a[aria-current="page"]{background:var(--accent-blue-soft);}
+.menu-list a[data-active="true"],.menu-list a[data-active="true"] .mono{color:var(--accent-blue);}
+.menu-list a[data-active="true"]{background:var(--accent-blue-soft);}
 @media (hover:hover){ .menu-list a:hover{background:color-mix(in srgb, var(--accent-blue) 6%, transparent);} }
 .menu-list a:active{background:var(--accent-blue-soft);}
 .menu-list a:focus,.menu-cta:focus{outline:none;}
@@ -249,7 +277,7 @@ main{display:block;}
 .menu-foot{display:flex; flex-direction:column; gap:12px; margin-top:auto; padding-inline:14px;}
 .menu-foot .socials{gap:6px;} /* six icons on one row in the panel */
 .menu-cta{width:100%; justify-content:center; min-height:52px; -webkit-tap-highlight-color:transparent;}
-.menu-cta[aria-current="page"]{box-shadow:0 0 0 2px var(--accent-blue-soft);}
+.menu-cta[data-active="true"]{box-shadow:0 0 0 2px var(--accent-blue-soft);}
 /* the chat widget floats above everything; keep it out of the open menu's way */
 body.menu-open .chat{visibility:hidden; pointer-events:none;}
 /* reduced motion: a simple fade, nothing slides */
