@@ -472,12 +472,14 @@ html[data-cursor="custom"] body.cursor-on textarea{cursor:text;}
 }
 .intro-ghost{visibility:hidden;}
 @media (max-width:899px){
-  /* phones and tablets: one word per line; the block sits at the 24px inset,
-     vertically centred; A, B, I share one fixed column and each word
-     unfolds to the right of it */
+  /* phones and tablets (as in the portfolio's intro): one word per line in a
+     shrink-to-fit block exactly as wide as "Architecting", centred on screen
+     by the overlay, text left-aligned inside — so "Architecting" has equal
+     space either side and A, B, I share one column. No fixed inset; the
+     max-width keeps at least 24px clear of each edge. */
   .intro-letters{
-    --inset:24px;
-    width:100%; place-items:center start; padding-inline:var(--inset);
+    width:max-content; max-width:calc(100vw - 48px); padding:0;
+    place-items:center start; text-align:left;
   }
   .intro-line{flex-direction:column; justify-self:start; align-items:flex-start; gap:clamp(10px, 3vh, 20px);}
   /* the column starts centred on screen (offset measured in IntroOverlay)

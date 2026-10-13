@@ -10,10 +10,10 @@ import { studio } from '@/lib/content';
 //      portfolio's typing pace (34ms a letter). The lime capital stays put and the rest
 //      of the word unfolds from it;
 //   3. "Architecting Bold Ideas" holds, then the overlay fades away.
-// Phones (<768px) add a step between 1 and 2: the letters arrive as a column
-// centred on screen, then the column slides left to its final inset (FLIP:
-// measured from the final layout, so it lands exactly where the words start)
-// and "Architecting" begins unfolding as the slide finishes.
+// Phones and tablets (<900px) add a step between 1 and 2: the letters arrive
+// as a column centred on screen, then the column slides left to where
+// "Architecting" starts in the final, centred block (FLIP: measured from the
+// final layout, so it lands exactly there) while "Architecting" unfolds.
 // An invisible copy of the final text reserves its full size from the first
 // paint, so nothing around it moves. Reduced motion shows the final text
 // straight away (CSS). Skip ends it at any point.
@@ -70,8 +70,9 @@ export default function IntroOverlay() {
   const [shifted, setShifted] = useState(false);
   const liveRef = useRef<HTMLSpanElement>(null);
 
-  // Phones: before the letters show, offset the column (already in its final,
-  // left-aligned spot) so it sits in the middle of the screen. FLIP "invert".
+  // Phones/tablets: before the letters show, offset the column (already in its
+  // final spot, the left edge of the centred block) so it sits in the middle of
+  // the screen. FLIP "invert".
   useLayoutEffect(() => {
     const live = liveRef.current;
     if (!live || motionReduced() || !window.matchMedia(PHONE).matches) return;
