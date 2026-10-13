@@ -8,6 +8,7 @@ A full copy of the pre-redesign project is at `C:\Users\ajaya\Projects\backup fo
 | Item | What the site says now | Where to change |
 | --- | --- | --- |
 | Founder name | Ajay Kumar | `lib/content.ts` → `studio.founder` |
+| Team | Ajay Kumar (Founder) and Parivalavan "Pari" (Co-founder); shared bio lines on the home and About pages; no photo, LinkedIn or bio of Pari's own yet | `lib/content.ts` → `team` |
 | City | Chennai, India | `studio.city` |
 | Founded | Est. 2026 | `studio.est` |
 | Availability | Taking on new projects · Q4 2026 | `studio.availability` |

@@ -26,6 +26,12 @@ export const studio = {
   linkedin: 'https://www.linkedin.com/in/ajayak1501',
 } as const;
 
+/** The people behind the studio, in the order they're shown. */
+export const team = [
+  { name: 'Ajay Kumar', short: 'Ajay', display: 'Ajay Kumar', role: 'Founder', initials: 'AK' },
+  { name: 'Parivalavan', short: 'Pari', display: 'Parivalavan (Pari)', role: 'Co-founder', initials: 'P' },
+] as const;
+
 /** Social profiles shown as icons in the footer and phone menu.
  *  '#' = placeholder until the account exists (see docs/HANDOVER.md). */
 export const socials = [

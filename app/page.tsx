@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { caseStudies, engagements, faq, lab, process, services, studio } from '@/lib/content';
+import { caseStudies, engagements, faq, lab, process, services, studio, team } from '@/lib/content';
 import { CONTACT_EMAIL, CONTACT_PHONE_E164, SITE_URL, WHATSAPP_URL } from '@/lib/site';
 import { Index, Reveal, Words } from '@/components/motion/Text';
 import HeroStage from '@/components/home/HeroStage';
@@ -26,18 +26,19 @@ const jsonLd = {
       description: 'A small studio in Chennai building websites, online stores, web apps and AI assistants for small businesses, startups and founders.',
       areaServed: 'Worldwide',
       address: { '@type': 'PostalAddress', addressLocality: studio.city, addressCountry: 'IN' },
-      founder: { '@id': `${SITE_URL}/#founder` },
+      founder: team.map((_, i) => ({ '@id': `${SITE_URL}/#founder-${i + 1}` })),
       knowsAbout: services.map((s) => s.name),
       sameAs: [studio.github, studio.linkedin],
     },
-    {
+    ...team.map((m, i) => ({
       '@type': 'Person',
-      '@id': `${SITE_URL}/#founder`,
-      name: studio.founder,
-      jobTitle: 'Founder',
+      '@id': `${SITE_URL}/#founder-${i + 1}`,
+      name: m.name,
+      ...(m.short !== m.name.split(' ')[0] ? { alternateName: m.short } : {}),
+      jobTitle: m.role,
       worksFor: { '@id': `${SITE_URL}/#studio` },
-      sameAs: [studio.github, studio.linkedin],
-    },
+      ...(i === 0 ? { sameAs: [studio.github, studio.linkedin] } : {}),
+    })),
     {
       '@type': 'FAQPage',
       mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
@@ -94,7 +95,7 @@ export default function Home() {
             </h2>
             <div className="manifesto-body">
               <Reveal as="p" variant="blur">
-                We&apos;re <strong>{studio.name}</strong>, a small studio run by <strong>{studio.founder}</strong>. We make websites
+                We&apos;re <strong>{studio.name}</strong>, a small studio run by <strong>{team[0].display}</strong> and <strong>{team[1].display}</strong>. We make websites
                 and online tools that people actually find easy to use.
               </Reveal>
               <Reveal as="p" variant="blur">
@@ -239,20 +240,24 @@ export default function Home() {
         <div className="container">
           <Index n="06" label="Who you’ll work with" />
           <div className="founder">
-            <div className="portrait">
-              <Portrait initials="AK" />
-              <span className="mono">{studio.founder} · Founder</span>
+            <div className="team-portraits">
+              {team.map((m) => (
+                <div className="portrait" key={m.name}>
+                  <Portrait initials={m.initials} />
+                  <span className="mono">{m.display}<br />{m.role}</span>
+                </div>
+              ))}
             </div>
             <div className="founder-body">
               <h2 id="founder-title" className="display-l" style={{ marginBottom: 'var(--s-6)' }}>
-                <Words text={`You’ll work with ${studio.founderFirst}.`} />
+                <Words text={`You’ll work with ${team[0].short} and ${team[1].short}.`} />
               </h2>
               <p>
-                {studio.founder} runs every project at {studio.name}, from the first call to the day it goes live. No
-                middlemen, and no handing you over to someone you&apos;ve never met.
+                {team[0].name} and {team[1].display} run every project at {studio.name} themselves, from the first call
+                to the day it goes live. No middlemen, and no handing you over to someone you&apos;ve never met.
               </p>
               <p>
-                {studio.founderFirst} cares about the details most people never notice: pages that load fast, checkouts that
+                They care about the details most people never notice: pages that load fast, checkouts that
                 don&apos;t break, and messages that make sense to your customers.
               </p>
               <p className="quirk">Fill your coffee cup before booking a call with us.</p>

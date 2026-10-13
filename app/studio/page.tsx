@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { studio } from '@/lib/content';
+import { studio, team } from '@/lib/content';
 import { Reveal, Words } from '@/components/motion/Text';
 import { LazyPortrait as Portrait } from '@/components/lazy';
 
 export const metadata: Metadata = {
   title: 'About us',
-  description: `${studio.name} is a small studio in ${studio.city}, run by ${studio.founder}. How we work and what you can expect.`,
+  description: `${studio.name} is a small studio in ${studio.city}, run by ${team[0].name} and ${team[1].display}. How we work and what you can expect.`,
   alternates: { canonical: '/studio' },
 };
 
@@ -36,18 +36,22 @@ export default function StudioPage() {
 
       <section className="section container" aria-labelledby="founder-h">
         <div className="founder">
-          <div className="portrait">
-            <Portrait initials="AK" />
-            <span className="mono">{studio.founder} · Founder</span>
+          <div className="team-portraits">
+            {team.map((m) => (
+              <div className="portrait" key={m.name}>
+                <Portrait initials={m.initials} />
+                <span className="mono">{m.display}<br />{m.role}</span>
+              </div>
+            ))}
           </div>
           <div className="founder-body">
-            <h2 id="founder-h" className="display-l" style={{ marginBottom: 'var(--s-6)' }}>{studio.founder}</h2>
+            <h2 id="founder-h" className="display-l" style={{ marginBottom: 'var(--s-6)' }}>The founders</h2>
             <Reveal as="p" variant="blur">
-              {studio.name} is {studio.founderFirst}&apos;s studio. {studio.founderFirst} runs every project personally, from the first
-              call to the day it goes live — no middlemen.
+              {studio.name} is run by its founder, {team[0].name}, and co-founder {team[1].display}. They run every
+              project personally, from the first call to the day it goes live — no middlemen.
             </Reveal>
             <p>
-              {studio.founderFirst} cares about the details most people never notice: pages that load fast on any phone, checkouts
+              They care about the details most people never notice: pages that load fast on any phone, checkouts
               that don&apos;t break, and messages that make sense to your customers.
             </p>
             <p>
@@ -55,8 +59,8 @@ export default function StudioPage() {
             </p>
             <p className="quirk">Bring the hard question first. It saves everyone a meeting.</p>
             <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-              <a className="ulink" href={studio.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
-              <a className="ulink" href={studio.github} target="_blank" rel="noopener">GitHub ↗</a>
+              <a className="ulink" href={studio.linkedin} target="_blank" rel="noopener">{team[0].short} on LinkedIn ↗</a>
+              <a className="ulink" href={studio.github} target="_blank" rel="noopener">{team[0].short} on GitHub ↗</a>
             </div>
           </div>
         </div>
