@@ -59,8 +59,14 @@ but none existed before. Keep, edit or delete:
   `form_submit`, `booking_click`, `case_study_depth`) need Web Analytics
   enabled on the project; custom events require a Pro plan. Page views work
   on Hobby.
-- Environment variables are unchanged: `GROQ_API_KEY`, `SMTP_HOST`,
-  `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`.
+- Environment variables: `GROQ_API_KEY`, `SMTP_HOST`, `SMTP_PORT`,
+  `SMTP_USER`, `SMTP_PASS` (required, as before), plus optional
+  `SMTP_SECURE`, `MAIL_FROM`, `WORK_MAIL`, `BOOKING_URL` — see README →
+  Contact form. Without the optional ones nothing changes.
+- The confirmation email promises a reply "within 24–48 hours" (as briefed);
+  the site and the form's success message say "within 1 working day". Pick
+  one and align `RESPONSE_TIME` in `lib/emailTemplates.ts` or
+  `studio.replyWithin` in `lib/content.ts`.
 
 ## Deliberate deviations from the brief
 

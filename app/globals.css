@@ -928,6 +928,7 @@ fieldset.field{border:0;}
 .spinner{width:16px; height:16px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin 700ms linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .form-status:empty{display:none;}
+.form-retry{font-weight:600; color:var(--text-1);}
 .form-status{font-size:0.95rem; color:var(--text-2);}
 .form-status[data-tone="ok"]{color:var(--lime-ink);}
 .form-status[data-tone="error"]{color:var(--danger);}

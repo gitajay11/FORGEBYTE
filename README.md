@@ -147,12 +147,18 @@ The form posts to `/api/contact` (`app/api/contact/route.ts`), which sends
 two emails over SMTP via Nodemailer (`lib/mail.ts`, templates in
 `lib/emailTemplates.ts`):
 
-1. **To the studio inbox** — the enquiry, with the visitor in `Reply-To` so
-   replying from Gmail goes straight back to them. If this send fails the
-   form reports an error.
-2. **To the visitor** — a confirmation with a copy of their message and
-   WhatsApp / site links. Sent after the response via `after()`; a failure
-   here is logged, not surfaced.
+1. **To the studio (`WORK_MAIL`)** — "New enquiry: Name – Service": every
+   field (incl. phone, page, IST time) plus Reply / Call / WhatsApp buttons.
+   The visitor is in `Reply-To`, so replying goes straight back to them.
+2. **To the visitor** — "We've received your message, Name": a summary of
+   what they sent, the expected reply time, and View our work / Chat on
+   WhatsApp / Book a call buttons. `Reply-To` is `WORK_MAIL`.
+
+Both are sent at once (`Promise.allSettled`). If the studio copy fails the
+form shows an error and keeps the visitor's input; if only the confirmation
+fails the enquiry still counts as sent and the failure is logged. Each email
+has an HTML and a plain-text version; images are hosted PNGs in
+`public/email/` (regenerate them if the brand changes).
 
 Chat-widget leads (`lib/leads.ts`) go to the studio inbox through the same
 transport. There is no fallback: without `SMTP_HOST`, `SMTP_USER` and
@@ -160,12 +166,16 @@ transport. There is no fallback: without `SMTP_HOST`, `SMTP_USER` and
 
 Set these in Vercel (Settings → Environment Variables) and redeploy:
 
-| Variable    | Example          | Notes                                  |
-| ----------- | ---------------- | -------------------------------------- |
-| `SMTP_HOST` | `smtp.gmail.com` |                                        |
-| `SMTP_PORT` | `465`            | 465 = TLS (default), 587 = STARTTLS    |
-| `SMTP_USER` | `you@gmail.com`  | The mailbox that sends                 |
-| `SMTP_PASS` | app password     | Gmail needs an App Password, not login |
+| Variable      | Example                        | Notes                                              |
+| ------------- | ------------------------------ | -------------------------------------------------- |
+| `SMTP_HOST`   | `smtp.gmail.com`               | required                                           |
+| `SMTP_PORT`   | `465`                          | 465 = TLS (default), 587 = STARTTLS                |
+| `SMTP_SECURE` | `true`                         | optional; guessed from the port when empty         |
+| `SMTP_USER`   | `you@gmail.com`                | required; the mailbox that sends                   |
+| `SMTP_PASS`   | app password                   | required; Gmail needs an App Password, not login   |
+| `MAIL_FROM`   | `Forgebyte <you@gmail.com>`    | optional; default `Forgebyte <SMTP_USER>`          |
+| `WORK_MAIL`   | `hello@forgebyte.online`       | optional; default `CONTACT_EMAIL` in `lib/site.ts` |
+| `BOOKING_URL` | `https://cal.com/forgebyte/30` | optional; without it "Book a call" opens WhatsApp  |
 
 Rate limit: 5 submissions per IP per 10 minutes, per serverless instance
 (the same caveat as the chat limiter — it trims abuse, it is not a quota).

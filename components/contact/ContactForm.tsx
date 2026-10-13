@@ -11,14 +11,15 @@ export const TIMELINES = ['As soon as possible', 'Within a month', '1–3 months
 /** Last choice in "What you need" — sent like any other option. */
 export const NOT_SURE = 'Not sure yet';
 
-type Errors = Partial<Record<'name' | 'email' | 'message', string>>;
+type Errors = Partial<Record<'name' | 'email' | 'phone' | 'message', string>>;
 type State =
   | { kind: 'idle' }
   | { kind: 'sending' }
   | { kind: 'error'; text: string }
-  | { kind: 'done'; reference: string };
+  | { kind: 'done'; reference: string; confirmationSent: boolean };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const PHONE_RE = /^\+?[\d\s().-]{7,24}$/;
 
 function validate(data: FormData): Errors {
   const e: Errors = {};
@@ -26,6 +27,8 @@ function validate(data: FormData): Errors {
   const email = String(data.get('email') ?? '').trim();
   if (!email) e.email = 'We need an email to reply to.';
   else if (!EMAIL_RE.test(email)) e.email = 'That email address does not look right.';
+  const phone = String(data.get('phone') ?? '').trim();
+  if (phone && (!PHONE_RE.test(phone) || (phone.match(/\d/g) ?? []).length < 7)) e.phone = 'That phone number does not look right.';
   if (String(data.get('message') ?? '').trim().length < 10) e.message = 'A sentence or two about the problem, please.';
   return e;
 }
@@ -34,6 +37,7 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
   const [state, setState] = useState<State>({ kind: 'idle' });
   const [errors, setErrors] = useState<Errors>({});
   const started = useRef(false);
+  const submitting = useRef(false); // blocks double submits (fast double-click, Enter twice)
   const formRef = useRef<HTMLFormElement>(null);
 
   const onInput = (e: React.FormEvent<HTMLFormElement>) => {
@@ -49,26 +53,31 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (submitting.current) return;
     const form = e.currentTarget;
     const data = new FormData(form);
     const found = validate(data);
     setErrors(found);
-    const firstBad = (['name', 'email', 'message'] as const).find((k) => found[k]);
+    const firstBad = (['name', 'email', 'phone', 'message'] as const).find((k) => found[k]);
     if (firstBad) {
       form.querySelector<HTMLElement>(`[name="${firstBad}"]`)?.focus();
       return;
     }
 
+    submitting.current = true;
     setState({ kind: 'sending' });
     try {
       const res = await fetch('/api/contact', { method: 'POST', body: data, headers: { Accept: 'application/json' } });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || 'Could not send your message right now.');
       track('form_submit', { source });
-      setState({ kind: 'done', reference: body.reference ?? '' });
+      // the form unmounts here, so "Send another message" starts from a clean form
+      setState({ kind: 'done', reference: body.reference ?? '', confirmationSent: body.confirmationSent !== false });
     } catch (err) {
-      // keep everything the visitor typed; offer the direct route
+      // keep everything the visitor typed; offer a retry and the direct route
       setState({ kind: 'error', text: (err as Error).message });
+    } finally {
+      submitting.current = false;
     }
   }
 
@@ -76,8 +85,12 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
     return (
       <div className="form-done" role="status" aria-live="polite">
         <p className="mono" style={{ marginBottom: 12 }}>{state.reference ? `Reference ${state.reference}` : 'Sent'}</p>
-        <h3 className="h3">Received. Coffee is brewing.</h3>
-        <p>We&apos;ll reply within {studio.replyWithin}. A confirmation with a copy of your message is on its way to your inbox.</p>
+        <h3 className="h3">Message sent! Check your inbox for a confirmation.</h3>
+        <p>
+          {state.confirmationSent
+            ? <>We&apos;ve emailed you a copy of your message. We&apos;ll reply within {studio.replyWithin}.</>
+            : <>Your message reached us, but the confirmation email didn&apos;t go through — we&apos;ll still reply within {studio.replyWithin}.</>}
+        </p>
         <button className="ulink" type="button" onClick={() => { setState({ kind: 'idle' }); started.current = false; }}>
           Send another message
         </button>
@@ -102,7 +115,12 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
         <input id="cf-email" name="email" type="email" className="input" autoComplete="email" inputMode="email" required aria-required="true" {...err('email')} />
         <p className="field-error" id="email-error" aria-live="polite">{errors.email}</p>
       </div>
-      <div className="field full">
+      <div className="field">
+        <label htmlFor="cf-phone">Phone / WhatsApp <span className="opt">(optional)</span></label>
+        <input id="cf-phone" name="phone" type="tel" className="input" autoComplete="tel" inputMode="tel" {...err('phone')} />
+        <p className="field-error" id="phone-error" aria-live="polite">{errors.phone}</p>
+      </div>
+      <div className="field">
         <label htmlFor="cf-company">Company <span className="opt">(optional)</span></label>
         <input id="cf-company" name="company" className="input" autoComplete="organization" />
       </div>
@@ -131,6 +149,8 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
         <p className="field-error" id="message-error" aria-live="polite">{errors.message}</p>
       </div>
 
+      {/* which form this came from, for the studio's notification */}
+      <input type="hidden" name="source" value={source} />
       {/* spam trap: real visitors never see or fill this */}
       <input type="text" name="_gotcha" className="honeypot" tabIndex={-1} autoComplete="off" aria-hidden="true" />
 
@@ -142,7 +162,9 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
           {sending && 'Checking the kettle…'}
           {state.kind === 'error' && (
             <>
-              {state.text} Your message is still here — try again, or email <a className="ulink" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+              {state.text} Your message is still here.{' '}
+              <button type="button" className="ulink form-retry" onClick={() => formRef.current?.requestSubmit()}>Try again</button>
+              {' '}or email <a className="ulink" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
             </>
           )}
         </p>
