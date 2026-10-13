@@ -449,7 +449,7 @@ html[data-cursor="custom"] body.cursor-on textarea{cursor:text;}
   position:fixed; inset:0; z-index:var(--z-intro);
   display:flex; align-items:center; justify-content:center;
   background:var(--bg-0);
-  transition:opacity 0.7s var(--ease-out), visibility 0.7s var(--ease-out);
+  transition:opacity 0.7s ease, visibility 0.7s ease; /* portfolio: 0.7s ease */
 }
 #introOverlay::before{
   content:''; position:absolute; inset:0; pointer-events:none;
@@ -459,30 +459,27 @@ html[data-cursor="custom"] body.cursor-on textarea{cursor:text;}
 .intro-meta{position:absolute; left:var(--margin); right:var(--margin); display:flex; justify-content:space-between; gap:16px;}
 .intro-meta.top{top:24px;}
 .intro-meta.bottom{bottom:24px; align-items:center;}
+/* Typography, spacing and breakpoint match the portfolio's intro
+   (portfolio/app/globals.css): JetBrains Mono 700, clamp(30px, 6vw, 58px),
+   -0.01em, line-height 1.6, 24px side padding, one switch at 899px.
+   Colours stay this site's. */
 .intro-letters{display:grid; place-items:center; max-width:100%; padding:0 24px;}
 /* the invisible final text and the animated line share one grid cell, so the
    finished size is reserved from the first paint */
 .intro-line{
-  grid-area:1 / 1; display:flex; justify-content:center; align-items:baseline; gap:0.35em; white-space:nowrap;
-  font-family:var(--font-sans-stack); font-weight:600; font-size:clamp(30px, 6vw, 58px); letter-spacing:-0.035em; line-height:1.15;
+  grid-area:1 / 1; display:flex; justify-content:center; align-items:baseline; gap:clamp(18px, 4vw, 48px); white-space:nowrap;
+  font-family:var(--font-mono-stack); font-weight:700; font-size:clamp(30px, 6vw, 58px); letter-spacing:-0.01em; line-height:1.6;
 }
 .intro-ghost{visibility:hidden;}
 @media (max-width:899px){
-  /* narrow screens: one word per line, centred */
-  .intro-line{flex-direction:column; align-items:center; gap:clamp(4px, 1.4vh, 12px);}
-}
-@media (max-width:767px){
-  /* phones: the block sits at a left inset, vertically centred; A, B, I
-     share one fixed column and each word unfolds to the right of it */
+  /* phones and tablets: one word per line; the block sits at the 24px inset,
+     vertically centred; A, B, I share one fixed column and each word
+     unfolds to the right of it */
   .intro-letters{
-    --inset:clamp(24px, 10vw, 40px);
+    --inset:24px;
     width:100%; place-items:center start; padding-inline:var(--inset);
   }
-  .intro-line{
-    justify-self:start; align-items:flex-start; gap:0.25em;
-    /* "Architecting" is ~5.7em wide: keep it on one line inside the insets */
-    font-size:clamp(28px, calc((100vw - 2 * var(--inset)) / 6.2), 56px);
-  }
+  .intro-line{flex-direction:column; justify-self:start; align-items:flex-start; gap:clamp(10px, 3vh, 20px);}
   /* the column starts centred on screen (offset measured in IntroOverlay)
      and slides home — transform only */
   .intro-live{transform:translateX(var(--shift, 0px));}

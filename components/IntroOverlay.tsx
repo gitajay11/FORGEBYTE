@@ -37,7 +37,7 @@ const HOLD = 900;
 const SHIFT = 400; // phones: the column's slide to the left
 const OVERLAP = 300; // …"Architecting" starts 0.1s into the slide
 const wordMs = (i: number) => WORDS[i].rest.length * MS_PER_LETTER;
-const PHONE = '(max-width: 767px)';
+const PHONE = '(max-width: 899px)'; // the portfolio intro's breakpoint
 
 /** The hero waits for this before running its own opening sequence. */
 function announceDone() {

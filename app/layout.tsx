@@ -18,12 +18,14 @@ const grotesk = Space_Grotesk({
   display: 'swap',
 });
 
+// 700 is the intro's weight (matches the portfolio's intro); preloaded because
+// the intro is the first thing painted.
 const mono = JetBrains_Mono({
   subsets: ['latin'],
-  weight: ['400', '500'],
+  weight: ['400', '500', '700'],
   variable: '--font-mono',
   display: 'swap',
-  preload: false,
+  preload: true,
 });
 
 export const metadata: Metadata = {
