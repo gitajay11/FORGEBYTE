@@ -355,8 +355,20 @@ html[data-cursor="custom"] body.cursor-on textarea{cursor:text;}
 }
 .intro-ghost{visibility:hidden;}
 @media (max-width:899px){
-  /* phones: one word per line, centred */
+  /* narrow screens: one word per line, centred */
   .intro-line{flex-direction:column; align-items:center; gap:clamp(4px, 1.4vh, 12px);}
+}
+@media (max-width:767px){
+  /* phones: the block is centred but its text is left-aligned, so A, B and I
+     sit in one fixed column and each word unfolds to the right. The live line
+     stretches to the reserved (ghost) width; the size keeps "Architecting"
+     on one line: it is ~5.7em wide, plus the 24px side padding. */
+  .intro-line{
+    justify-self:stretch; align-items:flex-start; gap:0.25em;
+    font-size:clamp(28px, calc((100vw - 48px) / 6.2), 56px);
+  }
+  /* a clean left-to-right reveal: no slide, so nothing passes over the capital */
+  .intro-line .il-rest > span{transform:none;}
 }
 .intro-word{display:inline-flex; align-items:baseline;}
 /* 1. A, B, I arrive one by one, in lime */
