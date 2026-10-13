@@ -187,38 +187,82 @@ main{display:block;}
 .nav-links a:not(.btn):hover,.nav-links a[aria-current="page"]{color:var(--text-1);}
 .nav-links a[aria-current="page"]{background-size:100% 1px; background-position:left bottom;}
 .nav-links .btn{min-height:40px; padding:0 18px; font-size:0.9rem;}
-.theme-btn{width:40px; height:40px; display:grid; place-items:center; border:1px solid var(--border); border-radius:var(--r-pill); color:var(--text-2); transition:color var(--dur-short), border-color var(--dur-short);}
+.theme-btn{width:40px; height:40px; display:grid; place-items:center; border:1px solid var(--border); border-radius:var(--r-pill); color:var(--text-2); transition:color var(--dur-short), border-color var(--dur-short); -webkit-tap-highlight-color:transparent;}
 .theme-btn:hover{color:var(--accent-blue); border-color:var(--accent-blue);}
 .theme-btn svg{width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round;}
 .nav-mobile{display:none; align-items:center; gap:6px;}
-.menu-btn{display:flex; flex-direction:column; justify-content:center; align-items:center; width:44px; height:44px; margin-right:-10px;}
-.menu-btn span{display:block; width:22px; height:1.5px; background:var(--text-1); transition:transform var(--dur-short) var(--ease-out), opacity var(--dur-micro);}
-.menu-btn span + span{margin-top:6px;}
-.menu-btn[aria-expanded="true"] span:first-child{transform:translateY(3.75px) rotate(45deg);}
-.menu-btn[aria-expanded="true"] span:last-child{transform:translateY(-3.75px) rotate(-45deg);}
 
+/* Menu button: 44px round target, two 2px lines that turn into an X.
+   No tap-highlight box; a ring only for keyboard focus. */
+.menu-btn{
+  -webkit-appearance:none; appearance:none; background:transparent; border:0; padding:0; -webkit-tap-highlight-color:transparent;
+  position:relative; width:44px; height:44px; margin-right:-10px; border-radius:var(--r-pill); color:var(--text-1);
+  transition:background-color 200ms ease, transform 150ms ease;
+}
+.menu-btn:focus{outline:none;}
+.menu-btn:focus-visible{outline:2px solid var(--accent-blue); outline-offset:2px;}
+@media (hover:hover){ .menu-btn:hover{background:color-mix(in srgb, var(--accent-blue) 10%, transparent);} }
+.menu-btn:active{transform:scale(0.94);}
+.menu-btn span{
+  position:absolute; left:50%; top:50%; width:20px; height:2px; margin:-1px 0 0 -10px; border-radius:2px; background:currentColor;
+  transition:transform 250ms ease;
+}
+.menu-btn span:first-child{transform:translateY(-4px);}
+.menu-btn span:last-child{transform:translateY(4px);}
+.menu-btn[aria-expanded="true"] span:first-child{transform:rotate(45deg);}
+.menu-btn[aria-expanded="true"] span:last-child{transform:rotate(-45deg);}
+
+/* Menu panel: glass, slides in from the right over a dimmed page.
+   The header (and its button) sits above it: --z-nav > --z-menu. */
+.menu-overlay{
+  position:fixed; inset:0; z-index:calc(var(--z-menu) - 1); background:rgba(4,6,10,0.45);
+  opacity:0; visibility:hidden; transition:opacity 300ms ease, visibility 0s linear 300ms;
+}
+.menu-overlay[data-open="true"]{opacity:1; visibility:visible; transition:opacity 300ms ease, visibility 0s;}
 .menu{
-  position:fixed; inset:0; z-index:var(--z-menu); background:var(--bg-0);
-  padding:calc(var(--nav-h) + 24px) var(--margin) 32px; display:flex; flex-direction:column; justify-content:space-between;
-  clip-path:inset(0 0 100% 0); visibility:hidden;
-  transition:clip-path var(--dur-long) var(--ease-in-out), visibility 0s linear var(--dur-long);
+  position:fixed; top:0; right:0; bottom:0; z-index:var(--z-menu); width:min(88vw, 400px);
+  display:flex; flex-direction:column; gap:var(--s-6); overflow-y:auto; overscroll-behavior:contain;
+  padding:calc(var(--nav-h) + 16px) 20px calc(20px + env(safe-area-inset-bottom));
+  background:color-mix(in srgb, var(--bg-0) 72%, transparent);
+  -webkit-backdrop-filter:blur(12px) saturate(150%); backdrop-filter:blur(12px) saturate(150%);
+  border-left:1px solid var(--border-strong); box-shadow:-24px 0 48px -24px rgba(0,0,0,0.5);
+  transform:translateX(100%); visibility:hidden;
+  transition:transform 350ms var(--ease-out), visibility 0s linear 350ms;
 }
-.menu[data-open="true"]{clip-path:inset(0); visibility:visible; transition:clip-path var(--dur-long) var(--ease-in-out), visibility 0s;}
+.menu[data-open="true"]{transform:none; visibility:visible; transition:transform 350ms var(--ease-out), visibility 0s;}
+.menu-list{display:flex; flex-direction:column; gap:4px;}
 .menu-list a{
-  display:flex; align-items:baseline; gap:16px; padding:10px 0; border-bottom:1px solid var(--border);
-  font-size:clamp(2.4rem, 11vw, 4rem); font-weight:500; letter-spacing:-0.03em; line-height:1.05;
-  opacity:0; transform:translateY(24px);
-  transition:opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  display:flex; align-items:center; gap:14px; min-height:52px; padding:0 14px; border-radius:12px;
+  font-size:1.25rem; font-weight:500; letter-spacing:-0.01em; color:var(--text-1); -webkit-tap-highlight-color:transparent;
+  opacity:0; transform:translateX(16px);
+  transition:opacity 250ms ease, transform 300ms var(--ease-out), background-color 150ms ease, color 150ms ease;
 }
-.menu-list a .mono{font-size:11px;}
-.menu[data-open="true"] .menu-list a{opacity:1; transform:none;}
-.menu[data-open="true"] .menu-list li:nth-child(1) a{transition-delay:200ms;}
-.menu[data-open="true"] .menu-list li:nth-child(2) a{transition-delay:280ms;}
-.menu[data-open="true"] .menu-list li:nth-child(3) a{transition-delay:360ms;}
-.menu[data-open="true"] .menu-list li:nth-child(4) a{transition-delay:440ms;}
-.menu[data-open="true"] .menu-list li:nth-child(5) a{transition-delay:520ms;}
-.menu[data-open="true"] .menu-list li:nth-child(6) a{transition-delay:600ms;}
-.menu-foot{display:flex; flex-direction:column; gap:16px;}
+.menu-list a .mono{font-size:11px; color:var(--text-3);}
+.menu[data-open="true"] .menu-list a{opacity:1; transform:none; transition-delay:calc(120ms + var(--i) * 40ms), calc(120ms + var(--i) * 40ms), 0s, 0s;}
+/* current page in the brand colour; tap = a light tint, never an outline box */
+.menu-list a[aria-current="page"],.menu-list a[aria-current="page"] .mono{color:var(--accent-blue);}
+.menu-list a[aria-current="page"]{background:var(--accent-blue-soft);}
+@media (hover:hover){ .menu-list a:hover{background:color-mix(in srgb, var(--accent-blue) 6%, transparent);} }
+.menu-list a:active{background:var(--accent-blue-soft);}
+.menu-list a:focus,.menu-cta:focus{outline:none;}
+.menu-list a:focus-visible,.menu-cta:focus-visible{outline:2px solid var(--accent-blue); outline-offset:2px;}
+.menu-foot{display:flex; flex-direction:column; gap:12px; margin-top:auto; padding-inline:14px;}
+.menu-foot .socials{gap:6px;} /* six icons on one row in the panel */
+.menu-cta{width:100%; justify-content:center; min-height:52px; -webkit-tap-highlight-color:transparent;}
+.menu-cta[aria-current="page"]{box-shadow:0 0 0 2px var(--accent-blue-soft);}
+/* the chat widget floats above everything; keep it out of the open menu's way */
+body.menu-open .chat{visibility:hidden; pointer-events:none;}
+/* reduced motion: a simple fade, nothing slides */
+@media (prefers-reduced-motion: reduce){
+  html:not([data-motion="full"]) .menu,html:not([data-motion="full"]) .menu[data-open="true"]{transform:none;}
+  html:not([data-motion="full"]) .menu{opacity:0; transition:opacity 200ms ease, visibility 0s linear 200ms !important;}
+  html:not([data-motion="full"]) .menu[data-open="true"]{opacity:1; transition:opacity 200ms ease, visibility 0s !important;}
+  html:not([data-motion="full"]) .menu-list a{opacity:1; transform:none;}
+}
+html[data-motion="reduced"] .menu,html[data-motion="reduced"] .menu[data-open="true"]{transform:none;}
+html[data-motion="reduced"] .menu{opacity:0; transition:opacity 200ms ease, visibility 0s linear 200ms !important;}
+html[data-motion="reduced"] .menu[data-open="true"]{opacity:1; transition:opacity 200ms ease, visibility 0s !important;}
+html[data-motion="reduced"] .menu-list a{opacity:1; transform:none;}
 
 /* Scroll progress: a hairline at the very top, scaled (not resized) so it
    never triggers layout. */
@@ -242,7 +286,7 @@ main{display:block;}
   .nav[data-floating="true"] .nav-inner{padding-inline:12px 2px;}
   .nav[data-floating="true"] .menu-btn{margin-right:0;}
 }
-@media (min-width:1024px){ .menu{display:none;} }
+@media (min-width:1024px){ .menu,.menu-overlay{display:none;} }
 
 /* =====================================================================
    Reveal system — one named animation per element, triggered by

@@ -50,14 +50,23 @@ export default function Nav() {
     };
   }, [pathname]);
 
-  // Close the menu on navigation
+  // Close the menu on navigation, and when the window grows to desktop
   useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const onChange = () => { if (desktop.matches) setOpen(false); };
+    desktop.addEventListener('change', onChange);
+    return () => desktop.removeEventListener('change', onChange);
+  }, []);
 
   // Menu: lock scroll, move focus in, Escape closes, focus returns
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
+    const prev = { overflow: document.body.style.overflow, pad: document.body.style.paddingRight };
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = 'hidden';
+    if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`;
+    document.body.classList.add('menu-open'); // hides the chat widget, which sits above the panel
     const first = menuRef.current?.querySelector<HTMLElement>('a');
     first?.focus();
     const onKey = (e: KeyboardEvent) => {
@@ -72,7 +81,9 @@ export default function Nav() {
     };
     document.addEventListener('keydown', onKey);
     return () => {
-      document.body.style.overflow = prev;
+      document.body.style.overflow = prev.overflow;
+      document.body.style.paddingRight = prev.pad;
+      document.body.classList.remove('menu-open');
       document.removeEventListener('keydown', onKey);
       buttonRef.current?.focus();
     };
@@ -151,29 +162,20 @@ export default function Nav() {
         </div>
       </header>
 
+      {/* tapping the dimmed page beside the panel closes it */}
+      <div className="menu-overlay" data-open={open} onClick={() => setOpen(false)} aria-hidden="true" />
       <div id="site-menu" className="menu" data-open={open} ref={menuRef} aria-hidden={!open} inert={!open}>
         <nav aria-label="Mobile">
           <ul className="menu-list">
             {LINKS.map((l, i) => (
-              <li key={l.href}>
-                <Link href={l.href} aria-current={current(l.href)}>
+              <li key={l.href} style={{ '--i': i } as React.CSSProperties}>
+                {/* closes on tap even when the link is the page you're on */}
+                <Link href={l.href} aria-current={current(l.href)} onClick={() => setOpen(false)}>
                   <span className="mono">0{i + 1}</span>
                   {l.label}
                 </Link>
               </li>
             ))}
-            <li>
-              <Link href={contactHref} onClick={goToContact} aria-current={current('/contact')} data-track="nav_click:contact-menu">
-                <span className="mono">05</span>
-                Contact
-              </Link>
-            </li>
-            <li>
-              <Link href="/contact" data-track="cta_click:menu">
-                <span className="mono">06</span>
-                Start a project
-              </Link>
-            </li>
           </ul>
         </nav>
         <div className="menu-foot">
@@ -181,6 +183,15 @@ export default function Nav() {
           <p className="mono">{studio.city} · {studio.tzLabel}</p>
           <SocialLinks />
         </div>
+        <Link
+          href={contactHref}
+          className="btn btn-primary menu-cta"
+          aria-current={current('/contact')}
+          onClick={(e) => { goToContact(e); setOpen(false); }}
+          data-track="cta_click:menu"
+        >
+          Contact <span className="arrow" aria-hidden="true">→</span>
+        </Link>
       </div>
     </>
   );
