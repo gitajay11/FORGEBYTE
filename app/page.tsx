@@ -253,11 +253,11 @@ export default function Home() {
                 <Words text={`You’ll work with ${team[0].short} and ${team[1].short}.`} />
               </h2>
               <p>
-                {team[0].name} and {team[1].display} run every project at {studio.name} themselves, from the first call
-                to the day it goes live. No middlemen, and no handing you over to someone you&apos;ve never met.
+                We&apos;re {team[0].name} and {team[1].display}. We run every project at {studio.name} ourselves, from the
+                first call to the day it goes live. No middlemen, and no handing you over to someone you&apos;ve never met.
               </p>
               <p>
-                They care about the details most people never notice: pages that load fast, checkouts that
+                We care about the details most people never notice: pages that load fast, checkouts that
                 don&apos;t break, and messages that make sense to your customers.
               </p>
               <p className="quirk">Fill your coffee cup before booking a call with us.</p>

@@ -15,7 +15,7 @@ const PRINCIPLES = [
   { t: 'Simple beats clever.', b: 'A site that just works, every day, is worth more than a flashy one that breaks.' },
   { t: 'Bad news early.', b: 'If a date or budget won’t work, you hear it in week one — not week six.' },
   { t: 'You own everything.', b: 'Your site, your accounts and your files are yours. No lock-in.' },
-  { t: 'One person who knows it all.', b: 'You deal with the person building it, not a chain of hand-offs.' },
+  { t: 'The people who build it.', b: 'You deal with the two of us, the people building it, not a chain of hand-offs.' },
 ];
 
 const WORKING_WITH_US = [
@@ -47,15 +47,15 @@ export default function StudioPage() {
           <div className="founder-body">
             <h2 id="founder-h" className="display-l" style={{ marginBottom: 'var(--s-6)' }}>The founders</h2>
             <Reveal as="p" variant="blur">
-              {studio.name} is run by its founder, {team[0].name}, and co-founder {team[1].display}. They run every
-              project personally, from the first call to the day it goes live — no middlemen.
+              We&apos;re {team[0].name}, founder, and {team[1].display}, co-founder. We run every project at {studio.name}{' '}
+              personally, from the first call to the day it goes live — no middlemen.
             </Reveal>
             <p>
-              They care about the details most people never notice: pages that load fast on any phone, checkouts
+              We care about the details most people never notice: pages that load fast on any phone, checkouts
               that don&apos;t break, and messages that make sense to your customers.
             </p>
             <p>
-              Based in {studio.city}, working with clients anywhere. Taking on new projects from {studio.availability}.
+              We&apos;re based in {studio.city} and work with clients anywhere, taking on new projects from {studio.availability}.
             </p>
             <p className="quirk">Bring the hard question first. It saves everyone a meeting.</p>
             <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
