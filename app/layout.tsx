@@ -28,9 +28,11 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  // Browser tab reads just "FORGEBYTE" on every page: the template has no %s,
+  // so pages' own titles don't show. Share previews keep SITE_TITLE (below).
   title: {
-    default: SITE_TITLE,
-    template: `%s | ${SITE_NAME}`,
+    default: 'FORGEBYTE',
+    template: 'FORGEBYTE',
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
@@ -78,6 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${grotesk.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: PREFS_SCRIPT }} />
+        
       </head>
       {/* intro-lock is removed by IntroOverlay once the ABI intro finishes.
           suppressHydrationWarning: browser extensions write inline styles on

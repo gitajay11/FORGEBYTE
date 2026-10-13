@@ -5,9 +5,9 @@ import { motionReduced } from '@/lib/prefs';
 import { studio } from '@/lib/content';
 
 // ABI intro, once per full page load:
-//   1. "A", "B", "I" fade/slide in one by one (110ms stagger);
-//   2. after a 0.25s pause each letter grows into its word, one after the
-//      other (0.4s each, 0.18s apart). The lime capital stays put and the rest
+//   1. "A", "B", "I" fade/slide in one by one (100ms stagger);
+//   2. at 0.5s each letter grows into its word, one after the other, at the
+//      portfolio's typing pace (34ms a letter). The lime capital stays put and the rest
 //      of the word unfolds from it;
 //   3. "Architecting Bold Ideas" holds, then the overlay fades away.
 // Phones (<768px) add a step between 1 and 2: the letters arrive as a column
@@ -25,14 +25,18 @@ const WORDS = [
 ] as const;
 const NAME = WORDS.map((w) => w.key + w.rest).join(' ');
 
-const START_DELAY = 150;
-const LETTERS_IN = 3 * 110 + 250; // stagger + one letter's entrance
-const PAUSE = 250;
-const WORD = 400;
-const BETWEEN = 180;
-const HOLD = 550;
+// Timing matches the portfolio's intro (portfolio/components/IntroOverlay.tsx):
+// "A B I" up for 0.5s, the rest typed at 34ms a letter with no gaps between
+// words, a 0.9s hold, then a 0.7s fade (CSS).
+const START_DELAY = 0;
+const LETTERS_IN = 2 * 100 + 200; // A, B, I 100ms apart, 200ms entrance each
+const PAUSE = 100; // words start at 0.5s, like the portfolio's typing
+const MS_PER_LETTER = 34;
+const BETWEEN = 0;
+const HOLD = 900;
 const SHIFT = 400; // phones: the column's slide to the left
-const OVERLAP = 120; // …which "Architecting" starts before the slide ends
+const OVERLAP = 300; // …"Architecting" starts 0.1s into the slide
+const wordMs = (i: number) => WORDS[i].rest.length * MS_PER_LETTER;
 const PHONE = '(max-width: 767px)';
 
 /** The hero waits for this before running its own opening sequence. */
@@ -45,7 +49,11 @@ function Line({ lettersIn, opened }: { lettersIn: boolean; opened: number }) {
   return (
     <>
       {WORDS.map((w, i) => (
-        <span className={`intro-word${i < opened ? ' open' : ''}`} key={w.key} style={{ '--i': i } as React.CSSProperties}>
+        <span
+          className={`intro-word${i < opened ? ' open' : ''}`}
+          key={w.key}
+          style={{ '--i': i, '--word-ms': `${w.rest.length * MS_PER_LETTER}ms` } as React.CSSProperties}
+        >
           <span className={`il-key${lettersIn ? ' in' : ''}`}>{w.key}</span>
           {/* window > text: phones wipe the window right while the text counter-slides */}
           <span className="il-rest"><span><span>{w.rest}</span></span></span>
@@ -105,7 +113,7 @@ export default function IntroOverlay() {
         for (let i = 1; i <= WORDS.length; i++) {
           if (cancelled) return;
           setOpened(i);
-          await sleep(WORD + (i < WORDS.length ? BETWEEN : 0));
+          await sleep(wordMs(i - 1) + (i < WORDS.length ? BETWEEN : 0));
         }
         await sleep(HOLD);
       }

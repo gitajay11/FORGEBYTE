@@ -449,7 +449,7 @@ html[data-cursor="custom"] body.cursor-on textarea{cursor:text;}
   position:fixed; inset:0; z-index:var(--z-intro);
   display:flex; align-items:center; justify-content:center;
   background:var(--bg-0);
-  transition:opacity 0.5s var(--ease-out), visibility 0.5s var(--ease-out);
+  transition:opacity 0.7s var(--ease-out), visibility 0.7s var(--ease-out);
 }
 #introOverlay::before{
   content:''; position:absolute; inset:0; pointer-events:none;
@@ -492,21 +492,21 @@ html[data-cursor="custom"] body.cursor-on textarea{cursor:text;}
      back by the same amount, so the letters stay put. Transform only. */
   .intro-line .il-rest{grid-template-columns:1fr; overflow:hidden;}
   .intro-line .il-rest > span{transform:translateX(-100%);}
-  .intro-line .il-rest > span > span{display:inline-block; transform:translateX(100%); transition:transform 400ms ease-in-out;}
+  .intro-line .il-rest > span > span{display:inline-block; transform:translateX(100%); transition:transform var(--word-ms, 400ms) linear;}
   .intro-line .intro-word.open .il-rest > span > span{transform:none;}
 }
 .intro-word{display:inline-flex; align-items:baseline;}
 /* 1. A, B, I arrive one by one, in lime */
 .il-key{
   display:inline-block; color:var(--lime-ink); opacity:0; transform:translateY(0.35em);
-  transition:opacity 250ms ease-out, transform 250ms ease-out; transition-delay:calc(var(--i) * 110ms);
+  transition:opacity 200ms ease-out, transform 200ms ease-out; transition-delay:calc(var(--i) * 100ms);
 }
 .il-key.in{opacity:1; transform:none;}
 /* 2. each word unfolds from its capital (0fr -> 1fr: no measuring, no jumps) */
-.il-rest{display:inline-grid; grid-template-columns:0fr; transition:grid-template-columns 400ms ease-in-out;}
+.il-rest{display:inline-grid; grid-template-columns:0fr; transition:grid-template-columns var(--word-ms, 400ms) linear;}
 .il-rest > span{
   min-width:0; overflow:hidden; color:var(--text-1); opacity:0; transform:translateX(-0.25em);
-  transition:opacity 400ms ease-in-out, transform 400ms ease-in-out;
+  transition:opacity var(--word-ms, 400ms) linear, transform var(--word-ms, 400ms) linear;
 }
 .intro-word.open .il-rest{grid-template-columns:1fr;}
 .intro-word.open .il-rest > span{opacity:1; transform:none;}
