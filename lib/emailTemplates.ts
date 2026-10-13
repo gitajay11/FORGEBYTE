@@ -67,7 +67,7 @@ function istTime(d: Date): string {
   }) + ' IST';
 }
 
-function pageLabel(source: string): string {
+export function pageLabel(source: string): string {
   if (source === 'home') return `Home page (${SITE_URL.replace(/^https?:\/\//, '')}/#contact)`;
   if (source === 'contact-page') return `Contact page (${SITE_URL.replace(/^https?:\/\//, '')}/contact)`;
   return source || 'Unknown';

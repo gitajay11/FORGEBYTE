@@ -63,6 +63,11 @@ but none existed before. Keep, edit or delete:
   `SMTP_USER`, `SMTP_PASS` (required, as before), plus optional
   `SMTP_SECURE`, `MAIL_FROM`, `WORK_MAIL`, `BOOKING_URL` — see README →
   Contact form. Without the optional ones nothing changes.
+- Enquiries can also land in the Google Sheet via Sheet Ninja
+  (`SHEETNINJA_API_URL`, optional `SHEETNINJA_TOKEN`). The sheet was empty
+  when this was built: row 1 needs the headers listed in README → Contact
+  form. Tested against a stand-in endpoint only — send one real test
+  enquiry after setting it up.
 - The confirmation email promises a reply "within 24–48 hours" (as briefed);
   the site and the form's success message say "within 1 working day". Pick
   one and align `RESPONSE_TIME` in `lib/emailTemplates.ts` or

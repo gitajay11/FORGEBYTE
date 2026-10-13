@@ -1,8 +1,10 @@
-// Receives the contact form, emails the enquiry to the studio (WORK_MAIL) and
-// a confirmation to the visitor. SMTP settings come from env vars only.
+// Receives the contact form: emails the enquiry to the studio (WORK_MAIL),
+// sends the visitor a confirmation, and adds a row to the enquiries Google
+// Sheet via Sheet Ninja. All settings come from env vars only.
 
 import { BOOKING_URL, INBOX, sendMail, smtpConfigured } from '@/lib/mail';
-import { makeReference, studioNotification, visitorConfirmation } from '@/lib/emailTemplates';
+import { makeReference, pageLabel, studioNotification, visitorConfirmation } from '@/lib/emailTemplates';
+import { appendToSheet, istTimestamp, sheetConfigured } from '@/lib/sheet';
 import { clientIp, createRateLimiter } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
@@ -28,8 +30,8 @@ function field(data: FormData, name: keyof typeof MAX): string {
 }
 
 export async function POST(request: Request) {
-  if (!smtpConfigured) {
-    console.error('Contact form: SMTP_HOST/SMTP_USER/SMTP_PASS not set');
+  if (!smtpConfigured && !sheetConfigured) {
+    console.error('Contact form: neither SMTP (SMTP_HOST/SMTP_USER/SMTP_PASS) nor SHEETNINJA_API_URL is set');
     return Response.json({ error: 'The contact form is not configured yet.' }, { status: 503 });
   }
 
@@ -84,24 +86,39 @@ export async function POST(request: Request) {
     receivedAt: new Date(),
   };
 
-  // Both emails at once. The studio copy is the one that matters: if it
-  // fails, say so (the visitor keeps their input and can retry). If only the
-  // visitor's confirmation fails, the enquiry still arrived — log it and
-  // report success.
+  // Email to the studio, confirmation to the visitor and the sheet row, all at
+  // once. The enquiry counts as received if it reached the studio by either
+  // route (email or sheet) — otherwise say so, and the visitor keeps their
+  // input to retry. Any single failure is logged.
   const studio = studioNotification(enquiry);
   const confirmation = visitorConfirmation(enquiry, { bookingUrl: BOOKING_URL });
   const visitor = { name, address: email };
-  const [toStudio, toVisitor] = await Promise.allSettled([
-    sendMail({ to: INBOX, replyTo: visitor, ...studio }),
-    sendMail({ to: visitor, replyTo: INBOX, ...confirmation }),
+  const skipped = Promise.reject(new Error('not configured'));
+  skipped.catch(() => {}); // settled below; silence the unhandled-rejection warning
+  const [toStudio, toVisitor, toSheet] = await Promise.allSettled([
+    smtpConfigured ? sendMail({ to: INBOX, replyTo: visitor, ...studio }) : skipped,
+    smtpConfigured ? sendMail({ to: visitor, replyTo: INBOX, ...confirmation }) : skipped,
+    sheetConfigured
+      ? appendToSheet({
+          submittedAt: istTimestamp(enquiry.receivedAt),
+          reference: enquiry.reference,
+          name, email, phone, company,
+          service: needs.length ? needs.join(', ') : 'General enquiry',
+          budget, timeline, message,
+          page: pageLabel(source),
+        })
+      : skipped,
   ]);
 
-  if (toStudio.status === 'rejected') {
-    console.error(`Contact form ${enquiry.reference}: studio email failed`, toStudio.reason);
+  const log = (what: string, r: PromiseSettledResult<void>, configured: boolean) => {
+    if (configured && r.status === 'rejected') console.error(`Contact form ${enquiry.reference}: ${what} failed`, r.reason);
+  };
+  log('studio email', toStudio, smtpConfigured);
+  log('confirmation email', toVisitor, smtpConfigured);
+  log('sheet row', toSheet, sheetConfigured);
+
+  if (toStudio.status === 'rejected' && toSheet.status === 'rejected') {
     return Response.json({ error: 'Could not send your message right now.' }, { status: 502 });
-  }
-  if (toVisitor.status === 'rejected') {
-    console.error(`Contact form ${enquiry.reference}: confirmation email failed`, toVisitor.reason);
   }
 
   return Response.json(

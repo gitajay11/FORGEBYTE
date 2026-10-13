@@ -160,9 +160,22 @@ fails the enquiry still counts as sent and the failure is logged. Each email
 has an HTML and a plain-text version; images are hosted PNGs in
 `public/email/` (regenerate them if the brand changes).
 
+3. **To the enquiries Google Sheet** (optional, `lib/sheet.ts`) — one row
+   per enquiry through [Sheet Ninja](https://docs.sheetninja.io), sent at
+   the same time as the emails. Row 1 of the tab must hold these headers
+   (Sheet Ninja matches the camelCase keys to them):
+
+   `Submitted At | Reference | Name | Email | Phone | Company | Service | Budget | Timeline | Message | Page`
+
+   Values starting with `= + - @` are stored as text, so nothing a visitor
+   types can run as a formula. Unmatched keys are logged as a warning.
+
+An enquiry counts as received if it reached the studio by email **or** the
+sheet; only when both fail does the form show an error.
+
 Chat-widget leads (`lib/leads.ts`) go to the studio inbox through the same
-transport. There is no fallback: without `SMTP_HOST`, `SMTP_USER` and
-`SMTP_PASS` the route returns 503 and the form shows an error.
+mail transport. Without SMTP and without `SHEETNINJA_API_URL` the route
+returns 503 and the form shows an error.
 
 Set these in Vercel (Settings → Environment Variables) and redeploy:
 
@@ -176,6 +189,8 @@ Set these in Vercel (Settings → Environment Variables) and redeploy:
 | `MAIL_FROM`   | `Forgebyte <you@gmail.com>`    | optional; default `Forgebyte <SMTP_USER>`          |
 | `WORK_MAIL`   | `hello@forgebyte.online`       | optional; default `CONTACT_EMAIL` in `lib/site.ts` |
 | `BOOKING_URL` | `https://cal.com/forgebyte/30` | optional; without it "Book a call" opens WhatsApp  |
+| `SHEETNINJA_API_URL` | `https://api.sheetninja.io/{namespace}/{project}/{tab}` | optional; the tab's endpoint from the Sheet Ninja dashboard |
+| `SHEETNINJA_TOKEN`   | API token | only if protection is on for that endpoint |
 
 Rate limit: 5 submissions per IP per 10 minutes, per serverless instance
 (the same caveat as the chat limiter — it trims abuse, it is not a quota).
