@@ -21,6 +21,7 @@ const jsonLd = {
       '@id': `${SITE_URL}/#studio`,
       name: studio.name,
       url: SITE_URL,
+      logo: `${SITE_URL}/logo/forgebyte-f.png`,
       email: CONTACT_EMAIL,
       telephone: CONTACT_PHONE_E164,
       description: 'A small studio in Chennai building websites, online stores, web apps and AI assistants for small businesses, startups and founders.',

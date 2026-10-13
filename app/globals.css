@@ -181,7 +181,7 @@ main{display:block;}
 .nav[data-past-hero="true"] .nav-tagline{opacity:1; transform:none;}
 .nav[data-past-hero="true"] .logo-word{opacity:0;}
 .logo{display:inline-flex; align-items:center; gap:10px; font-weight:600; font-size:1.125rem; letter-spacing:-0.02em;}
-.logo-mark{width:30px; height:30px; display:grid; place-items:center; border:1px solid var(--border-strong); border-radius:2px; font-family:var(--font-mono-stack); font-size:12px; color:var(--accent-blue);}
+.logo-mark{width:30px; height:30px; flex:none; display:block; object-fit:contain;}
 .nav-links{position:relative; display:flex; align-items:center; gap:clamp(16px, 2vw, 28px);}
 /* numbered links, in landing-page order */
 .nav-link{display:inline-flex; align-items:baseline; gap:5px; padding-block:6px; font-size:0.95rem; color:var(--text-2); transition:color var(--dur-short);}

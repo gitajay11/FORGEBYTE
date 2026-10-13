@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -180,7 +181,7 @@ export default function Nav() {
         <div className="container nav-inner">
           <div className="nav-brand">
             <Link href="/" className="logo" aria-label="Forgebyte — home">
-              <span className="logo-mark" aria-hidden="true">{'{}'}</span>
+              <Image src="/logo/forgebyte-f.png" alt="" width={30} height={30} className="logo-mark" priority />
               <span className="logo-word">forgebyte</span>
             </Link>
             {/* the hero headline, carried into the bar once the hero is gone */}
