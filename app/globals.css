@@ -100,6 +100,61 @@ main{display:block;}
 .index{display:flex; align-items:center; gap:12px; margin-bottom:var(--s-6); color:var(--accent-blue); letter-spacing:0.14em;}
 .index::after{content:''; flex:1; height:1px; background:var(--border); max-width:120px;}
 
+/* Section title (SectionTitle): typed in with a caret, then a glassy brand
+   capsule fades in with a glow running round its edge. SiteEffects sets
+   data-state="typing" | "done" and replays it on every entry. The padding and
+   every letter are always laid out, so nothing shifts. */
+@property --angle{syntax:'<angle>'; inherits:false; initial-value:0deg;}
+@keyframes st-spin{to{--angle:360deg;}}
+@keyframes st-pulse{50%{box-shadow:0 0 22px 2px color-mix(in srgb, var(--accent-blue) 40%, transparent);}}
+@keyframes st-blink{50%{opacity:0;}}
+.section-title{
+  position:relative; isolation:isolate; flex:none; white-space:nowrap; text-align:center;
+  /* the trailing letter-spacing is taken off the right so the text sits centred */
+  padding:8px calc(24px - 0.14em) 8px 24px; border-radius:9999px;
+}
+.section-title::before,
+.section-title::after{
+  content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  opacity:0; transform:scale(0.92); transition:opacity 300ms ease-out, transform 300ms ease-out;
+}
+.section-title::before{
+  z-index:-1;
+  background:color-mix(in srgb, var(--accent-blue) 10%, transparent);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  border:1px solid color-mix(in srgb, var(--accent-blue) 20%, transparent);
+  box-shadow:0 0 12px 0 color-mix(in srgb, var(--accent-blue) 20%, transparent);
+}
+.section-title::after{
+  padding:1.5px;
+  background:conic-gradient(from var(--angle), transparent 0deg 210deg, var(--accent-blue) 340deg, transparent 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+}
+.section-title[data-state="done"]::before{opacity:1; transform:none; animation:st-pulse 2.8s ease-in-out infinite;}
+.section-title[data-state="done"]::after{opacity:1; transform:none; animation:st-spin 2.8s linear infinite;}
+.st-c{position:relative;}
+html.js .st-c{opacity:0;}
+html.js .st-c.on,
+html.js .section-title[data-state="done"] .st-c{opacity:1;}
+/* thin blinking caret after the latest letter; gone once typing ends */
+.st-c.caret::after{
+  content:''; position:absolute; left:100%; top:50%; width:1.5px; height:1.15em; translate:-0.07em -50%;
+  background:currentColor; animation:st-blink 0.8s steps(1) infinite;
+}
+/* reduced motion or no JS: the finished capsule, still ring, no typing */
+html[data-motion="reduced"] .st-c,
+html:not(.js) .st-c{opacity:1;}
+html[data-motion="reduced"] .section-title::before,
+html[data-motion="reduced"] .section-title::after,
+html:not(.js) .section-title::before,
+html:not(.js) .section-title::after{opacity:1; transform:none; animation:none;}
+@media (prefers-reduced-motion: reduce){
+  html:not([data-motion="full"]) .st-c{opacity:1;}
+  html:not([data-motion="full"]) .section-title::before,
+  html:not([data-motion="full"]) .section-title::after{opacity:1; transform:none; animation:none;}
+}
+
 /* Live status dot */
 .live{display:inline-flex; align-items:center; gap:8px;}
 .live::before{

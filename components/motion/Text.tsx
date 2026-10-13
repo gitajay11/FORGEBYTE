@@ -52,11 +52,23 @@ export function TypeIn({ text, as: Tag = 'span', className = '' }: Props) {
   );
 }
 
-/** Section index label: "[02] — SERVICES". */
-export function Index({ n, label }: { n: string; label: string }) {
+/**
+ * Section title: "[02] — WHAT WE DO", typed letter by letter, then held in a
+ * glowing capsule. SiteEffects drives it (`data-state`) and replays it on every
+ * entry. Every letter is always laid out, so nothing shifts while it types.
+ */
+export function SectionTitle({ n, label }: { n: string; label: string }) {
+  const text = `[${n}] — ${label}`;
   return (
     <p className="index mono">
-      <TypeIn text={`[${n}] — ${label}`} />
+      <span className="section-title">
+        <span className="sr-only">{text}</span>
+        <span aria-hidden="true">
+          {[...text].map((c, i) => (
+            <span className="st-c" key={i}>{c}</span>
+          ))}
+        </span>
+      </span>
     </p>
   );
 }

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { caseStudies, engagements, faq, lab, process, services, studio, team } from '@/lib/content';
 import { CONTACT_EMAIL, CONTACT_PHONE_E164, SITE_URL, WHATSAPP_URL } from '@/lib/site';
-import { Index, Reveal, Words } from '@/components/motion/Text';
+import { Reveal, SectionTitle, Words } from '@/components/motion/Text';
 import HeroStage from '@/components/home/HeroStage';
 import IdeaField from '@/components/home/IdeaField';
 import Glyph from '@/components/home/Glyph';
@@ -88,7 +88,7 @@ export default function Home() {
       {/* ABOUT ------------------------------------------------------------ */}
       <section className="section manifesto" id="about" aria-labelledby="about-title" tabIndex={-1}>
         <div className="container">
-          <Index n="01" label="About us" />
+          <SectionTitle n="01" label="About us" />
           <div className="grid">
             <h2 id="about-title" className="display-l manifesto-head">
               <Words text="We ask questions" highlight="questions" />{' '}
@@ -115,7 +115,7 @@ export default function Home() {
       {/* SERVICES --------------------------------------------------------- */}
       <section className="section" id="services" aria-labelledby="services-title" tabIndex={-1}>
         <div className="container">
-          <Index n="02" label="What we do" />
+          <SectionTitle n="02" label="What we do" />
           <div className="grid" style={{ marginBottom: 'var(--s-8)' }}>
             <h2 id="services-title" className="display-l" style={{ gridColumn: '1 / span 8' }}>
               <Words text="What we can build for you" highlight="build" />
@@ -157,7 +157,7 @@ export default function Home() {
       {/* WORK ------------------------------------------------------------- */}
       <section className="section" id="work" aria-labelledby="work-title" tabIndex={-1}>
         <div className="container">
-          <Index n="03" label="Our work" />
+          <SectionTitle n="03" label="Our work" />
           <div className="work-head">
             <h2 id="work-title" className="display-l"><Words text="Websites we’ve built" highlight="Websites" /></h2>
             <Link href="/work" className="ulink">See all work →</Link>
@@ -182,7 +182,7 @@ export default function Home() {
       {/* PROCESS ---------------------------------------------------------- */}
       <section className="section" id="process" aria-labelledby="process-title">
         <div className="container">
-          <Index n="04" label="How it works" />
+          <SectionTitle n="04" label="How it works" />
           <div className="process-wrap">
             <div className="process-intro">
               <h2 id="process-title" className="display-l"><Words text="How a project works" highlight="project" /></h2>
@@ -214,7 +214,7 @@ export default function Home() {
       {/* HOW WE THINK ----------------------------------------------------- */}
       <section className="section" id="thinking" aria-labelledby="thinking-title">
         <div className="container">
-          <Index n="05" label="How we think" />
+          <SectionTitle n="05" label="How we think" />
           <div className="proof-grid">
             <div className="proof-head">
               <h2 id="thinking-title" className="display-l"><Words text="A simple request, the right questions" highlight="questions" /></h2>
@@ -239,7 +239,7 @@ export default function Home() {
       {/* FOUNDER ---------------------------------------------------------- */}
       <section className="section" id="founder" aria-labelledby="founder-title">
         <div className="container">
-          <Index n="06" label="Who you’ll work with" />
+          <SectionTitle n="06" label="Who you’ll work with" />
           <div className="founder">
             <div className="team-portraits">
               {team.map((m) => (
@@ -271,7 +271,7 @@ export default function Home() {
       {/* DEMOS ------------------------------------------------------------ */}
       <section className="section" id="lab" aria-labelledby="lab-title" tabIndex={-1}>
         <div className="container">
-          <Index n="07" label="Demos" />
+          <SectionTitle n="07" label="Demos" />
           <div className="work-head">
             <h2 id="lab-title" className="display-l"><Words text="Demos and experiments" highlight="Demos" /></h2>
             <Link href="/lab" className="ulink">See all demos →</Link>
@@ -292,7 +292,7 @@ export default function Home() {
       {/* WAYS TO WORK ----------------------------------------------------- */}
       <section className="section" id="engage" aria-labelledby="engage-title">
         <div className="container">
-          <Index n="08" label="Working together" />
+          <SectionTitle n="08" label="Working together" />
           <h2 id="engage-title" className="display-l" style={{ marginBottom: 'var(--s-7)' }}>
             <Words text="Ways to work together" highlight="together" />
           </h2>
@@ -316,7 +316,7 @@ export default function Home() {
       {/* FAQ -------------------------------------------------------------- */}
       <section className="section" id="faq" aria-labelledby="faq-title">
         <div className="container">
-          <Index n="09" label="Questions" />
+          <SectionTitle n="09" label="Questions" />
           <div className="grid">
             <h2 id="faq-title" className="display-l faq-head"><Words text="Common questions" highlight="questions" /></h2>
             <div className="faq">

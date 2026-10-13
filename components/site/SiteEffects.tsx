@@ -26,6 +26,47 @@ export default function SiteEffects() {
     return () => document.removeEventListener('touchstart', noop);
   }, []);
 
+  // Section titles: type in letter by letter with a caret, then the capsule
+  // and its glow (globals.css). Replays every time a title is half in view —
+  // scrolling down or up — and resets when it leaves.
+  useEffect(() => {
+    const titles = [...document.querySelectorAll<HTMLElement>('.section-title')];
+    if (!titles.length) return;
+    if (motionReduced()) {
+      titles.forEach((t) => { t.dataset.state = 'done'; });
+      return;
+    }
+    const STEP = 60; // ms per letter
+    const timers = new Map<HTMLElement, number>();
+    const reset = (t: HTMLElement) => {
+      clearTimeout(timers.get(t));
+      delete t.dataset.state;
+      t.querySelectorAll('.st-c').forEach((c) => c.classList.remove('on', 'caret'));
+    };
+    const play = (t: HTMLElement) => {
+      reset(t);
+      const chars = [...t.querySelectorAll<HTMLElement>('.st-c')];
+      t.dataset.state = 'typing';
+      let i = 0;
+      const tick = () => {
+        chars[i - 1]?.classList.remove('caret');
+        if (i === chars.length) { t.dataset.state = 'done'; return; }
+        chars[i++].classList.add('on', 'caret');
+        timers.set(t, window.setTimeout(tick, STEP));
+      };
+      tick();
+    };
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => (e.isIntersecting ? play : reset)(e.target as HTMLElement)),
+      { threshold: 0.5 }
+    );
+    titles.forEach((t) => io.observe(t));
+    return () => {
+      io.disconnect();
+      timers.forEach((t) => clearTimeout(t));
+    };
+  }, [pathname]);
+
   // Reveals
   useEffect(() => {
     const targets = [...document.querySelectorAll<HTMLElement>(REVEAL)];
