@@ -260,78 +260,121 @@ html[data-motion="reduced"] .nav-capsule::before{animation:none; background:colo
 .menu-btn:active{transform:scale(0.94);}
 .menu-btn span{
   position:absolute; left:50%; top:50%; width:20px; height:2px; margin:-1px 0 0 -10px; border-radius:2px; background:currentColor;
-  transition:transform 250ms ease;
+  transition:transform 200ms ease-in; /* closing: same 200ms as the panel */
 }
+.menu-btn[aria-expanded="true"] span{transition:transform 350ms cubic-bezier(.34,1.45,.64,1);} /* opening: the panel's spring */
 .menu-btn span:first-child{transform:translateY(-4px);}
 .menu-btn span:last-child{transform:translateY(4px);}
 .menu-btn[aria-expanded="true"] span:first-child{transform:rotate(45deg);}
 .menu-btn[aria-expanded="true"] span:last-child{transform:rotate(-45deg);}
 
-/* Menu panel: glass, slides in from the right over a dimmed page.
-   The header (and its button) sits above it: --z-nav > --z-menu. */
+/* Floating menu (phones/tablets): a glass card just under the bar, right-
+   aligned with the menu button, that grows out of the button. Nav.tsx sets
+   --menu-top and the transform-origin (--menu-ox/--menu-oy) on opening.
+   Transform/opacity only. The header (and its button) stays above it. */
 .menu-overlay{
-  position:fixed; inset:0; z-index:calc(var(--z-menu) - 1); background:rgba(4,6,10,0.45);
-  opacity:0; visibility:hidden; transition:opacity 300ms ease, visibility 0s linear 300ms;
+  position:fixed; inset:0; z-index:calc(var(--z-menu) - 1);
+  background:rgba(0,0,0,0.3); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  opacity:0; visibility:hidden; transition:opacity 200ms ease, visibility 0s linear 200ms;
 }
 .menu-overlay[data-open="true"]{opacity:1; visibility:visible; transition:opacity 300ms ease, visibility 0s;}
 .menu{
-  position:fixed; top:0; right:0; bottom:0; z-index:var(--z-menu); width:min(88vw, 400px);
-  display:flex; flex-direction:column; gap:var(--s-6); overflow-y:auto; overscroll-behavior:contain;
-  padding:calc(var(--nav-h) + 16px) 20px calc(20px + env(safe-area-inset-bottom));
-  background:color-mix(in srgb, var(--bg-0) 72%, transparent);
-  -webkit-backdrop-filter:blur(12px) saturate(150%); backdrop-filter:blur(12px) saturate(150%);
-  border-left:1px solid var(--border-strong); box-shadow:-24px 0 48px -24px rgba(0,0,0,0.5);
-  transform:translateX(100%); visibility:hidden;
-  transition:transform 350ms var(--ease-out), visibility 0s linear 350ms;
+  position:fixed; z-index:var(--z-menu); top:var(--menu-top, calc(var(--nav-h) + 8px)); right:16px;
+  width:min(360px, calc(100% - 32px)); max-height:calc(100dvh - var(--menu-top, 80px) - 16px);
+  overflow-y:auto; overscroll-behavior:contain;
+  display:flex; flex-direction:column; gap:12px; padding:10px;
+  border-radius:22px; border:1px solid color-mix(in srgb, var(--text-1) 14%, transparent);
+  background:color-mix(in srgb, var(--bg-1) 70%, transparent);
+  -webkit-backdrop-filter:blur(16px) saturate(160%); backdrop-filter:blur(16px) saturate(160%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb, var(--text-1) 8%, transparent),
+    0 8px 20px -12px rgba(0,0,0,0.35), 0 28px 60px -20px rgba(0,0,0,0.5);
+  transform-origin:var(--menu-ox, calc(100% - 22px)) var(--menu-oy, -24px);
+  opacity:0; transform:translateY(-6px) scale(0.9); visibility:hidden; pointer-events:none;
+  /* closing: faster, no spring */
+  transition:opacity 200ms ease-in, transform 200ms ease-in, visibility 0s linear 200ms;
 }
-.menu[data-open="true"]{transform:none; visibility:visible; transition:transform 350ms var(--ease-out), visibility 0s;}
-.menu-list{display:flex; flex-direction:column; gap:4px;}
+.menu[data-open="true"]{
+  opacity:1; transform:none; visibility:visible; pointer-events:auto;
+  /* opening: spring (slight overshoot) */
+  transition:opacity 220ms ease-out, transform 350ms cubic-bezier(.34,1.45,.64,1), visibility 0s;
+}
+/* rows: icon + label, staggered in */
+.menu-list{position:relative; display:flex; flex-direction:column; gap:2px;}
+.menu-list > li{position:relative;}
 .menu-list a{
-  display:flex; align-items:center; gap:14px; min-height:52px; padding:0 14px; border-radius:12px;
-  font-size:1.25rem; font-weight:500; letter-spacing:-0.01em; color:var(--text-1); -webkit-tap-highlight-color:transparent;
-  opacity:0; transform:translateX(16px);
-  transition:opacity 250ms ease, transform 300ms var(--ease-out), background-color 150ms ease, color 150ms ease;
+  position:relative; z-index:1; overflow:hidden; display:flex; align-items:center; gap:14px;
+  min-height:52px; padding:0 12px 0 8px; border-radius:14px;
+  font-size:1.06rem; font-weight:500; letter-spacing:-0.01em; color:var(--text-1); -webkit-tap-highlight-color:transparent;
+  opacity:0; transform:translateY(8px);
+  transition:opacity 200ms ease, transform 260ms cubic-bezier(.34,1.45,.64,1), color 150ms ease, background-color 150ms ease;
 }
-.menu-list a .mono{font-size:11px; color:var(--text-3);}
-.menu[data-open="true"] .menu-list a{opacity:1; transform:none; transition-delay:calc(120ms + var(--i) * 40ms), calc(120ms + var(--i) * 40ms), 0s, 0s;}
-/* current page in the brand colour; tap = a light tint, never an outline box */
+.menu[data-open="true"] .menu-list a{opacity:1; transform:none; transition-delay:calc(60ms + var(--i) * 40ms), calc(60ms + var(--i) * 40ms), 0s, 0s;}
+/* touch feedback: press scale (plus the ripple below), never an outline box */
+.menu[data-open="true"] .menu-list a:active{transform:scale(0.97); transition:transform 120ms ease, opacity 200ms, color 150ms, background-color 150ms;}
+.menu-icon{width:36px; height:36px; flex:none; display:grid; place-items:center; border-radius:10px;
+  background:color-mix(in srgb, var(--text-1) 6%, transparent); color:var(--text-2); transition:background-color 150ms, color 150ms;}
+.menu-icon svg{width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+.menu-list .mono{margin-left:auto; font-size:11px; color:var(--text-3);}
 .menu-list a[data-active="true"],.menu-list a[data-active="true"] .mono{color:var(--accent-blue);}
-.menu-list a[data-active="true"]{
-  position:relative; border-radius:9999px; background:color-mix(in srgb, var(--accent-blue) 13%, transparent);
+.menu-list a[data-active="true"] .menu-icon{color:var(--accent-blue); background:var(--accent-blue-soft);}
+@media (hover:hover){ .menu-list a:hover{background:color-mix(in srgb, var(--accent-blue) 6%, transparent);} }
+.menu-list a:focus,.menu-cta:focus{outline:none;}
+.menu-list a:focus-visible,.menu-cta:focus-visible{outline:2px solid var(--accent-blue); outline-offset:2px;}
+/* the active row's capsule: one element sliding between rows with the same
+   spring and moving glow ring as the desktop navbar's (Nav.tsx sets
+   --mc-y / --mc-h) */
+.menu-capsule-slot{position:absolute; inset:0; pointer-events:none;}
+.menu-capsule{
+  position:absolute; left:0; right:0; top:0; height:var(--mc-h, 52px); border-radius:9999px;
+  transform:translateY(var(--mc-y, 0px));
+  background:color-mix(in srgb, var(--accent-blue) 13%, transparent);
   box-shadow:0 0 18px -4px color-mix(in srgb, var(--accent-blue) 55%, transparent);
+  opacity:0;
 }
-.menu-list a[data-active="true"]::before{
-  content:''; position:absolute; inset:0; border-radius:inherit; padding:1.5px; pointer-events:none;
+.menu-capsule[data-visible="true"]{opacity:1;}
+.menu-capsule[data-ready="true"]{transition:transform 420ms cubic-bezier(.34,1.45,.64,1), height 420ms cubic-bezier(.34,1.45,.64,1), opacity 250ms ease;}
+.menu-capsule::before{
+  content:''; position:absolute; inset:0; border-radius:inherit; padding:1.5px;
   background:conic-gradient(from var(--cap-angle), transparent 0deg 200deg, var(--accent-blue) 290deg, transparent 360deg);
   -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite:xor; mask-composite:exclude;
   animation:cap-spin 3s linear infinite;
 }
-@media (prefers-reduced-motion: reduce){
-  html:not([data-motion="full"]) .menu-list a[data-active="true"]::before{animation:none; background:color-mix(in srgb, var(--accent-blue) 45%, transparent);}
+/* ripple: a soft brand tint spreading from the tap point (Nav.tsx sets
+   --rx/--ry and restarts .rippling on each press) */
+.menu-list a::after,.menu-cta::after{
+  content:''; position:absolute; left:var(--rx, 50%); top:var(--ry, 50%); width:260px; height:260px; margin:-130px 0 0 -130px;
+  border-radius:50%; pointer-events:none; opacity:0; transform:scale(0);
+  background:radial-gradient(circle, color-mix(in srgb, var(--accent-blue) 30%, transparent) 0%, transparent 65%);
 }
-html[data-motion="reduced"] .menu-list a[data-active="true"]::before{animation:none; background:color-mix(in srgb, var(--accent-blue) 45%, transparent);}
-@media (hover:hover){ .menu-list a:hover{background:color-mix(in srgb, var(--accent-blue) 6%, transparent);} }
-.menu-list a:active{background:var(--accent-blue-soft);}
-.menu-list a:focus,.menu-cta:focus{outline:none;}
-.menu-list a:focus-visible,.menu-cta:focus-visible{outline:2px solid var(--accent-blue); outline-offset:2px;}
-.menu-foot{display:flex; flex-direction:column; gap:12px; margin-top:auto; padding-inline:14px;}
-.menu-foot .socials{gap:6px;} /* six icons on one row in the panel */
-.menu-cta{width:100%; justify-content:center; min-height:52px; -webkit-tap-highlight-color:transparent;}
-.menu-cta[data-active="true"]{box-shadow:0 0 0 2px var(--accent-blue-soft);}
+.menu-cta::after{background:radial-gradient(circle, rgba(255,255,255,0.45) 0%, transparent 65%);}
+.rippling::after{animation:menu-ripple 520ms ease-out;}
+@keyframes menu-ripple{from{transform:scale(0); opacity:1;} to{transform:scale(1.3); opacity:0;}}
+/* footer: full-width Contact, then the social icons */
+.menu-foot{display:flex; flex-direction:column; gap:12px; padding:12px 2px 2px; border-top:1px solid var(--border);}
+.menu-cta{position:relative; overflow:hidden; width:100%; justify-content:center; min-height:50px; -webkit-tap-highlight-color:transparent;
+  transition:transform 150ms ease, box-shadow 200ms ease, background-color var(--dur-short);}
+.menu-cta:active{transform:scale(0.98); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent-lime) 30%, transparent), 0 0 26px -2px color-mix(in srgb, var(--accent-lime) 65%, transparent);}
+.menu-foot .socials{justify-content:center; gap:6px;}
+.menu .social-link{-webkit-tap-highlight-color:transparent; transition:transform 120ms ease, color var(--dur-short), border-color var(--dur-short), background-color var(--dur-short);}
+.menu .social-link:active{transform:scale(0.9);}
 /* the chat widget floats above everything; keep it out of the open menu's way */
 body.menu-open .chat{visibility:hidden; pointer-events:none;}
-/* reduced motion: a simple fade, nothing slides */
+/* reduced motion: a simple fade — no scale, spring, stagger, ripple or glow spin */
 @media (prefers-reduced-motion: reduce){
   html:not([data-motion="full"]) .menu,html:not([data-motion="full"]) .menu[data-open="true"]{transform:none;}
-  html:not([data-motion="full"]) .menu{opacity:0; transition:opacity 200ms ease, visibility 0s linear 200ms !important;}
-  html:not([data-motion="full"]) .menu[data-open="true"]{opacity:1; transition:opacity 200ms ease, visibility 0s !important;}
+  html:not([data-motion="full"]) .menu{transition:opacity 160ms ease, visibility 0s linear 160ms !important;}
+  html:not([data-motion="full"]) .menu[data-open="true"]{transition:opacity 160ms ease, visibility 0s !important;}
   html:not([data-motion="full"]) .menu-list a{opacity:1; transform:none;}
+  html:not([data-motion="full"]) .menu-list a::after,html:not([data-motion="full"]) .menu-cta::after{display:none;}
+  html:not([data-motion="full"]) .menu-capsule::before{animation:none; background:color-mix(in srgb, var(--accent-blue) 45%, transparent);}
 }
 html[data-motion="reduced"] .menu,html[data-motion="reduced"] .menu[data-open="true"]{transform:none;}
-html[data-motion="reduced"] .menu{opacity:0; transition:opacity 200ms ease, visibility 0s linear 200ms !important;}
-html[data-motion="reduced"] .menu[data-open="true"]{opacity:1; transition:opacity 200ms ease, visibility 0s !important;}
+html[data-motion="reduced"] .menu{transition:opacity 160ms ease, visibility 0s linear 160ms !important;}
+html[data-motion="reduced"] .menu[data-open="true"]{transition:opacity 160ms ease, visibility 0s !important;}
 html[data-motion="reduced"] .menu-list a{opacity:1; transform:none;}
+html[data-motion="reduced"] .menu-list a::after,html[data-motion="reduced"] .menu-cta::after{display:none;}
+html[data-motion="reduced"] .menu-capsule::before{animation:none; background:color-mix(in srgb, var(--accent-blue) 45%, transparent);}
 
 /* Scroll progress: a hairline at the very top, scaled (not resized) so it
    never triggers layout. */

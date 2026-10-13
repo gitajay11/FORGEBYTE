@@ -4,7 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { studio } from '@/lib/content';
 import { motionReduced } from '@/lib/prefs';
 import { ThemeButton } from './ThemeToggle';
 import SocialLinks from './SocialLinks';
@@ -22,6 +21,25 @@ type SectionId = (typeof LINKS)[number]['id'];
 
 const num = (i: number) => String(i + 1).padStart(2, '0');
 
+// Menu row icons (Lucide, ISC): same 24px outline style as the site's other icons.
+const MENU_ICONS: Record<string, React.ReactNode> = {
+  about: (<><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>),
+  services: (<><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" /></>),
+  work: (<><rect width="20" height="14" x="2" y="7" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></>),
+  lab: (<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />),
+};
+
+/** Tap feedback: a soft tint that ripples out from the touch point. */
+function ripple(e: React.PointerEvent<HTMLElement>) {
+  const el = e.currentTarget;
+  const r = el.getBoundingClientRect();
+  el.style.setProperty('--rx', `${e.clientX - r.left}px`);
+  el.style.setProperty('--ry', `${e.clientY - r.top}px`);
+  el.classList.remove('rippling');
+  void el.offsetWidth; // restart the animation on every tap
+  el.classList.add('rippling');
+}
+
 export default function Nav() {
   const pathname = usePathname();
   const onHome = pathname === '/';
@@ -37,6 +55,8 @@ export default function Nav() {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const linksRef = useRef<HTMLUListElement>(null);
   const capsuleRef = useRef<HTMLSpanElement>(null);
+  const menuListRef = useRef<HTMLUListElement>(null);
+  const menuCapsuleRef = useRef<HTMLSpanElement>(null);
   // while a nav click is smooth-scrolling, ignore the sections it passes
   const clickLock = useRef(false);
 
@@ -95,6 +115,37 @@ export default function Nav() {
     return () => desktop.removeEventListener('change', onChange);
   }, []);
 
+  // Floating menu: sits just under the bar, right-aligned with the button,
+  // and grows out of the button (transform-origin = the button's centre).
+  // Measured before the opening frame paints.
+  useLayoutEffect(() => {
+    const menu = menuRef.current, btn = buttonRef.current;
+    if (!open || !menu || !btn) return;
+    const b = btn.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth;
+    const width = Math.min(360, vw - 32);
+    const top = Math.round(b.bottom + 10);
+    menu.style.setProperty('--menu-top', `${top}px`);
+    menu.style.setProperty('--menu-ox', `${Math.round(b.left + b.width / 2 - (vw - 16 - width))}px`);
+    menu.style.setProperty('--menu-oy', `${Math.round(b.top + b.height / 2 - top)}px`);
+  }, [open]);
+
+  // Swipe up on the panel closes it (only when the panel itself can't scroll)
+  useEffect(() => {
+    const menu = menuRef.current;
+    if (!open || !menu) return;
+    let x0 = 0, y0 = 0;
+    const start = (e: TouchEvent) => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; };
+    const end = (e: TouchEvent) => {
+      const t = e.changedTouches[0];
+      const dx = t.clientX - x0, dy = t.clientY - y0;
+      if (dy < -50 && Math.abs(dy) > Math.abs(dx) * 1.5 && menu.scrollHeight <= menu.clientHeight + 1) setOpen(false);
+    };
+    menu.addEventListener('touchstart', start, { passive: true });
+    menu.addEventListener('touchend', end, { passive: true });
+    return () => { menu.removeEventListener('touchstart', start); menu.removeEventListener('touchend', end); };
+  }, [open]);
+
   // Menu: lock scroll, move focus in, Escape closes, focus returns
   useEffect(() => {
     if (!open) return;
@@ -152,6 +203,20 @@ export default function Nav() {
   const ariaCurrent = (l: (typeof LINKS)[number]) =>
     onHome ? (l.id === section ? 'true' : undefined) : isPage(l.href) ? 'page' : undefined;
 
+  // Menu capsule: behind the active row; jumps into place when the menu
+  // opens, then slides (e.g. to the row you tap while the menu closes).
+  useLayoutEffect(() => {
+    const ul = menuListRef.current, cap = menuCapsuleRef.current;
+    if (!ul || !cap) return;
+    if (open) delete cap.dataset.ready;
+    const row = ul.querySelector<HTMLElement>('a[data-active="true"]')?.parentElement;
+    if (!row) { cap.dataset.visible = 'false'; return; }
+    cap.style.setProperty('--mc-y', `${row.offsetTop}px`);
+    cap.style.setProperty('--mc-h', `${row.offsetHeight}px`);
+    cap.dataset.visible = 'true';
+    if (!cap.dataset.ready) requestAnimationFrame(() => { cap.dataset.ready = 'true'; });
+  }, [activeId, open]);
+
   // Size and place the capsule behind the active link (transform + width).
   // Re-measured on resize, font load and when the bar changes size.
   useLayoutEffect(() => {
@@ -177,7 +242,7 @@ export default function Nav() {
 
   return (
     <>
-      <header className="nav" data-floating={scrolled && !open} data-past-hero={pastHero || open}>
+      <header className="nav" data-floating={scrolled} data-past-hero={pastHero || open}>
         <div className="container nav-inner">
           <div className="nav-brand">
             <Link href="/" className="logo" aria-label="Forgebyte — home">
@@ -229,7 +294,10 @@ export default function Nav() {
               aria-expanded={open}
               aria-controls="site-menu"
               aria-label={open ? 'Close menu' : 'Open menu'}
-              onClick={() => setOpen((o) => !o)}
+              onClick={() => {
+                if (!open) navigator.vibrate?.(10); // light haptic where supported
+                setOpen((o) => !o);
+              }}
             >
               <span />
               <span />
@@ -238,39 +306,43 @@ export default function Nav() {
         </div>
       </header>
 
-      {/* tapping the dimmed page beside the panel closes it */}
+      {/* dimmed, blurred page behind the floating menu; tapping it closes */}
       <div className="menu-overlay" data-open={open} onClick={() => setOpen(false)} aria-hidden="true" />
       <div id="site-menu" className="menu" data-open={open} ref={menuRef} aria-hidden={!open} inert={!open}>
         <nav aria-label="Mobile">
-          <ul className="menu-list">
+          <ul className="menu-list" ref={menuListRef}>
+            {/* one shared capsule that slides between rows */}
+            <li className="menu-capsule-slot" aria-hidden="true"><span className="menu-capsule" ref={menuCapsuleRef} data-visible="false" /></li>
             {LINKS.slice(0, -1).map((l, i) => (
               <li key={l.id} style={{ '--i': i } as React.CSSProperties}>
-                {/* closes on tap even when the link is the page you're on */}
-                <Link href={hrefFor(l)} aria-current={ariaCurrent(l)} data-active={l.id === activeId} onClick={goTo(l.id)}>
-                  <span className="mono">{num(i)}</span>
-                  {l.label}
+                {/* closes on tap (even for the page you're on), then scrolls */}
+                <Link href={hrefFor(l)} aria-current={ariaCurrent(l)} data-active={l.id === activeId} onClick={goTo(l.id)} onPointerDown={ripple}>
+                  <span className="menu-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">{MENU_ICONS[l.id]}</svg>
+                  </span>
+                  <span className="menu-label">{l.label}</span>
+                  <span className="mono" aria-hidden="true">{num(i)}</span>
                 </Link>
               </li>
             ))}
           </ul>
         </nav>
         <div className="menu-foot">
-          <p className="mono live">Accepting projects · {studio.availability}</p>
-          <p className="mono">{studio.city} · {studio.tzLabel}</p>
-          {/* narrow phones: the theme toggle lives here, to leave the bar room for "Start a project" */}
+          {/* narrow phones: the theme toggle lives here, to leave the bar room for "Start project" */}
           <div className="menu-theme"><span className="mono">Theme</span><ThemeButton /></div>
+          <Link
+            href={hrefFor(LINKS[4])}
+            className="btn btn-primary menu-cta"
+            aria-current={ariaCurrent(LINKS[4])}
+            data-active={activeId === 'contact'}
+            onClick={goTo('contact')}
+            onPointerDown={ripple}
+            data-track="cta_click:menu"
+          >
+            Contact <span className="arrow" aria-hidden="true">→</span>
+          </Link>
           <SocialLinks />
         </div>
-        <Link
-          href={hrefFor(LINKS[4])}
-          className="btn btn-primary menu-cta"
-          aria-current={ariaCurrent(LINKS[4])}
-          data-active={activeId === 'contact'}
-          onClick={goTo('contact')}
-          data-track="cta_click:menu"
-        >
-          Contact <span className="arrow" aria-hidden="true">→</span>
-        </Link>
       </div>
     </>
   );
