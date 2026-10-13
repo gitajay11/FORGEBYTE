@@ -18,7 +18,7 @@ export default function ContactPage() {
       <span className="contact-light" aria-hidden="true" style={{ top: 'calc(var(--nav-h) + var(--section-y) + 8px)' }} />
       <div className="container">
         <h1 id="contact-h" className="display-xl contact-head">
-          <Words text="Got a problem worth thinking about?" />
+          <Words text="Got a problem worth thinking about?" highlight="thinking" />
         </h1>
         <p className="contact-sub">
           A few quick questions — only three are required. We reply within {studio.replyWithin}.

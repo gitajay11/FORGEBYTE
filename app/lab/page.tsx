@@ -15,7 +15,7 @@ export default function LabPage() {
     <>
       <section className="page-hero container">
         <p className="mono" style={{ marginBottom: 'var(--s-5)' }}>07 — Demos</p>
-        <h1 className="display-xl"><Words text="Demos" /></h1>
+        <h1 className="display-xl"><Words text="Demos" highlight="Demos" /></h1>
         <p className="lede">
           Example websites and experiments. None of these are client projects — they show what we can build before
           you commit to anything.

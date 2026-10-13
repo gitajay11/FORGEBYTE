@@ -16,7 +16,7 @@ export default function ServicesPage() {
     <>
       <section className="page-hero container">
         <p className="mono" style={{ marginBottom: 'var(--s-5)' }}>02 — What we do</p>
-        <h1 className="display-xl"><Words text="What we can build for you" /></h1>
+        <h1 className="display-xl"><Words text="What we can build for you" highlight="build" /></h1>
         <p className="lede">
           Five kinds of work. For each one: what you get, how long it usually takes, and when we&apos;re not the right choice.
         </p>

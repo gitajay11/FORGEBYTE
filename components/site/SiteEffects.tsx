@@ -18,6 +18,14 @@ const REVEAL = '[data-reveal], .words, .typein, .draw';
 export default function SiteEffects() {
   const pathname = usePathname();
 
+  // iOS Safari only applies :active (press feedback) once the page has a
+  // touch listener; an empty passive one is enough.
+  useEffect(() => {
+    const noop = () => {};
+    document.addEventListener('touchstart', noop, { passive: true });
+    return () => document.removeEventListener('touchstart', noop);
+  }, []);
+
   // Reveals
   useEffect(() => {
     const targets = [...document.querySelectorAll<HTMLElement>(REVEAL)];

@@ -7,6 +7,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motionReduced } from '@/lib/prefs';
 import { ThemeButton } from './ThemeToggle';
 import SocialLinks from './SocialLinks';
+import CopyEmail from '@/components/contact/CopyEmail';
+import { CONTACT_EMAIL } from '@/lib/site';
 
 // In the order the sections appear on the landing page. On the home page each
 // link scrolls to its section (`id`); elsewhere it opens the page (`href`).
@@ -341,6 +343,7 @@ export default function Nav() {
           >
             Contact <span className="arrow" aria-hidden="true">→</span>
           </Link>
+          <CopyEmail email={CONTACT_EMAIL} className="email-copy--menu" />
           <SocialLinks />
         </div>
       </div>

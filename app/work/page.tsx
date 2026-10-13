@@ -17,7 +17,7 @@ export default function WorkPage() {
     <>
       <section className="page-hero container">
         <p className="mono" style={{ marginBottom: 'var(--s-5)' }}>03 — Our work</p>
-        <h1 className="display-xl"><Words text="Our work" /></h1>
+        <h1 className="display-xl"><Words text="Our work" highlight="work" /></h1>
         <p className="lede">
           Real client projects — live, being tested, or still being built. Each is labelled honestly. Example sites are under{' '}
           <Link href="/lab" className="ulink">Demos</Link>.

@@ -9,7 +9,7 @@ export const SITE_TITLE = 'Forgebyte — Websites, online stores and apps, built
 export const SITE_DESCRIPTION =
   'A small studio building websites, online stores, apps and AI chat assistants for small businesses and startups. Plain English, a fixed price, and weekly updates.';
 
-export const CONTACT_EMAIL = 'ajayak15012004@gmail.com';
+export const CONTACT_EMAIL = 'admin.forgebyte@gmail.com';
 
 // E.164 for the tel: href — a bare 10-digit number only dials from inside
 // the same country. +91 assumed; change if the number isn't Indian.

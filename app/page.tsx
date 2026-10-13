@@ -91,7 +91,7 @@ export default function Home() {
           <Index n="01" label="About us" />
           <div className="grid">
             <h2 id="about-title" className="display-l manifesto-head">
-              <Words text="We ask questions" />{' '}
+              <Words text="We ask questions" highlight="questions" />{' '}
               <Words text="before we build." className="dim" />
             </h2>
             <div className="manifesto-body">
@@ -118,7 +118,7 @@ export default function Home() {
           <Index n="02" label="What we do" />
           <div className="grid" style={{ marginBottom: 'var(--s-8)' }}>
             <h2 id="services-title" className="display-l" style={{ gridColumn: '1 / span 8' }}>
-              <Words text="What we can build for you" />
+              <Words text="What we can build for you" highlight="build" />
             </h2>
             <Reveal as="p" variant="blur" className="body-l" style={{ gridColumn: '1 / span 6', marginTop: 'var(--s-5)' }}>
               Five things we do well — and, for each one, when we&apos;re not the right choice.
@@ -159,7 +159,7 @@ export default function Home() {
         <div className="container">
           <Index n="03" label="Our work" />
           <div className="work-head">
-            <h2 id="work-title" className="display-l"><Words text="Websites we’ve built" /></h2>
+            <h2 id="work-title" className="display-l"><Words text="Websites we’ve built" highlight="Websites" /></h2>
             <Link href="/work" className="ulink">See all work →</Link>
           </div>
         </div>
@@ -185,7 +185,7 @@ export default function Home() {
           <Index n="04" label="How it works" />
           <div className="process-wrap">
             <div className="process-intro">
-              <h2 id="process-title" className="display-l"><Words text="How a project works" /></h2>
+              <h2 id="process-title" className="display-l"><Words text="How a project works" highlight="project" /></h2>
               <p>Five simple steps. After each one, you get something you can see and keep.</p>
             </div>
             <div className="process-steps">
@@ -217,7 +217,7 @@ export default function Home() {
           <Index n="05" label="How we think" />
           <div className="proof-grid">
             <div className="proof-head">
-              <h2 id="thinking-title" className="display-l"><Words text="A simple request, the right questions" /></h2>
+              <h2 id="thinking-title" className="display-l"><Words text="A simple request, the right questions" highlight="questions" /></h2>
               <Reveal as="p" variant="blur" className="body" style={{ marginTop: 'var(--s-5)' }}>
                 We don&apos;t have client reviews to show yet, so here&apos;s how we&apos;d approach a typical request instead.
               </Reveal>
@@ -251,7 +251,7 @@ export default function Home() {
             </div>
             <div className="founder-body">
               <h2 id="founder-title" className="display-l" style={{ marginBottom: 'var(--s-6)' }}>
-                <Words text={`You’ll work with ${team[0].short} and ${team[1].short}.`} />
+                <Words text={`You’ll work with ${team[0].short} and ${team[1].short}.`} highlight={[team[0].short, team[1].short]} />
               </h2>
               <p>
                 We&apos;re {team[0].display} and {team[1].display}. We run every project at {studio.name} ourselves, from the
@@ -273,7 +273,7 @@ export default function Home() {
         <div className="container">
           <Index n="07" label="Demos" />
           <div className="work-head">
-            <h2 id="lab-title" className="display-l"><Words text="Demos and experiments" /></h2>
+            <h2 id="lab-title" className="display-l"><Words text="Demos and experiments" highlight="Demos" /></h2>
             <Link href="/lab" className="ulink">See all demos →</Link>
           </div>
           <div className="lab-strip">
@@ -294,7 +294,7 @@ export default function Home() {
         <div className="container">
           <Index n="08" label="Working together" />
           <h2 id="engage-title" className="display-l" style={{ marginBottom: 'var(--s-7)' }}>
-            <Words text="Ways to work together" />
+            <Words text="Ways to work together" highlight="together" />
           </h2>
           <div className="engage">
             {engagements.map((e) => (
@@ -318,7 +318,7 @@ export default function Home() {
         <div className="container">
           <Index n="09" label="Questions" />
           <div className="grid">
-            <h2 id="faq-title" className="display-l faq-head"><Words text="Common questions" /></h2>
+            <h2 id="faq-title" className="display-l faq-head"><Words text="Common questions" highlight="questions" /></h2>
             <div className="faq">
               {faq.map((f) => (
                 <details key={f.q}>
@@ -335,7 +335,7 @@ export default function Home() {
       <section className="section contact" id="contact" aria-labelledby="contact-title" tabIndex={-1}>
         <span className="contact-light" aria-hidden="true" />
         <div className="container">
-          <h2 id="contact-title" className="display-l contact-head"><Words text="Got a problem worth thinking about?" /></h2>
+          <h2 id="contact-title" className="display-l contact-head"><Words text="Got a problem worth thinking about?" highlight="thinking" /></h2>
           <p className="contact-sub">Tell us what you&apos;re trying to fix or build. We reply within {studio.replyWithin}.</p>
           <div className="contact-grid">
             <ContactForm source="home" />

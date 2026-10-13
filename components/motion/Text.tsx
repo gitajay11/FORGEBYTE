@@ -9,18 +9,23 @@ type Props = {
   as?: ElementType;
   className?: string;
   id?: string;
+  /** Word(s) to pick out in the brand colour with a soft marker. */
+  highlight?: string | string[];
 };
 
+const bare = (w: string) => w.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+
 /** Word-by-word stagger with a slight rotateX. */
-export function Words({ text, as: Tag = 'span', className = '', id }: Props) {
+export function Words({ text, as: Tag = 'span', className = '', id, highlight }: Props) {
   const words = text.split(' ');
+  const keys = new Set([highlight ?? []].flat().map(bare));
   return (
     <Tag className={`words ${className}`.trim()} id={id}>
       <span className="sr-only">{text}</span>
       <span aria-hidden="true">
         {words.map((w, i) => (
           <Fragment key={i}>
-            <span className="w" style={{ ['--i' as string]: i }}>
+            <span className={keys.has(bare(w)) ? 'w key' : 'w'} style={{ ['--i' as string]: i }}>
               <span>{w}</span>
             </span>
             {i < words.length - 1 ? ' ' : null}

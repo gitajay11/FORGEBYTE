@@ -16,7 +16,7 @@ Written 12 Oct 2026, before any redesign code, against `main` at `ba03764`
 | STARTING PRICE | On request (each build scoped and quoted) | no pricing published anywhere; the chat assistant is instructed never to quote |
 | CASE STUDIES | Loopa, Nutriyah, Sri Cauvery Electronics, Élaré Beauty (client/product work); Ember & Oak, Care Dental (demos → Lab) | live Work section, local repos `cafe`, `dentist`, `electronics_pwa`, `elare` |
 | TESTIMONIALS | **None** | nothing exists — Proof section shows thinking, not quotes |
-| CONTACT | ajayak15012004@gmail.com · WhatsApp +91 63749 72948 · github.com/gitajay11 · linkedin.com/in/ajayak1501 | `lib/site.ts`, portfolio `lib/content.ts` |
+| CONTACT | admin.forgebyte@gmail.com · WhatsApp +91 63749 72948 · github.com/gitajay11 · linkedin.com/in/ajayak1501 | `lib/site.ts`, portfolio `lib/content.ts` |
 | EXISTING SITE / REPO | www.forgebyte.online · github.com/gitajay11/FORGEBYTE | |
 | DOMAIN | www.forgebyte.online (apex 308 → www) | |
 | EST. YEAR | 2026 | first commit of this repo — **assumption**, confirm |

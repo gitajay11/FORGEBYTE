@@ -3,6 +3,7 @@ import { studio } from '@/lib/content';
 import { CONTACT_EMAIL, WHATSAPP_URL } from '@/lib/site';
 import { PrefToggles, StudioClock } from './FooterControls';
 import SocialLinks from './SocialLinks';
+import CopyEmail from '@/components/contact/CopyEmail';
 
 export default function Footer() {
   return (
@@ -30,7 +31,7 @@ export default function Footer() {
             <div>
               <p className="mono">Elsewhere</p>
               <ul>
-                <li><a href={`mailto:${CONTACT_EMAIL}`}>Email</a></li>
+                <li><CopyEmail email={CONTACT_EMAIL} className="email-copy--sm" /></li>
                 <li><a href={WHATSAPP_URL} target="_blank" rel="noopener" data-track="booking_click:footer-whatsapp">WhatsApp ↗</a></li>
                 <li><a href={studio.github} target="_blank" rel="noopener">GitHub ↗</a></li>
               </ul>

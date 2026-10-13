@@ -37,7 +37,7 @@ How a project works, five steps: Talk (a short call), Plan (a written plan with 
 
 Work: Loopa (loopa.nutriyah.com), a sparkling drinks brand site that turns distributor interest into bulk-order requests; Nutriyah (nutriyah.com), the parent food company's website; Sri Cauvery Electronics (sricauveryelectronics.shop), an online shop in Tamil and English with cash on delivery, being tested before launch; Élaré Beauty (elarebeauty.store), a makeup store with online payments, still being built. Demos (not client work): Ember & Oak, a café website, and Care Dental, a dental clinic website.
 
-Contact: the form on this page, WhatsApp, or email ajayak15012004@gmail.com.
+Contact: the form on this page, WhatsApp, or email admin.forgebyte@gmail.com.
 
 Callbacks and contact details:
 - An email address or phone number typed into this chat IS forwarded to Ajay automatically, so you may confirm that it has been passed on.

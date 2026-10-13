@@ -30,7 +30,7 @@ export default function StudioPage() {
     <>
       <section className="page-hero container">
         <p className="mono" style={{ marginBottom: 'var(--s-5)' }}>01 — About us</p>
-        <h1 className="display-xl"><Words text="Problem solvers first." /></h1>
+        <h1 className="display-xl"><Words text="Problem solvers first." highlight="Problem" /></h1>
         <p className="lede">You&apos;re not paying for hours of typing. You&apos;re paying for good decisions about what to build.</p>
       </section>
 
