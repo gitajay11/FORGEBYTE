@@ -230,14 +230,6 @@ export default function Home() {
                 <li><p><strong>What does the clinic need every morning?</strong>A correct list of the day&apos;s appointments, on the phone or computer they already use.</p></li>
               </ol>
             </div>
-            <div className="verifiable">
-              {caseStudies.map((cs) => (
-                <a key={cs.slug} href={cs.url} target="_blank" rel="noopener">
-                  <span className="mono">{cs.status}</span>
-                  <span className="ulink">{cs.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')} ↗</span>
-                </a>
-              ))}
-            </div>
           </div>
         </div>
       </section>

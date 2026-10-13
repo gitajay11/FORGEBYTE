@@ -5,9 +5,9 @@ import { motionReduced } from '@/lib/prefs';
 import { studio } from '@/lib/content';
 
 // ABI intro, once per full page load:
-//   1. "A", "B", "I" fade/slide in one by one (150ms stagger);
-//   2. after a 0.4s pause each letter grows into its word, one after the
-//      other (0.5s each, 0.3s apart). The lime capital stays put and the rest
+//   1. "A", "B", "I" fade/slide in one by one (110ms stagger);
+//   2. after a 0.25s pause each letter grows into its word, one after the
+//      other (0.4s each, 0.18s apart). The lime capital stays put and the rest
 //      of the word unfolds from it;
 //   3. "Architecting Bold Ideas" holds, then the overlay fades away.
 // Phones (<768px) add a step between 1 and 2: the letters arrive as a column
@@ -25,14 +25,14 @@ const WORDS = [
 ] as const;
 const NAME = WORDS.map((w) => w.key + w.rest).join(' ');
 
-const START_DELAY = 200;
-const LETTERS_IN = 3 * 150 + 300; // stagger + one letter's entrance
-const PAUSE = 400;
-const WORD = 500;
-const BETWEEN = 300;
-const HOLD = 800;
-const SHIFT = 500; // phones: the column's slide to the left
-const OVERLAP = 150; // …which "Architecting" starts before the slide ends
+const START_DELAY = 150;
+const LETTERS_IN = 3 * 110 + 250; // stagger + one letter's entrance
+const PAUSE = 250;
+const WORD = 400;
+const BETWEEN = 180;
+const HOLD = 550;
+const SHIFT = 400; // phones: the column's slide to the left
+const OVERLAP = 120; // …which "Architecting" starts before the slide ends
 const PHONE = '(max-width: 767px)';
 
 /** The hero waits for this before running its own opening sequence. */

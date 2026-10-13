@@ -66,10 +66,10 @@ but none existed before. Keep, edit or delete:
 - **Blue instead of violet, plus a light theme** — owner request.
 - **ABI intro kept** (owner request) ahead of the hero's own opening
   sequence; it still plays on every full load. Lime "A", "B", "I" arrive one
-  by one, then (after 0.4s) each grows into its word in turn — 0.5s each,
-  0.3s apart — ending on "Architecting Bold Ideas", which holds before the
+  by one, then (after 0.25s) each grows into its word in turn — 0.4s each,
+  0.18s apart — ending on "Architecting Bold Ideas", which holds before the
   site shows. Phones (<768px): A/B/I arrive as a column centred on screen,
-  the column slides left (0.5s, FLIP-measured) to a 24–40px inset, then each
+  the column slides left (0.4s, FLIP-measured) to a 24–40px inset, then each
   word is wiped in left to right from its capital (transform only); final
   text left-aligned at the inset, vertically centred, one word per line,
   sized so "Architecting" fits. Reduced motion shows the final text straight
