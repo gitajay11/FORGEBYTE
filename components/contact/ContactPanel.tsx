@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { studio } from '@/lib/content';
 import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, WHATSAPP_URL } from '@/lib/site';
-import { Words } from '@/components/motion/Text';
+import { SectionLead, Words } from '@/components/motion/Text';
 import ContactForm from './ContactForm';
 import CopyEmail from './CopyEmail';
 import SocialLinks from '@/components/site/SocialLinks';
@@ -47,7 +47,7 @@ export default function ContactPanel({
         <Heading id={id} className="display-l contact-head">
           <Words text="Got a problem worth thinking about?" highlight="thinking" />
         </Heading>
-        <p className="contact-sub">{sub}</p>
+        <SectionLead>{sub}</SectionLead>
         <ul className="contact-methods" aria-label="Other ways to reach us">
           <Method icon="mail" label="Email us">
             <CopyEmail email={CONTACT_EMAIL} />

@@ -8,10 +8,10 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 //  - Before any navigation away from "/", the spot is saved — as a section id
 //    plus the offset into it, so it still lands right if something above
 //    changes height — in sessionStorage and in that history entry's state.
-//  - Other pages reached from the landing page get a "← Back" button in the
-//    header row (BackButton, rendered by Nav): history.back() when the
-//    previous entry is the landing page, otherwise a client-side trip to "/"
-//    that restores the saved spot.
+//  - Other pages reached from the landing page get a floating "← Back"
+//    button under the header: history.back() when the previous entry is the
+//    landing page, otherwise a client-side trip to "/" that restores the
+//    saved spot.
 //  - Scroll restoration is manual (also set before first paint in
 //    app/layout.tsx), so the browser, the pinned "Our work" row and the intro
 //    don't fight over it. The spot is re-applied while late content (fonts,
@@ -132,11 +132,11 @@ function previousIsLanding(): boolean {
 }
 
 /**
- * "← Back" for the header row (components/site/Nav.tsx), on every page but the
- * landing page. Shown only when html[data-back] is set — the landing page was
- * visited this session — which layout.tsx sets before first paint on full
- * loads and BackNav keeps in step on client navigations, so the header never
- * shifts after it paints. Icon only below 360px (globals.css).
+ * The floating "← Back" button, on every page but the landing page. Shown only
+ * when html[data-back] is set — the landing page was visited this session —
+ * which layout.tsx sets before first paint on full loads and BackNav keeps in
+ * step on client navigations; the same attribute gives the page a matching
+ * band at the top, so nothing shifts or hides under it. Icon only below 360px.
  */
 export function BackButton() {
   const router = useRouter();
@@ -167,7 +167,9 @@ export default function BackNav() {
 
     // back/forward: remember it for the route change it causes; on the same
     // page (e.g. a #hash), put that entry's own position back
+    let hashClick = 0;
     const onPop = () => {
+      if (performance.now() - hashClick < 500) return;
       if (location.pathname === prevPath.current) {
         const y = read<Record<string, number>>(POS)?.[urlKey()];
         if (y !== undefined) requestAnimationFrame(() => window.scrollTo({ top: y, behavior: 'instant' }));
@@ -195,6 +197,7 @@ export default function BackNav() {
       const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
       if (!a) return;
       const url = new URL(a.href, location.href);
+      if (url.origin === location.origin && url.pathname === location.pathname && url.hash) hashClick = performance.now();
       if (url.origin !== location.origin) {
         // external: new tab, so this page stays where it is
         if (/^https?:$/.test(url.protocol) && !a.target) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
@@ -219,8 +222,8 @@ export default function BackNav() {
     };
   }, []);
 
-  // html[data-back] shows the header's Back button on pages reached from the
-  // landing page (set before paint, so the header doesn't shift)
+  // html[data-back] shows the Back button (and its band) on pages reached
+  // from the landing page — set before paint, so nothing shifts
   useLayoutEffect(() => {
     if (pathname !== '/' && read<Spot>(SPOT)) document.documentElement.dataset.back = '';
     else delete document.documentElement.dataset.back;
@@ -256,5 +259,5 @@ export default function BackNav() {
     }
   }, [pathname]);
 
-  return null;
+  return pathname === '/' ? null : <BackButton />;
 }

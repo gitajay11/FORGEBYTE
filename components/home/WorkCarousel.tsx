@@ -125,7 +125,7 @@ export default function WorkCarousel({ items }: { items: WorkItem[] }) {
               <div className="work-card-media">
                 <Image src={it.image} alt={it.imageAlt} width={1000} height={625} sizes="(max-width: 767px) 85vw, 620px" />
               </div>
-              <div className="work-card-body">
+              <div className="work-card-body section-body">
                 <div className="meta-row">
                   <span className="mono">{it.industry}</span>
                   <StatusBadge status={it.status} />

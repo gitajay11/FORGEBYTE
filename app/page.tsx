@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { caseStudies, engagements, faq, lab, process, services, studio, team } from '@/lib/content';
 import { CONTACT_EMAIL, CONTACT_PHONE_E164, SITE_URL } from '@/lib/site';
-import { Reveal, SectionTitle, Words } from '@/components/motion/Text';
+import { Reveal, SectionLead, SectionTitle, Words } from '@/components/motion/Text';
+import SectionLink from '@/components/home/SectionLink';
 import HeroStage from '@/components/home/HeroStage';
 import IdeaField from '@/components/home/IdeaField';
 import Glyph from '@/components/home/Glyph';
@@ -77,7 +78,7 @@ export default function Home() {
               <Link href="/contact" className="btn btn-primary" data-magnetic data-track="cta_click:hero">
                 Start a project <span className="arrow" aria-hidden="true">→</span>
               </Link>
-              <a href="#work" className="ulink">See our work ↓</a>
+              <SectionLink to="work" className="ulink">See our work ↓</SectionLink>
             </div>
           </div>
         </div>
@@ -93,7 +94,7 @@ export default function Home() {
               <Words text="We ask questions" highlight="questions" />{' '}
               <Words text="before we build." className="dim" />
             </h2>
-            <div className="manifesto-body">
+            <div className="manifesto-body section-body">
               <Reveal as="p" variant="blur">
                 We&apos;re <strong>{studio.name}</strong>, a small studio run by <strong>{team[0].display}</strong> and <strong>{team[1].display}</strong>. We make websites
                 and online tools that people actually find easy to use.
@@ -115,13 +116,13 @@ export default function Home() {
       <section className="section" id="services" aria-labelledby="services-title" tabIndex={-1}>
         <div className="container">
           <SectionTitle n="02" label="What we do" />
-          <div className="grid" style={{ marginBottom: 'var(--s-8)' }}>
+          <div className="grid section-head">
             <h2 id="services-title" className="display-l" style={{ gridColumn: '1 / span 8' }}>
               <Words text="What we can build for you" highlight="build" />
             </h2>
-            <Reveal as="p" variant="blur" className="body-l" style={{ gridColumn: '1 / span 6', marginTop: 'var(--s-5)' }}>
+            <SectionLead style={{ gridColumn: '1 / -1' }}>
               Five things we do well — and, for each one, when we&apos;re not the right choice.
-            </Reveal>
+            </SectionLead>
           </div>
           {/* phones: a compact menu; each service opens in a floating window */}
           <ServiceMenu
@@ -133,7 +134,7 @@ export default function Home() {
             <Constellation items={services.map(({ slug, name, glyph, index }) => ({ slug, name, glyph, index }))} />
             <div className="service-list">
               {services.map((s) => (
-                <article className="service" id={s.slug} key={s.slug} aria-labelledby={`${s.slug}-title`}>
+                <article className="service section-body" id={s.slug} key={s.slug} aria-labelledby={`${s.slug}-title`}>
                   <div className="service-head">
                     <Glyph kind={s.glyph} className="glyph" />
                     <span className="mono">{s.index}</span>
@@ -191,9 +192,9 @@ export default function Home() {
           <div className="process-wrap">
             <div className="process-intro">
               <h2 id="process-title" className="display-l"><Words text="How a project works" highlight="project" /></h2>
-              <p>Five simple steps. After each one, you get something you can see and keep.</p>
+              <SectionLead>Five simple steps. After each one, you get something you can see and keep.</SectionLead>
             </div>
-            <div className="process-steps">
+            <div className="process-steps section-body">
               <span className="process-line" aria-hidden="true"><i /></span>
               <ol>
                 {process.map((p, i) => (
@@ -223,11 +224,11 @@ export default function Home() {
           <div className="proof-grid">
             <div className="proof-head">
               <h2 id="thinking-title" className="display-l"><Words text="A simple request, the right questions" highlight="questions" /></h2>
-              <Reveal as="p" variant="blur" className="body" style={{ marginTop: 'var(--s-5)' }}>
+              <SectionLead>
                 We don&apos;t have client reviews to show yet, so here&apos;s how we&apos;d approach a typical request instead.
-              </Reveal>
+              </SectionLead>
             </div>
-            <div className="teardown">
+            <div className="teardown section-body">
               <p className="mono" style={{ marginBottom: 12 }}>A clinic asks</p>
               <p className="brief">“We need an app for appointments.”</p>
               <ol>
@@ -254,7 +255,7 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <div className="founder-body">
+            <div className="founder-body section-body">
               <h2 id="founder-title" className="display-l" style={{ marginBottom: 'var(--s-6)' }}>
                 <Words text={`You’ll work with ${team[0].short} and ${team[1].short}.`} highlight={[team[0].short, team[1].short]} />
               </h2>
@@ -281,7 +282,7 @@ export default function Home() {
             <h2 id="lab-title" className="display-l"><Words text="Demos and experiments" highlight="Demos" /></h2>
             <Link href="/lab" className="ulink">See all demos →</Link>
           </div>
-          <div className="lab-strip">
+          <div className="lab-strip section-body">
             {lab.map((l) => (
               <article className="lab-tile" key={l.slug}>
                 <BrowserFrame src={l.image} alt={l.imageAlt} url={l.url} sizes="(max-width: 899px) 92vw, 420px" />
@@ -311,7 +312,7 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <p className="engage-note">
+          <p className="engage-note section-body">
             Every project gets its own written price before work starts, and payment terms are agreed up front. We work on
             India time, which overlaps with UK and European mornings and US evenings.
           </p>
@@ -324,7 +325,7 @@ export default function Home() {
           <SectionTitle n="09" label="Questions" />
           <div className="grid">
             <h2 id="faq-title" className="display-l faq-head"><Words text="Common questions" highlight="questions" /></h2>
-            <div className="faq">
+            <div className="faq section-body">
               {faq.map((f) => (
                 <details key={f.q}>
                   <summary>{f.q}<span className="plus" aria-hidden="true" /></summary>

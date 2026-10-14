@@ -3,6 +3,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motionReduced } from '@/lib/prefs';
 import { studio } from '@/lib/content';
+import Logo from '@/components/site/Logo';
+import IstClock from '@/components/site/IstClock';
 
 // ABI intro, once per full page load:
 //   1. "A", "B", "I" fade/slide in one by one (100ms stagger);
@@ -134,9 +136,10 @@ export default function IntroOverlay() {
 
   return (
     <div id="introOverlay" className={hidden ? 'hide' : undefined}>
+      {/* lined up with the header: its logo on the left, Chennai time on the right */}
       <div className="intro-meta top" aria-hidden="true">
-        <span className="mono">{studio.name}</span>
-        <span className="mono">{studio.city}, {studio.country}</span>
+        <span className="logo"><Logo /></span>
+        <span className="mono intro-time">{studio.city} · <IstClock /></span>
       </div>
       <div className="intro-letters" role="img" aria-label={NAME}>
         {/* invisible final text: reserves the finished width and height */}

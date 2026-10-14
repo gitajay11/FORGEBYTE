@@ -75,6 +75,16 @@ export function SectionTitle({ n, label }: { n: string; label: string }) {
   );
 }
 
+/** The line under a section's heading — one shared style site-wide
+ *  (.section-lead): size, colour, measure, spacing and balanced wrapping. */
+export function SectionLead({ children, style }: { children: ReactNode; style?: React.CSSProperties }) {
+  return (
+    <Reveal as="p" variant="blur" className="section-lead" style={style}>
+      {children}
+    </Reveal>
+  );
+}
+
 export function Reveal({
   as: Tag = 'div',
   variant,

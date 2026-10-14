@@ -91,6 +91,36 @@ main{display:block;}
 .h3{font-size:var(--fs-h3); font-weight:500; line-height:1.1; letter-spacing:-0.01em;}
 .body-l{font-size:var(--fs-body-l); line-height:1.5; color:var(--text-2);}
 .body{font-size:var(--fs-body); line-height:1.6; color:var(--text-2); max-width:var(--measure);}
+/* The line under a section's heading (SectionLead), the same in every
+   section: a centred block, full lines justified and the last line centred
+   (under the centred title capsule), 20px below the heading. Sections keep
+   48px to their content. */
+.section-lead{
+  margin-top:20px; margin-inline:auto; max-width:min(640px, 100%);
+  font-size:clamp(1.0625rem, 1rem + 0.3vw, 1.25rem); font-weight:400; line-height:1.55; color:var(--text-2);
+  text-align:justify; text-align-last:center; text-justify:inter-word; hyphens:auto; -webkit-hyphens:auto;
+}
+/* Section content (.section-body on a block, or on a paragraph itself):
+   paragraphs and descriptions are justified with hyphenation (html
+   lang="en"). Not headings, labels (.mono), the big quoted brief, lists of
+   short items, buttons or links — they keep their own alignment. */
+.section-body p:not(.mono):not(.brief),p.section-body{
+  text-align:justify; text-justify:inter-word; hyphens:auto; -webkit-hyphens:auto;
+}
+/* a readable measure for justified text, unless the block sets a narrower one */
+:where(.section-body p, p.section-body){max-width:min(68ch, 100%);}
+/* narrow phones: slightly smaller justified text, so lines hold more words
+   and the gaps between them stay small */
+@media (max-width:399px){
+  .section-body p:not(.mono):not(.brief),p.section-body{font-size:0.9375rem;}
+  .manifesto-body.section-body p:not(.mono){font-size:1.0625rem;}
+  .section-lead{font-size:1rem;}
+}
+/* below 360px the About paragraphs' long, unbreakable names ("Ajaykumar
+   (Ajay) and Parivalavan (Pari)") leave gaps of 7–8 spaces when justified:
+   the one place that falls back to left alignment */
+@media (max-width:359px){ .manifesto-body.section-body p:not(.mono){text-align:left;} }
+.section-head{margin-bottom:var(--s-7);}
 .measure{max-width:var(--measure);}
 .mono{
   font-family:var(--font-mono-stack); font-size:var(--fs-mono); font-weight:500;
@@ -104,8 +134,9 @@ main{display:block;}
 
 /* Section index — "[02] — SERVICES" */
 /* the eyebrow above every section heading: brand colour, uppercase, spaced */
-.index{display:flex; align-items:center; gap:12px; margin-bottom:var(--s-6); color:var(--accent-blue); letter-spacing:0.14em;}
-.index::after{content:''; flex:1; height:1px; background:var(--border); max-width:120px;}
+.index{display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:var(--s-6); color:var(--accent-blue); letter-spacing:0.14em;}
+/* the capsule is centred in every section; a hairline either side keeps it so */
+.index::before,.index::after{content:''; flex:1; height:1px; background:var(--border); max-width:120px;}
 
 /* Section title (SectionTitle): typed in with a caret, then a glassy brand
    capsule fades in with a glow running round its edge. SiteEffects sets
@@ -286,34 +317,6 @@ html[data-motion="reduced"] .status-dot::after{opacity:0;}
 .nav[data-past-hero="true"] .nav-tagline{opacity:1; transform:none;}
 .nav[data-past-hero="true"] .logo-word{opacity:0;}
 .logo{display:inline-flex; align-items:center; gap:10px; font-weight:600; font-size:1.125rem; letter-spacing:-0.02em;}
-/* "← Back" (BackNav.tsx BackButton): first in the header row, so its left edge
-   is the header's content edge; 44px like the menu button. Only on pages
-   reached from the landing page (html[data-back], set before first paint). */
-.nav-start{display:flex; align-items:center; gap:12px; min-width:0;}
-.back-btn{
-  display:none; flex:none; align-items:center; gap:7px; height:44px; padding:0 16px 0 13px; border-radius:var(--r-pill);
-  border:1px solid color-mix(in srgb, var(--text-1) 14%, transparent);
-  background:color-mix(in srgb, var(--bg-1) 64%, transparent);
-  -webkit-backdrop-filter:blur(14px) saturate(150%); backdrop-filter:blur(14px) saturate(150%);
-  box-shadow:0 10px 28px -14px rgba(0,0,0,0.45);
-  color:var(--text-1); font-size:0.95rem; font-weight:500; line-height:1;
-  transition:scale 160ms ease, border-color 160ms ease;
-  animation:back-in 360ms var(--ease-out) backwards;
-}
-html[data-back] .back-btn{display:inline-flex;}
-@media (hover:hover){ .back-btn:hover{border-color:var(--accent-blue);} }
-.back-btn:active{scale:0.95;}
-.back-btn svg{width:18px; height:18px; flex:none; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
-@keyframes back-in{from{opacity:0; transform:translateX(-8px);}}
-/* narrow phones: icon only (aria-label "Back") */
-@media (max-width:359px){
-  .back-btn{width:44px; padding:0; justify-content:center;}
-  .back-label{display:none;}
-}
-/* room for Back in the row: phones show the logo mark without the tagline;
-   on desktop the floating pill grows a little */
-@media (max-width:599px){ html[data-back] .nav-tagline{display:none;} }
-@media (min-width:1024px){ html[data-back] .nav[data-floating="true"] .nav-inner{max-width:min(1000px, calc(100% - 24px));} }
 .logo-mark{width:30px; height:30px; flex:none; display:block; object-fit:contain;}
 .nav-links{position:relative; display:flex; align-items:center; gap:clamp(16px, 2vw, 28px);}
 /* numbered links, in landing-page order */
@@ -604,6 +607,35 @@ html:not(.js) .typein .c{clip-path:none !important; transform:none !important; f
 .page-enter{animation:page-in 700ms var(--ease-out) backwards;}
 @keyframes page-in{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
 
+/* "← Back" (BackNav.tsx): a floating glass button just under the header, on
+   the page's content edge, on pages reached from the landing page
+   (html[data-back], set before first paint). Those pages get a matching band
+   at the top, so it never covers the title. Above the content, below the
+   header, menus and dialogs. Icon only below 360px. */
+html[data-back] .page-enter{padding-top:44px;}
+.back-btn{
+  position:fixed; z-index:calc(var(--z-menu) - 2);
+  top:calc(var(--nav-h) + 12px);
+  left:calc(max(var(--margin), (100% - var(--max)) / 2 + var(--margin)) + env(safe-area-inset-left));
+  display:none; align-items:center; gap:7px; height:44px; padding:0 16px 0 13px; border-radius:var(--r-pill);
+  border:1px solid color-mix(in srgb, var(--text-1) 14%, transparent);
+  background:color-mix(in srgb, var(--bg-1) 64%, transparent);
+  -webkit-backdrop-filter:blur(14px) saturate(150%); backdrop-filter:blur(14px) saturate(150%);
+  box-shadow:0 10px 28px -14px rgba(0,0,0,0.45);
+  color:var(--text-1); font-size:0.95rem; font-weight:500; line-height:1;
+  transition:scale 160ms ease, border-color 160ms ease;
+  animation:back-in 360ms var(--ease-out) backwards 150ms;
+}
+html[data-back] .back-btn{display:inline-flex;}
+@media (hover:hover){ .back-btn:hover{border-color:var(--accent-blue);} }
+.back-btn:active{scale:0.95;}
+.back-btn svg{width:18px; height:18px; flex:none; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+@keyframes back-in{from{opacity:0; transform:translateX(-8px);}}
+@media (max-width:359px){
+  .back-btn{width:44px; padding:0; justify-content:center;}
+  .back-label{display:none;}
+}
+
 
 /* =====================================================================
    Cursor (fine pointers only, components/Cursor.tsx)
@@ -643,7 +675,15 @@ html[data-cursor="custom"] body.cursor-on textarea{cursor:text;}
 }
 #introOverlay.hide{opacity:0; visibility:hidden; pointer-events:none;}
 .intro-meta{position:absolute; left:var(--margin); right:var(--margin); display:flex; justify-content:space-between; gap:16px;}
-.intro-meta.top{top:24px;}
+/* top bar: where the header sits — same inset, same height, logo vertically
+   centred like the header's; Chennai time on the right */
+.intro-meta.top{
+  top:0; height:var(--nav-h); align-items:center; padding-inline:1px; /* the header row's 1px border */
+  left:max(var(--margin), calc((100% - var(--max)) / 2 + var(--margin))); right:max(var(--margin), calc((100% - var(--max)) / 2 + var(--margin)));
+}
+.intro-time{white-space:nowrap; color:var(--text-3);}
+.ist-clock{font-variant-numeric:tabular-nums;}
+@media (max-width:359px){ .ist-sec{display:none;} }
 .intro-meta.bottom{bottom:24px; align-items:center;}
 /* Typography, spacing and breakpoint match the portfolio's intro
    (portfolio/app/globals.css): JetBrains Mono 700, clamp(30px, 6vw, 58px),
@@ -833,15 +873,22 @@ html[data-motion="reduced"] .service-list .service:hover,html[data-motion="reduc
 .service-head .glyph{display:block; width:32px; height:32px; flex:none; padding:4px; border:1px solid var(--border); border-radius:8px; background:var(--accent-blue-soft);}
 .service-head .mono{order:3; margin-left:auto;}
 .service-head h3{font-size:clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem); font-weight:600; line-height:1.25; letter-spacing:-0.015em; color:var(--text-1);}
-.service .promise{font-size:1rem; font-weight:400; color:var(--text-2); line-height:1.6; margin-bottom:var(--s-3); max-width:52ch;}
-.service .problem{font-size:0.95rem; font-weight:400; color:var(--text-2); line-height:1.6; margin-bottom:var(--s-5); max-width:var(--measure);}
-.service dl{display:grid; grid-template-columns:120px 1fr; gap:10px 20px; margin-bottom:var(--s-5);}
+.service{text-align:left;} /* headings and labels; paragraphs are justified (.section-body) */
+.service h2,.service h3{text-wrap:balance;}
+.service p,.service dd{text-wrap:pretty;}
+.service .promise{font-size:1rem; font-weight:400; color:var(--text-2); line-height:1.6; margin-bottom:var(--s-3); max-width:62ch;}
+.service .problem{font-size:0.95rem; font-weight:400; color:var(--text-2); line-height:1.6; margin-bottom:var(--s-5); max-width:62ch;}
+.service dl{display:grid; grid-template-columns:120px minmax(0, 1fr); gap:10px 20px; margin-bottom:var(--s-5);}
 .service dt{padding-top:3px;}
-.service dd{color:var(--text-2); font-size:0.95rem;}
-.service dd ul{display:flex; flex-wrap:wrap; gap:6px 14px;}
-.service dd li::before{content:'— '; color:var(--text-3);}
+.service dd{color:var(--text-2); font-size:0.95rem; line-height:1.6; max-width:62ch;}
+/* key points: one per line, bullet with a hanging indent */
+.service dd ul{display:flex; flex-direction:column; gap:6px;}
+.service dd li{position:relative; padding-left:18px;}
+.service dd li::before{content:''; position:absolute; left:2px; top:0.66em; width:6px; height:6px; border-radius:50%; background:color-mix(in srgb, var(--accent-blue) 70%, transparent);}
 .fit{display:grid; grid-template-columns:1fr 1fr; gap:var(--gutter); margin-bottom:var(--s-5);}
-.fit p{font-size:0.95rem; color:var(--text-2);}
+/* side by side only when each column is wide enough for justified text */
+@media (max-width:1279px){ .fit{grid-template-columns:1fr; gap:var(--s-4);} }
+.fit p{font-size:0.95rem; line-height:1.6; color:var(--text-2); max-width:62ch;}
 .fit .mono{display:block; margin-bottom:6px;}
 .fit .yes .mono{color:var(--lime-ink);}
 @media (max-width:1023px){
@@ -1010,7 +1057,6 @@ html[data-motion="reduced"] .work-card:hover,html[data-motion="reduced"] .work-c
    ===================================================================== */
 .process-wrap{display:grid; grid-template-columns:repeat(12, minmax(0,1fr)); column-gap:var(--gutter);}
 .process-intro{grid-column:1 / span 4;}
-.process-intro p{color:var(--text-2); margin-top:var(--s-5); max-width:34ch;}
 .process-steps{grid-column:6 / span 7; position:relative; padding-left:40px;}
 .process-line{position:absolute; left:6px; top:8px; bottom:8px; width:1px; background:var(--border);}
 .process-line i{position:absolute; inset:0 0 auto; height:var(--p, 0%); background:var(--accent-blue); display:block;}
@@ -1120,10 +1166,10 @@ html[data-motion="reduced"] .work-card:hover,html[data-motion="reduced"] .work-c
 /* Desktop: intro + ways to reach us (left), the form in a glass card (right).
    One column below 1024px. (components/contact/ContactPanel.tsx) */
 .contact-layout{display:grid; grid-template-columns:repeat(12, minmax(0,1fr)); column-gap:var(--gutter); row-gap:var(--s-7); align-items:start;}
-.contact-info{grid-column:1 / span 5; display:flex; flex-direction:column; gap:var(--s-5);}
+.contact-info{grid-column:1 / span 5; display:flex; flex-direction:column;}
+.contact-info .contact-methods{margin-top:var(--s-6);}
 .contact-head{font-size:clamp(2.5rem, 4.6vw, 4.75rem);}
-.contact-sub{color:var(--text-2); font-size:var(--fs-body-l); line-height:1.5; max-width:40ch;}
-.contact-methods{display:flex; flex-direction:column; margin-top:var(--s-2);}
+.contact-methods{display:flex; flex-direction:column;}
 .contact-method{display:flex; align-items:flex-start; gap:14px; padding-block:var(--s-4); border-top:1px solid var(--border);}
 .contact-method:last-child{border-bottom:1px solid var(--border);}
 .contact-method-icon{

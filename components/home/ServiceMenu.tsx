@@ -224,7 +224,7 @@ export default function ServiceMenu({ items }: { items: Item[] }) {
             </div>
             <div className="svc-win-scroll" ref={scrollRef}>
               {/* keyed: each service's details stagger in afresh */}
-              <div className="svc-win-body service" key={index} data-dir={dir} style={{ '--dx': `${dir * 24}px` } as React.CSSProperties}>
+              <div className="svc-win-body service section-body" key={index} data-dir={dir} style={{ '--dx': `${dir * 24}px` } as React.CSSProperties}>
                 <div className="svc-win-title" style={{ '--i': 0 } as React.CSSProperties}>
                   <Glyph kind={s.glyph} className="svc-tile-icon" />
                   <h3 className="h3" id="svc-window-title">{s.name}</h3>
