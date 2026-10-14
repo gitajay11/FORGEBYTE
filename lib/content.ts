@@ -20,7 +20,7 @@ export const studio = {
   timeZone: 'Asia/Kolkata',
   tzLabel: 'India time (IST)',
   availability: 'Q4 2026',
-  replyWithin: '1 working day',
+  replyWithin: '24–48 hours',
   idealClients: 'small businesses, startups and founders',
   github: 'https://github.com/gitajay11',
   linkedin: 'https://www.linkedin.com/in/ajayak1501',

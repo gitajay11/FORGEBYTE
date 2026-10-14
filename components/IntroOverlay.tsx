@@ -97,6 +97,11 @@ export default function IntroOverlay() {
     const sleep = (ms: number) => new Promise<void>((resolve) => timers.push(setTimeout(resolve, ms)));
 
     (async () => {
+      // back on the landing page (layout.tsx's .no-intro): no replay
+      if (document.documentElement.classList.contains('no-intro')) {
+        closeIntro();
+        return;
+      }
       if (motionReduced()) {
         setLettersIn(true);
         setOpened(WORDS.length);

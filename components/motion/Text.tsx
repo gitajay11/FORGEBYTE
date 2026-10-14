@@ -62,6 +62,8 @@ export function SectionTitle({ n, label }: { n: string; label: string }) {
   return (
     <p className="index mono">
       <span className="section-title">
+        {/* soft outer glow; pulses by opacity only */}
+        <span className="st-glow" aria-hidden="true" />
         <span className="sr-only">{text}</span>
         <span aria-hidden="true">
           {[...text].map((c, i) => (

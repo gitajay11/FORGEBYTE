@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CaseStudy, Service } from '@/lib/content';
+import StatusBadge from './StatusBadge';
 
 type Props = {
   items: CaseStudy[];
@@ -101,7 +102,7 @@ export default function WorkIndex({ items, services }: Props) {
             >
               <span className="t">{cs.title}</span>
               <span className="i mono">{cs.industry} · {cs.year}</span>
-              <span className="s"><span className="status" data-status={cs.status}>{cs.status}</span></span>
+              <span className="s"><StatusBadge status={cs.status} /></span>
               <span className="poster">
                 <Image src={cs.image} alt="" width={1000} height={625} sizes="100vw" />
               </span>

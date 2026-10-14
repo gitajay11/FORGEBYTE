@@ -24,6 +24,10 @@
   --accent-lime-hover:#E2FF9A;
   --lime-ink:#D5FF70; /* lime used as text */
   --danger:#FF6B6B;
+  /* project status badges */
+  --st-live:#4ADE80;
+  --st-testing:#FBBF24;
+  --st-progress:#7CA9FF;
   --on-accent:#0A0C10;
   --on-blue:#0A0C10;
 
@@ -103,6 +107,9 @@
   --on-accent:#0A0C10;
   --on-blue:#FFFFFF;
   --danger:#C42B2B;
+  --st-live:#13692F;
+  --st-testing:#8A4B00;
+  --st-progress:#1A4FBF;
   --border:rgba(11,18,32,0.10);
   --border-strong:rgba(11,18,32,0.20);
   --border-hair:rgba(11,18,32,0.05);
@@ -126,6 +133,9 @@
     --on-accent:#0A0C10;
     --on-blue:#FFFFFF;
     --danger:#C42B2B;
+    --st-live:#13692F;
+    --st-testing:#8A4B00;
+    --st-progress:#1A4FBF;
     --border:rgba(11,18,32,0.10);
     --border-strong:rgba(11,18,32,0.20);
     --border-hair:rgba(11,18,32,0.05);

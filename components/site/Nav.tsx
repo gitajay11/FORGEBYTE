@@ -9,6 +9,7 @@ import { ThemeButton } from './ThemeToggle';
 import SocialLinks from './SocialLinks';
 import CopyEmail from '@/components/contact/CopyEmail';
 import { CONTACT_EMAIL } from '@/lib/site';
+import { BackButton } from './BackNav';
 
 // In the order the sections appear on the landing page. On the home page each
 // link scrolls to its section (`id`); elsewhere it opens the page (`href`).
@@ -246,6 +247,9 @@ export default function Nav() {
     <>
       <header className="nav" data-floating={scrolled} data-past-hero={pastHero || open}>
         <div className="container nav-inner">
+          {/* left of the row: "← Back" (pages reached from the landing page), then the logo */}
+          <div className="nav-start">
+          {!onHome && <BackButton />}
           <div className="nav-brand">
             <Link href="/" className="logo" aria-label="Forgebyte — home">
               <Image src="/logo/forgebyte-f.png" alt="" width={30} height={30} className="logo-mark" priority />
@@ -255,6 +259,7 @@ export default function Nav() {
             <p className="nav-tagline" aria-hidden="true">
               <span className="t1">We build things.</span> <span className="t2">We question things.</span>
             </p>
+          </div>
           </div>
           <nav aria-label="Primary">
             <ul className="nav-links" ref={linksRef}>

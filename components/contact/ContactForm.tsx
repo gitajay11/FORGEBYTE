@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { services, studio } from '@/lib/content';
 import { CONTACT_EMAIL } from '@/lib/site';
 import { track } from '@/lib/track';
@@ -10,6 +10,9 @@ export const BUDGETS = ['Not sure yet', 'Under ₹1 lakh', '₹1–3 lakh', '₹
 export const TIMELINES = ['As soon as possible', 'Within a month', '1–3 months', 'Just exploring'];
 /** Last choice in "What you need" — sent like any other option. */
 export const NOT_SURE = 'Not sure yet';
+/** Other components ask the form to tick a "What you need" option with
+ *  `window.dispatchEvent(new CustomEvent(PRESELECT_NEED, { detail: 'Online store' }))`. */
+export const PRESELECT_NEED = 'fb-preselect-need';
 
 type Errors = Partial<Record<'name' | 'email' | 'phone' | 'message', string>>;
 type State =
@@ -39,6 +42,28 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
   const started = useRef(false);
   const submitting = useRef(false); // blocks double submits (fast double-click, Enter twice)
   const formRef = useRef<HTMLFormElement>(null);
+
+  // "Discuss this project" in the phone services window: tick that service
+  useEffect(() => {
+    const onNeed = (e: Event) => {
+      const need = (e as CustomEvent<string>).detail;
+      const box = [...(formRef.current?.querySelectorAll<HTMLInputElement>('input[name="needs"]') ?? [])].find((b) => b.value === need);
+      if (box) box.checked = true;
+    };
+    window.addEventListener(PRESELECT_NEED, onNeed);
+    return () => window.removeEventListener(PRESELECT_NEED, onNeed);
+  }, []);
+
+  // Inline validation: check a field when the visitor leaves it (empty fields
+  // they only tabbed through are left alone until they submit)
+  const onBlur = (e: React.FocusEvent<HTMLFormElement>) => {
+    const field = e.target as unknown as HTMLInputElement;
+    const name = field.name as keyof Errors;
+    if (!(['name', 'email', 'phone', 'message'] as string[]).includes(name)) return;
+    if (!field.value.trim() && !errors[name]) return;
+    const msg = validate(new FormData(e.currentTarget))[name];
+    if (msg !== errors[name]) setErrors((prev) => ({ ...prev, [name]: msg }));
+  };
 
   const onInput = (e: React.FormEvent<HTMLFormElement>) => {
     // clear a field's error as soon as it becomes valid
@@ -103,7 +128,7 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
     errors[k] ? { 'aria-invalid': true as const, 'aria-describedby': `${k}-error` } : {};
 
   return (
-    <form ref={formRef} className="form" onSubmit={onSubmit} onInput={onInput} noValidate aria-busy={sending}>
+    <form ref={formRef} className="form" onSubmit={onSubmit} onInput={onInput} onBlur={onBlur} noValidate aria-busy={sending}>
       <p className="form-note"><span className="req" aria-hidden="true">*</span>Required</p>
       <div className="field">
         <label htmlFor="cf-name">Name<span className="req" aria-hidden="true">*</span></label>
@@ -158,6 +183,10 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
         <button type="submit" className="btn btn-primary" disabled={sending} aria-busy={sending} data-magnetic>
           {sending ? <><span className="spinner" aria-hidden="true" /> Sending…</> : <>Send it <span className="arrow" aria-hidden="true">→</span></>}
         </button>
+        <ul className="trust" aria-label="What to expect">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>Reply within 24–48 hrs</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></svg>No spam</li>
+        </ul>
         <p className="form-status" role="status" aria-live="polite" data-tone={state.kind === 'error' ? 'error' : undefined}>
           {sending && 'Checking the kettle…'}
           {state.kind === 'error' && (

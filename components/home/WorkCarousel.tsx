@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import StatusBadge from '@/components/work/StatusBadge';
 
 export type WorkItem = {
   slug: string;
@@ -87,19 +88,23 @@ export default function WorkCarousel({ items }: { items: WorkItem[] }) {
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
     window.addEventListener('fb-prefs', onResize); // motion toggle in the footer
+    window.addEventListener('fb-restored', onResize); // back on the landing page: jump, don't glide
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('fb-prefs', onResize);
+      window.removeEventListener('fb-restored', onResize);
       row.style.transform = '';
     };
   }, []);
 
   // Tabbing to a card that is off to the side: bring it to the middle by
   // scrolling the page to the matching point (the row follows the page).
+  // Keyboard focus only — a mouse click on a card must not move the page.
   const onFocusCapture = (e: React.FocusEvent) => {
     const pin = pinRef.current, sticky = stickyRef.current, row = rowRef.current;
+    if (!(e.target as HTMLElement).matches(':focus-visible')) return;
     const card = (e.target as HTMLElement).closest<HTMLElement>('.work-card');
     if (!pin || !sticky || !row || !card || getComputedStyle(sticky).position !== 'sticky') return;
     sticky.scrollLeft = 0; // focus may have scrolled the clipped box itself
@@ -123,7 +128,7 @@ export default function WorkCarousel({ items }: { items: WorkItem[] }) {
               <div className="work-card-body">
                 <div className="meta-row">
                   <span className="mono">{it.industry}</span>
-                  <span className="status" data-status={it.status}>{it.status}</span>
+                  <StatusBadge status={it.status} />
                 </div>
                 <h3>
                   {/* stretched link: the whole card opens the case study */}

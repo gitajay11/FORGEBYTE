@@ -1,14 +1,13 @@
 import Link from 'next/link';
 import { caseStudies, engagements, faq, lab, process, services, studio, team } from '@/lib/content';
-import { CONTACT_EMAIL, CONTACT_PHONE_E164, SITE_URL, WHATSAPP_URL } from '@/lib/site';
+import { CONTACT_EMAIL, CONTACT_PHONE_E164, SITE_URL } from '@/lib/site';
 import { Reveal, SectionTitle, Words } from '@/components/motion/Text';
 import HeroStage from '@/components/home/HeroStage';
 import IdeaField from '@/components/home/IdeaField';
 import Glyph from '@/components/home/Glyph';
 import { LazyConstellation as Constellation, LazyPortrait as Portrait, LazyProcessPin as ProcessPin } from '@/components/lazy';
-import ContactForm from '@/components/contact/ContactForm';
-import CopyEmail from '@/components/contact/CopyEmail';
-import SocialLinks from '@/components/site/SocialLinks';
+import ContactPanel from '@/components/contact/ContactPanel';
+import ServiceMenu from '@/components/home/ServiceMenu';
 import HeroPoster from '@/components/home/HeroPoster';
 import BrowserFrame from '@/components/BrowserFrame';
 import WorkCarousel from '@/components/home/WorkCarousel';
@@ -124,6 +123,12 @@ export default function Home() {
               Five things we do well — and, for each one, when we&apos;re not the right choice.
             </Reveal>
           </div>
+          {/* phones: a compact menu; each service opens in a floating window */}
+          <ServiceMenu
+            items={services.map(({ slug, name, short, glyph, index, promise, problem, deliverables, duration, fitIf, notFitIf }) => ({
+              slug, name, short, glyph, index, promise, problem, deliverables, duration, fitIf, notFitIf,
+            }))}
+          />
           <div className="services-layout">
             <Constellation items={services.map(({ slug, name, glyph, index }) => ({ slug, name, glyph, index }))} />
             <div className="service-list">
@@ -333,31 +338,14 @@ export default function Home() {
 
       {/* CONTACT ---------------------------------------------------------- */}
       <section className="section contact" id="contact" aria-labelledby="contact-title" tabIndex={-1}>
-        <span className="contact-light" aria-hidden="true" />
         <div className="container">
-          <h2 id="contact-title" className="display-l contact-head"><Words text="Got a problem worth thinking about?" highlight="thinking" /></h2>
-          <p className="contact-sub">Tell us what you&apos;re trying to fix or build. We reply within {studio.replyWithin}.</p>
-          <div className="contact-grid">
-            <ContactForm source="home" />
-            <aside className="alt" aria-label="Other ways to reach us">
-              <div className="alt-item">
-                <span className="mono">Prefer to talk?</span>
-                <a className="ulink" href={WHATSAPP_URL} target="_blank" rel="noopener" data-track="booking_click:home-whatsapp">
-                  Message us on WhatsApp ↗
-                </a>
-                <p>We&apos;ll find a time that suits you.</p>
-              </div>
-              <div className="alt-item">
-                <span className="mono">Email us</span>
-                <CopyEmail email={CONTACT_EMAIL} />
-              </div>
-              <div className="alt-item">
-                <span className="mono">Elsewhere</span>
-                <SocialLinks />
-                <a className="ulink" href={studio.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-              </div>
-            </aside>
-          </div>
+          <SectionTitle n="10" label="Contact" />
+          <ContactPanel
+            as="h2"
+            id="contact-title"
+            source="home"
+            sub={<>Tell us what you&apos;re trying to fix or build. We reply within {studio.replyWithin}.</>}
+          />
         </div>
       </section>
     </>

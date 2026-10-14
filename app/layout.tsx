@@ -8,6 +8,7 @@ import SiteEffects from '@/components/site/SiteEffects';
 import { LazyChat as ChatWidget, LazyCursor as Cursor } from '@/components/lazy';
 import IntroOverlay from '@/components/IntroOverlay';
 import ScrollProgress from '@/components/site/ScrollProgress';
+import BackNav from '@/components/site/BackNav';
 import './globals.css';
 
 // Self-hosted and subset by next/font; only the weights actually used.
@@ -74,8 +75,11 @@ export const viewport: Viewport = {
 };
 
 // Runs before first paint: marks JS as available (CSS only hides reveal
-// targets when it is) and applies the stored motion / cursor toggles.
-const PREFS_SCRIPT = `(function(){var d=document.documentElement;d.classList.add('js');try{var m=localStorage.getItem('fb-motion');if(m)d.dataset.motion=m;var c=localStorage.getItem('fb-cursor');d.dataset.cursor=c||'custom';var t=localStorage.getItem('fb-theme');if(t)d.dataset.theme=t;}catch(e){d.dataset.cursor='custom';}})();`;
+// targets when it is) and applies the stored motion / cursor toggles. Also
+// takes over scroll restoration (BackNav restores the landing page's spot),
+// and skips the intro when the landing page is reached by back/forward
+// (content stays hidden until BackNav has put the reader back; 3s at most).
+const PREFS_SCRIPT = `(function(){var d=document.documentElement;d.classList.add('js');try{var m=localStorage.getItem('fb-motion');if(m)d.dataset.motion=m;var c=localStorage.getItem('fb-cursor');d.dataset.cursor=c||'custom';var t=localStorage.getItem('fb-theme');if(t)d.dataset.theme=t;}catch(e){d.dataset.cursor='custom';}try{history.scrollRestoration='manual';if(location.pathname!=='/'&&sessionStorage.getItem('fb-return'))d.dataset.back='';var n=performance.getEntriesByType('navigation')[0];if(location.pathname==='/'&&n&&n.type==='back_forward'&&sessionStorage.getItem('fb-return')){d.classList.add('no-intro');d.dataset.restoring='true';setTimeout(function(){delete d.dataset.restoring;},3000);}}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -92,6 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ScrollProgress />
         <a href="#main" className="skip-link">Skip to content</a>
         <Nav />
+        <BackNav />
         <main id="main" tabIndex={-1}>{children}</main>
         <Footer />
         <ChatWidget />

@@ -62,6 +62,13 @@ main section[tabindex="-1"]:focus{outline:none;}
 /* Without JavaScript the intro can never finish, so it never shows */
 html:not(.js) body.intro-lock{overflow:visible; height:auto;}
 html:not(.js) #introOverlay{display:none;}
+/* back on the landing page by back/forward (layout.tsx): no intro replay */
+html.no-intro #introOverlay{display:none;}
+html.no-intro body.intro-lock{overflow:visible; height:auto;}
+/* coming back to the landing page: content stays hidden while BackNav puts
+   the reader back in place, then fades in (no visible jump) */
+main,.footer{transition:opacity 200ms ease-out;}
+html[data-restoring] main,html[data-restoring] .footer{opacity:0; transition:none;}
 
 /* =====================================================================
    Layout
@@ -106,7 +113,8 @@ main{display:block;}
    every letter are always laid out, so nothing shifts. */
 @property --angle{syntax:'<angle>'; inherits:false; initial-value:0deg;}
 @keyframes st-spin{to{--angle:360deg;}}
-@keyframes st-pulse{50%{box-shadow:0 0 22px 2px color-mix(in srgb, var(--accent-blue) 40%, transparent);}}
+/* soft glow layers pulse by opacity only (section titles, status badges, service tiles) */
+@keyframes glow-pulse{0%,100%{opacity:0.45;} 50%{opacity:1;}}
 @keyframes st-blink{50%{opacity:0;}}
 .section-title{
   position:relative; isolation:isolate; flex:none; white-space:nowrap; text-align:center;
@@ -131,7 +139,13 @@ main{display:block;}
   -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite:xor; mask-composite:exclude;
 }
-.section-title[data-state="done"]::before{opacity:1; transform:none; animation:st-pulse 2.8s ease-in-out infinite;}
+.st-glow{
+  position:absolute; inset:0; z-index:-2; border-radius:inherit; pointer-events:none;
+  box-shadow:0 0 22px 2px color-mix(in srgb, var(--accent-blue) 40%, transparent);
+  opacity:0; transition:opacity 300ms ease-out;
+}
+.section-title[data-state="done"] .st-glow{opacity:1; animation:glow-pulse 2.8s ease-in-out infinite;}
+.section-title[data-state="done"]::before{opacity:1; transform:none;}
 .section-title[data-state="done"]::after{opacity:1; transform:none; animation:st-spin 2.8s linear infinite;}
 .st-c{position:relative;}
 html.js .st-c{opacity:0;}
@@ -149,10 +163,13 @@ html[data-motion="reduced"] .section-title::before,
 html[data-motion="reduced"] .section-title::after,
 html:not(.js) .section-title::before,
 html:not(.js) .section-title::after{opacity:1; transform:none; animation:none;}
+html[data-motion="reduced"] .section-title .st-glow,
+html:not(.js) .section-title .st-glow{opacity:0.7; animation:none;}
 @media (prefers-reduced-motion: reduce){
   html:not([data-motion="full"]) .st-c{opacity:1;}
   html:not([data-motion="full"]) .section-title::before,
   html:not([data-motion="full"]) .section-title::after{opacity:1; transform:none; animation:none;}
+  html:not([data-motion="full"]) .section-title .st-glow{opacity:0.7; animation:none;}
 }
 
 /* Live status dot */
@@ -197,12 +214,40 @@ html:not(.js) .section-title::after{opacity:1; transform:none; animation:none;}
   border:1px solid var(--border); border-radius:var(--r-pill);
   font-family:var(--font-mono-stack); font-size:11px; letter-spacing:0.04em; color:var(--text-2);
 }
+/* Project status (StatusBadge): a small capsule in the status colour —
+   Live green, testing amber, in progress blue (tokens.css, AA on the card) —
+   with a light running round its edge and a soft glow that pulses (opacity). */
 .status{
-  display:inline-flex; align-items:center; gap:7px; font-family:var(--font-mono-stack);
-  font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-2);
+  --st:var(--st-progress);
+  position:relative; isolation:isolate; display:inline-flex; align-items:center; gap:7px;
+  padding:4px 12px; border-radius:9999px; line-height:1.4; white-space:nowrap;
+  font-family:var(--font-mono-stack); font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--st); background:color-mix(in srgb, var(--st) 12%, var(--bg-1));
+  box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--st) 26%, transparent);
 }
-.status::before{content:''; width:6px; height:6px; border-radius:50%; background:var(--accent-blue);}
-.status[data-status="Live"]::before{background:var(--accent-lime);}
+.status[data-status="Live"]{--st:var(--st-live);}
+.status[data-status="Under testing"],.status[data-status="Testing"]{--st:var(--st-testing);}
+.status::after{
+  content:''; position:absolute; inset:0; border-radius:inherit; padding:1.5px; pointer-events:none;
+  background:conic-gradient(from var(--angle), transparent 0deg 210deg, var(--st) 340deg, transparent 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+  animation:st-spin 3s linear infinite;
+}
+.status-glow{
+  position:absolute; inset:0; z-index:-1; border-radius:inherit; pointer-events:none;
+  box-shadow:0 0 14px 1px color-mix(in srgb, var(--st) 50%, transparent);
+  animation:glow-pulse 2.6s ease-in-out infinite;
+}
+.status-dot{position:relative; flex:none; width:6px; height:6px; border-radius:50%; background:currentColor;}
+.status-dot::after{content:''; position:absolute; inset:0; border-radius:50%; background:currentColor; animation:dot-ping 1.8s var(--ease-out) infinite;}
+@keyframes dot-ping{0%{transform:scale(1); opacity:0.7;} 80%,100%{transform:scale(2.8); opacity:0;}}
+html[data-motion="reduced"] .status::after,html[data-motion="reduced"] .status-glow,html[data-motion="reduced"] .status-dot::after{animation:none;}
+html[data-motion="reduced"] .status-dot::after{opacity:0;}
+@media (prefers-reduced-motion: reduce){
+  html:not([data-motion="full"]) .status::after,html:not([data-motion="full"]) .status-glow,html:not([data-motion="full"]) .status-dot::after{animation:none;}
+  html:not([data-motion="full"]) .status-dot::after{opacity:0;}
+}
 
 /* =====================================================================
    Navigation
@@ -241,6 +286,34 @@ html:not(.js) .section-title::after{opacity:1; transform:none; animation:none;}
 .nav[data-past-hero="true"] .nav-tagline{opacity:1; transform:none;}
 .nav[data-past-hero="true"] .logo-word{opacity:0;}
 .logo{display:inline-flex; align-items:center; gap:10px; font-weight:600; font-size:1.125rem; letter-spacing:-0.02em;}
+/* "← Back" (BackNav.tsx BackButton): first in the header row, so its left edge
+   is the header's content edge; 44px like the menu button. Only on pages
+   reached from the landing page (html[data-back], set before first paint). */
+.nav-start{display:flex; align-items:center; gap:12px; min-width:0;}
+.back-btn{
+  display:none; flex:none; align-items:center; gap:7px; height:44px; padding:0 16px 0 13px; border-radius:var(--r-pill);
+  border:1px solid color-mix(in srgb, var(--text-1) 14%, transparent);
+  background:color-mix(in srgb, var(--bg-1) 64%, transparent);
+  -webkit-backdrop-filter:blur(14px) saturate(150%); backdrop-filter:blur(14px) saturate(150%);
+  box-shadow:0 10px 28px -14px rgba(0,0,0,0.45);
+  color:var(--text-1); font-size:0.95rem; font-weight:500; line-height:1;
+  transition:scale 160ms ease, border-color 160ms ease;
+  animation:back-in 360ms var(--ease-out) backwards;
+}
+html[data-back] .back-btn{display:inline-flex;}
+@media (hover:hover){ .back-btn:hover{border-color:var(--accent-blue);} }
+.back-btn:active{scale:0.95;}
+.back-btn svg{width:18px; height:18px; flex:none; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+@keyframes back-in{from{opacity:0; transform:translateX(-8px);}}
+/* narrow phones: icon only (aria-label "Back") */
+@media (max-width:359px){
+  .back-btn{width:44px; padding:0; justify-content:center;}
+  .back-label{display:none;}
+}
+/* room for Back in the row: phones show the logo mark without the tagline;
+   on desktop the floating pill grows a little */
+@media (max-width:599px){ html[data-back] .nav-tagline{display:none;} }
+@media (min-width:1024px){ html[data-back] .nav[data-floating="true"] .nav-inner{max-width:min(1000px, calc(100% - 24px));} }
 .logo-mark{width:30px; height:30px; flex:none; display:block; object-fit:contain;}
 .nav-links{position:relative; display:flex; align-items:center; gap:clamp(16px, 2vw, 28px);}
 /* numbered links, in landing-page order */
@@ -531,6 +604,7 @@ html:not(.js) .typein .c{clip-path:none !important; transform:none !important; f
 .page-enter{animation:page-in 700ms var(--ease-out) backwards;}
 @keyframes page-in{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
 
+
 /* =====================================================================
    Cursor (fine pointers only, components/Cursor.tsx)
    ===================================================================== */
@@ -781,6 +855,80 @@ html[data-motion="reduced"] .service-list .service:hover,html[data-motion="reduc
   .service dd{margin-bottom:10px;}
 }
 
+/* Phones (<768px): the services as a compact menu; each opens in a floating
+   glass window that grows out of its tile (components/home/ServiceMenu.tsx).
+   Tablets and desktop keep the full list above. */
+.svc-menu{display:none;}
+@media (max-width:767px){
+  .services-layout{display:none;}
+  .svc-menu{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .svc-menu li:last-child:nth-child(odd){grid-column:1 / -1;}
+}
+.svc-tile{
+  position:relative; isolation:isolate; width:100%; min-height:104px;
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:space-between; gap:14px;
+  padding:14px; border-radius:16px; border:1px solid var(--border); background:var(--bg-1);
+  text-align:left; color:var(--text-1);
+  transition:scale 160ms ease, border-color 200ms ease, background-color 200ms ease;
+}
+.svc-tile:active{scale:0.96;}
+.svc-tile-icon{display:block; width:34px; height:34px; flex:none; padding:5px; border:1px solid var(--border); border-radius:9px; background:var(--accent-blue-soft);}
+.svc-tile-title{font-size:1rem; font-weight:600; line-height:1.25; letter-spacing:-0.01em;}
+.svc-tile-n{position:absolute; top:14px; right:14px;}
+/* the active tile (the service on show / last opened): the capsule glow */
+.svc-tile[data-active="true"]{border-color:transparent; background:color-mix(in srgb, var(--accent-blue) 8%, var(--bg-1));}
+.svc-tile[data-active="true"]::after{
+  content:''; position:absolute; inset:0; border-radius:inherit; padding:1.5px; pointer-events:none;
+  background:conic-gradient(from var(--angle), color-mix(in srgb, var(--accent-blue) 25%, transparent) 0deg 200deg, var(--accent-blue) 330deg, color-mix(in srgb, var(--accent-blue) 25%, transparent) 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+  animation:st-spin 2.8s linear infinite;
+}
+.svc-tile[data-active="true"]::before{
+  content:''; position:absolute; inset:0; z-index:-1; border-radius:inherit; pointer-events:none;
+  box-shadow:0 0 22px 1px color-mix(in srgb, var(--accent-blue) 35%, transparent);
+  animation:glow-pulse 2.8s ease-in-out infinite;
+}
+
+.svc-layer{position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; padding:16px;}
+.svc-overlay{position:absolute; inset:0; background:rgba(0,0,0,0.35); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);}
+.svc-window{
+  position:relative; width:min(520px, 100%); max-height:80vh; max-height:80dvh;
+  display:flex; flex-direction:column; overflow:hidden; border-radius:22px;
+  border:1px solid color-mix(in srgb, var(--text-1) 14%, transparent);
+  background:color-mix(in srgb, var(--bg-1) 76%, transparent);
+  -webkit-backdrop-filter:blur(16px) saturate(160%); backdrop-filter:blur(16px) saturate(160%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb, var(--text-1) 8%, transparent),
+    0 8px 20px -12px rgba(0,0,0,0.35), 0 28px 60px -20px rgba(0,0,0,0.5);
+  touch-action:pan-y;
+}
+.svc-win-head{position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 10px 6px 20px; flex:none;}
+.svc-grab{position:absolute; top:7px; left:50%; width:36px; height:4px; margin-left:-18px; border-radius:4px; background:color-mix(in srgb, var(--text-1) 22%, transparent);}
+.svc-close,.svc-arrow{
+  width:44px; height:44px; flex:none; display:grid; place-items:center; border-radius:var(--r-pill);
+  border:1px solid var(--border); color:var(--text-1); transition:scale 160ms ease, border-color 160ms ease;
+}
+.svc-close:active,.svc-arrow:active{scale:0.92;}
+.svc-close svg,.svc-arrow svg{width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+.svc-arrow.prev svg{transform:scaleX(-1);}
+.svc-win-scroll{flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:4px 20px 20px;}
+.svc-win-title{display:flex; align-items:center; gap:12px; margin-bottom:var(--s-4);}
+.svc-win-title .h3{font-size:1.4rem; font-weight:600; line-height:1.2; letter-spacing:-0.015em;}
+.svc-win-actions{display:flex; flex-wrap:wrap; align-items:center; gap:var(--s-4) var(--s-5);}
+.svc-win-nav{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px; border-top:1px solid var(--border); flex:none;}
+.svc-dots{display:flex; gap:6px;}
+.svc-dots i{width:6px; height:6px; border-radius:50%; background:color-mix(in srgb, var(--text-1) 25%, transparent); transition:transform 200ms ease, background-color 200ms ease;}
+.svc-dots i[data-on="true"]{background:var(--accent-blue); transform:scale(1.35);}
+/* details stagger in (and slide the way you swiped) */
+.svc-win-body > *{animation:svc-in 420ms var(--ease-out) backwards; animation-delay:calc(var(--i, 0) * 45ms);}
+.svc-win-body[data-dir="0"] > *{animation-delay:calc(140ms + var(--i, 0) * 45ms);}
+@keyframes svc-in{from{opacity:0; transform:translate(var(--dx, 0px), 10px);}}
+.svc-window[data-closing="true"] .svc-win-scroll{opacity:0; transition:opacity 120ms ease;}
+html[data-motion="reduced"] .svc-tile[data-active="true"]::after,html[data-motion="reduced"] .svc-tile[data-active="true"]::before{animation:none;}
+@media (prefers-reduced-motion: reduce){
+  html:not([data-motion="full"]) .svc-tile[data-active="true"]::after,html:not([data-motion="full"]) .svc-tile[data-active="true"]::before{animation:none;}
+}
+
 /* =====================================================================
    Work — one card per project (preview beside its text). Desktop: the row
    slides sideways as the page scrolls (WorkCarousel.tsx). Phones and
@@ -968,12 +1116,33 @@ html[data-motion="reduced"] .work-card:hover,html[data-motion="reduced"] .work-c
 /* =====================================================================
    Contact
    ===================================================================== */
-.contact{position:relative; overflow:hidden;}
-.contact-light{position:absolute; left:50%; top:calc(var(--section-y) + 8px); width:8px; height:8px; margin-left:-4px; border-radius:50%; background:var(--text-1); box-shadow:0 0 24px 6px color-mix(in srgb, var(--accent-blue) 60%, transparent), 0 0 120px 40px var(--accent-blue-soft);}
-.contact-head{text-align:center; margin-inline:auto; max-width:16ch; margin-top:var(--s-7);}
-.contact-sub{text-align:center; color:var(--text-2); margin:var(--s-5) auto var(--s-8); max-width:52ch;}
-.contact-grid{display:grid; grid-template-columns:repeat(12, minmax(0,1fr)); column-gap:var(--gutter); row-gap:var(--s-7);}
-.form{grid-column:1 / span 7; display:grid; grid-template-columns:1fr 1fr; gap:var(--s-5) var(--gutter); align-items:start;}
+.contact{position:relative;}
+/* Desktop: intro + ways to reach us (left), the form in a glass card (right).
+   One column below 1024px. (components/contact/ContactPanel.tsx) */
+.contact-layout{display:grid; grid-template-columns:repeat(12, minmax(0,1fr)); column-gap:var(--gutter); row-gap:var(--s-7); align-items:start;}
+.contact-info{grid-column:1 / span 5; display:flex; flex-direction:column; gap:var(--s-5);}
+.contact-head{font-size:clamp(2.5rem, 4.6vw, 4.75rem);}
+.contact-sub{color:var(--text-2); font-size:var(--fs-body-l); line-height:1.5; max-width:40ch;}
+.contact-methods{display:flex; flex-direction:column; margin-top:var(--s-2);}
+.contact-method{display:flex; align-items:flex-start; gap:14px; padding-block:var(--s-4); border-top:1px solid var(--border);}
+.contact-method:last-child{border-bottom:1px solid var(--border);}
+.contact-method-icon{
+  flex:none; width:40px; height:40px; display:grid; place-items:center; border-radius:12px;
+  border:1px solid var(--border); background:var(--accent-blue-soft); color:var(--accent-blue);
+}
+.contact-method-icon svg{width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+.contact-method-body{display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-width:0; padding-top:2px;}
+.contact-method-body .socials{margin-block:2px;}
+.contact-phone{font-size:1.05rem;}
+.contact-card{
+  grid-column:7 / span 6; padding:clamp(20px, 3vw, 36px); border-radius:24px;
+  border:1px solid color-mix(in srgb, var(--text-1) 12%, transparent);
+  background:color-mix(in srgb, var(--bg-1) 72%, transparent);
+  -webkit-backdrop-filter:blur(16px) saturate(150%); backdrop-filter:blur(16px) saturate(150%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb, var(--text-1) 6%, transparent),
+    0 10px 24px -14px rgba(0,0,0,0.35), 0 32px 64px -28px rgba(0,0,0,0.45);
+}
+.form{display:grid; grid-template-columns:1fr 1fr; gap:var(--s-5) var(--s-4); align-items:start;}
 .form-note{grid-column:1 / -1; font-size:0.875rem; color:var(--text-3);}
 .form .full{grid-column:1 / -1;}
 .field{display:flex; flex-direction:column; gap:8px;}
@@ -1031,7 +1200,7 @@ fieldset.field{border:0;}
 .field label.chip{font-family:var(--font-sans-stack); font-size:inherit; letter-spacing:0; text-transform:none; color:inherit;}
 .chip input{position:absolute; opacity:0; pointer-events:none;}
 .chip span{
-  display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:0 14px; border:1px solid var(--border-strong); border-radius:var(--r-pill);
+  display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 16px; border:1px solid var(--border-strong); border-radius:var(--r-pill);
   font-size:0.92rem; color:var(--text-2); cursor:pointer; transition:all 180ms ease; user-select:none;
 }
 @media (hover:hover){ .chip span:hover{border-color:var(--accent-blue); color:var(--text-1);} }
@@ -1042,6 +1211,11 @@ fieldset.field{border:0;}
 .chip input:focus-visible + span{outline:2px solid var(--accent-blue); outline-offset:3px;}
 .honeypot{position:absolute !important; left:-9999px !important; width:1px; height:1px; opacity:0;}
 .form-actions{grid-column:1 / -1; display:flex; flex-wrap:wrap; align-items:center; gap:var(--s-4) var(--s-5); margin-top:var(--s-2);}
+/* trust cues beside the button */
+.trust{display:flex; flex-wrap:wrap; gap:8px 18px; font-size:0.875rem; color:var(--text-2);}
+.trust li{display:inline-flex; align-items:center; gap:6px;}
+.trust svg{width:16px; height:16px; flex:none; fill:none; stroke:var(--lime-ink); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+.form-actions .form-status{flex-basis:100%;}
 .form-actions .btn[aria-busy="true"]{cursor:progress; opacity:0.85;}
 .spinner{width:16px; height:16px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin 700ms linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -1050,13 +1224,9 @@ fieldset.field{border:0;}
 .form-status{font-size:0.95rem; color:var(--text-2);}
 .form-status[data-tone="ok"]{color:var(--lime-ink);}
 .form-status[data-tone="error"]{color:var(--danger);}
-.form-done{grid-column:1 / span 7; padding:var(--s-7) 0; border-block:1px solid var(--border);}
+.form-done{padding:var(--s-5) 0;}
 .form-done h3{margin-bottom:var(--s-4);}
 .form-done p{color:var(--text-2); margin-bottom:var(--s-5);}
-.alt{grid-column:9 / span 4; display:flex; flex-direction:column; gap:var(--s-6);}
-.alt-item{display:flex; flex-direction:column; gap:8px; padding-bottom:var(--s-5); border-bottom:1px solid var(--border);}
-.alt-item p{color:var(--text-2); font-size:0.95rem;}
-.alt-item .socials{margin-bottom:4px;}
 /* Email: the address is a mailto: link; the copy button sits beside it */
 .email-copy{display:inline-flex; align-items:center; gap:6px; max-width:100%;}
 .email-link{font-size:1.05rem; overflow-wrap:anywhere;}
@@ -1084,7 +1254,7 @@ fieldset.field{border:0;}
 .email-copy--menu .email-link{font-size:0.95rem; color:var(--text-2);}
 .coffee{font-size:var(--fs-body-l); color:var(--text-1);}
 @media (max-width:1023px){
-  .form,.alt,.form-done{grid-column:1 / -1;}
+  .contact-info,.contact-card{grid-column:1 / -1;}
 }
 @media (max-width:599px){
   .form{grid-template-columns:1fr;}

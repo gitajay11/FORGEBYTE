@@ -14,6 +14,7 @@ export const CONTACT_EMAIL = 'admin.forgebyte@gmail.com';
 // E.164 for the tel: href — a bare 10-digit number only dials from inside
 // the same country. +91 assumed; change if the number isn't Indian.
 export const CONTACT_PHONE_E164 = '+916374972948';
+export const CONTACT_PHONE_DISPLAY = '+91 63749 72948';
 
 // wa.me wants the country code with no leading '+'
 export const CONTACT_WHATSAPP = CONTACT_PHONE_E164.replace(/\D/g, '');
