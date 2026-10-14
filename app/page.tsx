@@ -54,8 +54,10 @@ export default function Home() {
 
       {/* HERO ------------------------------------------------------------- */}
       <section className="hero" data-stage="pending" aria-labelledby="hero-title">
-        <HeroPoster />
-        <div className="hero-scene" aria-hidden="true" />
+        <div className="hero-visual" aria-hidden="true">
+          <HeroPoster />
+          <div className="hero-scene" />
+        </div>
         <p className="sr-only">
           Decorative animation: a slowly turning sculpture of particles and rings that come together into one shape.
         </p>
@@ -70,7 +72,7 @@ export default function Home() {
               <span className="line l3"><span>We question</span></span>
               <span className="line l4"><span>things.</span></span>
             </h1>
-            <p className="hero-sub hero-meta">
+            <p className="hero-sub hero-meta section-body">
               We design and build websites, online stores and apps for {studio.idealClients} — explained in plain
               English, with a fixed price up front.
             </p>
@@ -302,7 +304,7 @@ export default function Home() {
           <h2 id="engage-title" className="display-l" style={{ marginBottom: 'var(--s-7)' }}>
             <Words text="Ways to work together" highlight="together" />
           </h2>
-          <div className="engage">
+          <div className="engage section-body">
             {engagements.map((e) => (
               <div className="engage-row" key={e.name}>
                 <h3>{e.name}</h3>

@@ -100,11 +100,11 @@ main{display:block;}
   font-size:clamp(1.0625rem, 1rem + 0.3vw, 1.25rem); font-weight:400; line-height:1.55; color:var(--text-2);
   text-align:justify; text-align-last:center; text-justify:inter-word; hyphens:auto; -webkit-hyphens:auto;
 }
-/* Section content (.section-body on a block, or on a paragraph itself):
-   paragraphs and descriptions are justified with hyphenation (html
-   lang="en"). Not headings, labels (.mono), the big quoted brief, lists of
-   short items, buttons or links — they keep their own alignment. */
-.section-body p:not(.mono):not(.brief),p.section-body{
+/* Body text, site-wide (.section-body on a block, or on a paragraph itself;
+   .list-prose for lists of full sentences): justified with hyphenation
+   (html lang="en"). Not headings, display-size statements, labels (.mono),
+   the big quoted brief, lists of short items, buttons or links. */
+.section-body p:not(.mono):not(.brief),p.section-body,.section-body .list-prose > li{
   text-align:justify; text-justify:inter-word; hyphens:auto; -webkit-hyphens:auto;
 }
 /* a readable measure for justified text, unless the block sets a narrower one */
@@ -116,10 +116,16 @@ main{display:block;}
   .manifesto-body.section-body p:not(.mono){font-size:1.0625rem;}
   .section-lead{font-size:1rem;}
 }
-/* below 360px the About paragraphs' long, unbreakable names ("Ajaykumar
-   (Ajay) and Parivalavan (Pari)") leave gaps of 7–8 spaces when justified:
-   the one place that falls back to left alignment */
-@media (max-width:359px){ .manifesto-body.section-body p:not(.mono){text-align:left;} }
+/* Below 360px a few blocks leave gaps of 7+ spaces when justified, so they
+   fall back to left alignment: the About and Studio founder paragraphs (long,
+   unbreakable names) and the chat assistant's replies (a ~220px bubble). */
+@media (max-width:359px){
+  .manifesto-body.section-body p:not(.mono),
+  .founder-body.section-body p:not(.mono),
+  .chat-msg.section-body{text-align:left;}
+}
+/* large-type questions on project pages: a size down on narrow phones */
+@media (max-width:399px){ ol.questions > li{font-size:1.3rem;} }
 .section-head{margin-bottom:var(--s-7);}
 .measure{max-width:var(--measure);}
 .mono{
@@ -765,6 +771,8 @@ html[data-motion="reduced"] #introOverlay .il-rest span{opacity:1; transform:non
 /* sized so the longest line ("We question") always fits the copy column on one line */
 .hero .display-xl{font-size:clamp(2.6rem, min(6.9vw, 13vh), 7.5rem);}
 .hero h1 .line{white-space:nowrap;}
+/* the 3D scene and its static poster share one box (.hero-visual) */
+.hero-visual{position:absolute; inset:0; z-index:-1;}
 .hero-scene{position:absolute; inset:0; z-index:-1;}
 .hero-scene canvas{width:100% !important; height:100% !important;}
 .hero:has(.hero-scene[data-ready="true"]) .hero-poster svg{opacity:0; transition:opacity 600ms var(--ease-out);}
@@ -803,6 +811,23 @@ html:not(.js) .hero .hero-meta{transform:none !important; opacity:1 !important;}
   .hero{justify-content:flex-end;}
   .hero-copy{max-width:100%;}
   .hero-scrim{background:linear-gradient(0deg, color-mix(in srgb, var(--bg-0) 95%, transparent) 0%, color-mix(in srgb, var(--bg-0) 55%, transparent) 50%, color-mix(in srgb, var(--bg-0) 10%, transparent) 100%);}
+}
+/* Phones (and phones held sideways): no more text over the sculpture. The
+   text comes first; the 3D scene (or its poster) gets its own square below,
+   centred, at most 90vw / 40svh. Its size is set up front (aspect-ratio), so
+   nothing moves when the scene loads. Keep the query in step with
+   scenes/hero.ts (STACKED). */
+@media (max-width:767px), (max-width:1023px) and (max-height:500px){
+  .hero{justify-content:flex-start; padding-bottom:var(--s-7);}
+  .hero-visual{
+    position:relative; inset:auto; z-index:0; order:2; flex:none;
+    width:min(90vw, 40svh); aspect-ratio:1 / 1; margin:var(--s-6) auto 0;
+  }
+  .hero-scrim{display:none;}
+  .hero-poster{background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--accent-blue) 22%, transparent), transparent 42%),
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--accent-blue-dim) 18%, transparent), transparent 70%);}
+  .hero-poster svg{left:0; right:auto; top:0; transform:none; width:100%; height:100%;}
 }
 
 /* =====================================================================
@@ -1274,8 +1299,8 @@ fieldset.field{border:0;}
 .form-done h3{margin-bottom:var(--s-4);}
 .form-done p{color:var(--text-2); margin-bottom:var(--s-5);}
 /* Email: the address is a mailto: link; the copy button sits beside it */
-.email-copy{display:inline-flex; align-items:center; gap:6px; max-width:100%;}
-.email-link{font-size:1.05rem; overflow-wrap:anywhere;}
+.email-copy{display:inline-flex; flex-wrap:wrap; align-items:center; gap:6px; max-width:100%;}
+.email-link{font-size:1.05rem; overflow-wrap:break-word; min-width:0;}
 .copy-btn{
   position:relative; flex:none; width:40px; height:40px; display:grid; place-items:center;
   border-radius:var(--r-pill); border:1px solid var(--border); color:var(--text-2);
@@ -1428,6 +1453,13 @@ fieldset.field{border:0;}
 .principles h3{font-size:1.4rem; font-weight:500; letter-spacing:-0.01em; margin-bottom:4px;}
 .principles p{color:var(--text-2);}
 .promises{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); border-top:1px solid var(--border);}
+/* two columns until each is wide enough for justified text */
+@media (min-width:1024px) and (max-width:1279px){
+  .promises{grid-template-columns:repeat(2, minmax(0,1fr));}
+  .promises > div:nth-child(2){border-right:0;}
+  .promises > div:nth-child(3){padding-left:0;}
+  .promises > div:nth-child(n+3){border-top:1px solid var(--border);}
+}
 .promises > div{padding:24px 20px 24px 0; border-right:1px solid var(--border);}
 .promises > div + div{padding-left:20px;}
 .promises > div:last-child{border-right:0;}

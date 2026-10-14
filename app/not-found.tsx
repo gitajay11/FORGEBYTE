@@ -10,7 +10,7 @@ export default function NotFound() {
         <h1 id="lost-h" className="display-l" style={{ maxWidth: '14ch' }}>
           This page asked too many questions and wandered off.
         </h1>
-        <p>The link may be old, or mistyped. Scatter the particles while you decide where to go next.</p>
+        <p className="section-body">The link may be old, or mistyped. Scatter the particles while you decide where to go next.</p>
         <div className="actions">
           <Link href="/" className="btn btn-primary" data-magnetic>Back home <span className="arrow" aria-hidden="true">→</span></Link>
           <Link href="/contact" className="ulink" data-track="cta_click:404">Start a project instead</Link>

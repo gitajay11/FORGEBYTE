@@ -278,7 +278,7 @@ export default function ChatWidget() {
 
         <div className="chat-log" role="log" aria-live="polite" ref={logRef}>
           {messages.map((m) => (
-            <p key={m.id} className={`chat-msg ${m.from}`}>
+            <p key={m.id} className={`chat-msg ${m.from}${m.from === 'bot' ? ' section-body' : ''}`}>
               {m.text}
             </p>
           ))}
@@ -353,7 +353,7 @@ export default function ChatWidget() {
             </button>
             {/* details typed here are forwarded — say so rather than
                 collecting them quietly */}
-            <p className="chat-privacy">
+            <p className="chat-privacy section-body">
               Share an email or phone number here and it goes straight to Ajay.
             </p>
           </form>

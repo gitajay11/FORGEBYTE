@@ -31,7 +31,7 @@ export default function StudioPage() {
       <section className="page-hero container">
         <p className="mono" style={{ marginBottom: 'var(--s-5)' }}>01 — About us</p>
         <h1 className="display-xl"><Words text="Problem solvers first." highlight="Problem" /></h1>
-        <p className="lede">You&apos;re not paying for hours of typing. You&apos;re paying for good decisions about what to build.</p>
+        <p className="lede section-body">You&apos;re not paying for hours of typing. You&apos;re paying for good decisions about what to build.</p>
       </section>
 
       <section className="section container" aria-labelledby="founder-h">
@@ -44,7 +44,7 @@ export default function StudioPage() {
               </div>
             ))}
           </div>
-          <div className="founder-body">
+          <div className="founder-body section-body">
             <h2 id="founder-h" className="display-l" style={{ marginBottom: 'var(--s-6)' }}>The founders</h2>
             <Reveal as="p" variant="blur">
               We&apos;re {team[0].name}, founder, and {team[1].display}, co-founder. We run every project at {studio.name}{' '}
@@ -69,7 +69,7 @@ export default function StudioPage() {
       <section className="section container" aria-labelledby="principles-h">
         <div className="grid" style={{ rowGap: 'var(--s-7)' }}>
           <h2 id="principles-h" className="display-l" style={{ gridColumn: '1 / span 4' }}>What we believe</h2>
-          <ol className="principles">
+          <ol className="principles section-body">
             {PRINCIPLES.map((p, i) => (
               <li key={p.t}>
                 <span className="mono">0{i + 1}</span>
@@ -82,7 +82,7 @@ export default function StudioPage() {
 
       <section className="section container" aria-labelledby="working-h">
         <h2 id="working-h" className="display-l" style={{ marginBottom: 'var(--s-7)' }}>What working with us is like</h2>
-        <div className="promises">
+        <div className="promises section-body">
           {WORKING_WITH_US.map((w) => (
             <div key={w.t}>
               <h3>{w.t}</h3>

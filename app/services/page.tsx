@@ -17,7 +17,7 @@ export default function ServicesPage() {
       <section className="page-hero container">
         <p className="mono" style={{ marginBottom: 'var(--s-5)' }}>02 — What we do</p>
         <h1 className="display-xl"><Words text="What we can build for you" highlight="build" /></h1>
-        <p className="lede">
+        <p className="lede section-body">
           Five kinds of work. For each one: what you get, how long it usually takes, and when we&apos;re not the right choice.
         </p>
         <nav aria-label="Services on this page" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 24px', marginTop: 'var(--s-7)' }}>
@@ -27,7 +27,7 @@ export default function ServicesPage() {
         </nav>
       </section>
 
-      <div className="container svc-page">
+      <div className="container svc-page section-body">
         {services.map((s) => {
           const examples = caseStudies.filter((c) => c.services.includes(s.slug));
           return (
@@ -68,7 +68,7 @@ export default function ServicesPage() {
 
         <section className="section" aria-labelledby="engage-h" style={{ borderTop: '1px solid var(--border)' }}>
           <h2 id="engage-h" className="display-l" style={{ marginBottom: 'var(--s-7)' }}>Ways to work together</h2>
-          <div className="engage">
+          <div className="engage section-body">
             {engagements.map((e) => (
               <div className="engage-row" key={e.name}>
                 <h3>{e.name}</h3>

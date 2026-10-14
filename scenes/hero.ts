@@ -22,6 +22,7 @@ import {
   Vector3,
   WebGLRenderer,
 } from 'three';
+import { HERO_STACKED } from '@/lib/heroLayout';
 import { palette } from '@/lib/tokens';
 
 export type HeroQuality = 'high' | 'low';
@@ -238,7 +239,9 @@ export function createHeroScene(host: HTMLElement, quality: HeroQuality, theme: 
   const light = new Points(lightGeo, lightMat);
   sculpture.add(light);
 
-  /* ---- layout: sculpture off-centre (columns 7–12) on wide screens ---- */
+  /* ---- layout: sculpture off-centre (columns 7–12) on wide screens; on
+     phones (globals.css .hero-visual) the canvas is its own square below
+     the text, so the sculpture sits centred in it ---- */
   const layout = () => {
     const { width, height } = host.getBoundingClientRect();
     if (!width || !height) return;
@@ -246,7 +249,10 @@ export function createHeroScene(host: HTMLElement, quality: HeroQuality, theme: 
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.position.z * camera.aspect;
-    if (width >= 1024) {
+    if (window.matchMedia(HERO_STACKED).matches) {
+      sculpture.position.set(0, 0, 0);
+      sculpture.scale.setScalar(0.9);
+    } else if (width >= 1024) {
       sculpture.position.set(halfW * 0.6, 0.1, 0);
       sculpture.scale.setScalar(0.86);
     } else {

@@ -13,9 +13,9 @@ export default function PrivacyPage() {
     <section className="page-hero container">
       <p className="mono" style={{ marginBottom: 'var(--s-5)' }}>Privacy · last updated October 2026</p>
       <h1 className="display-l" style={{ marginBottom: 'var(--s-7)' }}>Privacy, in plain words</h1>
-      <div className="prose">
+      <div className="prose section-body">
         <h2>What we collect</h2>
-        <ul>
+        <ul className="list-prose">
           <li><strong>The contact form:</strong> whatever you type into it — name, email, company, what you need, budget, timeline and your message. It is emailed to us and a copy is emailed back to you.</li>
           <li><strong>The chat assistant:</strong> your messages are sent to Groq, the AI provider that writes the replies. If you type an email address or phone number into the chat, that part of the conversation is emailed to us so we can reply.</li>
           <li><strong>Analytics:</strong> Vercel Web Analytics counts page views and a few clicks (such as &ldquo;Start a project&rdquo;). It uses no cookies and does not identify you.</li>

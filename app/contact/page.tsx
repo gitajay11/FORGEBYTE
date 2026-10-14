@@ -19,7 +19,7 @@ export default function ContactPage() {
           id="contact-h"
           source="contact-page"
           sub={<>A few quick questions — only three are required. We reply within {studio.replyWithin}, and we&apos;re on {studio.tzLabel}.</>}
-          note={<p className="coffee">Fill your coffee cup before booking a call with us.</p>}
+          note={<p className="coffee section-body">Fill your coffee cup before booking a call with us.</p>}
         />
       </div>
     </section>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { detectTier, onThemeChange, resolvedTheme } from '@/lib/prefs';
+import { HERO_STACKED } from '@/lib/heroLayout';
 import type { HeroScene } from '@/scenes/hero';
 
 const SEEN = 'fb-hero-seen';
@@ -87,14 +88,20 @@ export default function HeroStage() {
       window.addEventListener('wheel', skip, { once: true, passive: true });
     };
 
-    // Scroll-out: 0 at top, 1 once the hero has scrolled away
+    // Scroll-out: 0 at top, 1 once the hero has scrolled away. Phones (the
+    // scene sits below the text): 0 until its own box starts leaving the top
+    // of the screen, so it isn't half-dissolved by the time you reach it.
+    const stacked = window.matchMedia(HERO_STACKED);
     let ticking = false;
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
         const h = hero.offsetHeight || 1;
-        scene?.setScroll(Math.min(1, Math.max(0, window.scrollY / (h * 0.9))));
+        const p = stacked.matches
+          ? -host.getBoundingClientRect().top / (host.offsetHeight || 1)
+          : window.scrollY / (h * 0.9);
+        scene?.setScroll(Math.min(1, Math.max(0, p)));
         ticking = false;
       });
     };

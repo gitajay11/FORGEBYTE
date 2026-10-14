@@ -65,7 +65,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
           <div className="cs-hero-grid">
             <div>
               <h1 className="display-xl"><Words text={cs.title} /></h1>
-              <p className="one">{cs.oneLiner}</p>
+              <p className="one section-body">{cs.oneLiner}</p>
               <a href={cs.url} target="_blank" rel="noopener" className="btn btn-ghost">
                 Visit {domain} <span className="arrow" aria-hidden="true">↗</span>
               </a>
@@ -85,13 +85,13 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
       <div className="container">
         <section className="cs-block" aria-labelledby="problem">
           <h2 className="mono" id="problem">01 — The challenge</h2>
-          <div className="content"><Reveal as="p" variant="perspective" className="lead">{cs.problem}</Reveal></div>
+          <div className="content section-body"><Reveal as="p" variant="perspective" className="lead">{cs.problem}</Reveal></div>
         </section>
 
         <section className="cs-block" aria-labelledby="questions">
           <h2 className="mono" id="questions">02 — The questions we asked</h2>
-          <div className="content">
-            <ol className="questions">
+          <div className="content section-body">
+            <ol className="questions list-prose">
               {cs.questions.map((q, n) => (
                 <Reveal as="li" variant="clip-up" key={q}><span className="mono">Q{n + 1}</span><span>{q}</span></Reveal>
               ))}
@@ -101,12 +101,12 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
 
         <section className="cs-block" aria-labelledby="approach">
           <h2 className="mono" id="approach">03 — What we did</h2>
-          <div className="content"><Approach items={cs.approach} /></div>
+          <div className="content section-body"><Approach items={cs.approach} /></div>
         </section>
 
         <section className="cs-block" aria-labelledby="build">
           <h2 className="mono" id="build">04 — What we built</h2>
-          <div className="content">
+          <div className="content section-body">
             <ul className="build-list">{cs.build.map((b) => <li key={b}>{b}</li>)}</ul>
             <p className="mono" style={{ marginTop: 'var(--s-5)' }}>Built with — {cs.stack.join(' · ')}</p>
           </div>
@@ -114,7 +114,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
 
         <section className="cs-block" aria-labelledby="outcome">
           <h2 className="mono" id="outcome">05 — The result</h2>
-          <div className="content">
+          <div className="content section-body">
             <Reveal as="p" variant="blur" className="lead">{cs.outcome}</Reveal>
             <p className="muted" style={{ marginTop: 'var(--s-4)', fontSize: '0.95rem' }}>
               We only share numbers we can prove. None have been measured for this project yet.
@@ -134,7 +134,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
           <div>
             <p className="mono" style={{ marginBottom: 'var(--s-4)' }}>Next project</p>
             <p className="display-l">{next.title} →</p>
-            <p className="body" style={{ marginTop: 'var(--s-4)' }}>{next.oneLiner}</p>
+            <p className="body section-body" style={{ marginTop: 'var(--s-4)' }}>{next.oneLiner}</p>
           </div>
           <BrowserFrame src={next.image} alt="" url={next.url} sizes="(max-width: 1023px) 92vw, 560px" />
         </div>

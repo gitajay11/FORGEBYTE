@@ -16,7 +16,7 @@ export default function LabPage() {
       <section className="page-hero container">
         <p className="mono" style={{ marginBottom: 'var(--s-5)' }}>07 — Demos</p>
         <h1 className="display-xl"><Words text="Demos" highlight="Demos" /></h1>
-        <p className="lede">
+        <p className="lede section-body">
           Example websites and experiments. None of these are client projects — they show what we can build before
           you commit to anything.
         </p>
@@ -25,7 +25,7 @@ export default function LabPage() {
         {lab.map((l) => (
           <article className="cs-block" key={l.slug} aria-labelledby={`lab-${l.slug}`}>
             <p className="mono">{l.kind}</p>
-            <div className="content">
+            <div className="content section-body">
               <h2 className="display-l" id={`lab-${l.slug}`} style={{ marginBottom: 'var(--s-5)' }}>{l.title}</h2>
               <p className="body" style={{ marginBottom: 'var(--s-6)' }}>{l.body}</p>
               <div style={{ marginBottom: 'var(--s-5)' }}>
