@@ -23,5 +23,9 @@ export const WHATSAPP_URL = `https://wa.me/${CONTACT_WHATSAPP}?text=${encodeURIC
   "Hi! I found Forgebyte and I'd like to talk about a project."
 )}`;
 
+// The Forgebyte Telegram bot (docs/TELEGRAM.md). Public, so it lives here; the
+// same username is TELEGRAM_BOT_USERNAME on the server.
+export const TELEGRAM_BOT_URL = 'https://t.me/forgeByteBot';
+
 // Shared by the contact form and the chat widget's lead capture, so leads from
 // both land in the same inbox.

@@ -1,7 +1,7 @@
 import { socials } from '@/lib/content';
 
 // Inline stroke icons in the same style as the theme toggle — no icon
-// library. Shapes from Lucide (ISC) and Tabler (MIT, for X and WhatsApp).
+// library. Shapes from Lucide (ISC) and Tabler (MIT, for X, WhatsApp and Telegram).
 const ICONS: Record<(typeof socials)[number]['name'], React.ReactNode> = {
   Instagram: (
     <>
@@ -36,6 +36,7 @@ const ICONS: Record<(typeof socials)[number]['name'], React.ReactNode> = {
       <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
     </>
   ),
+  Telegram: <path d="M15 10l-4 4l6 6l4 -16l-18 7l4 2l2 6l3 -4" />,
 };
 
 export default function SocialLinks() {

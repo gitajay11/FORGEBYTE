@@ -8,7 +8,7 @@
 // testimonial or credential that isn't real. Unconfirmed values are listed in
 // docs/HANDOVER.md.
 
-import { WHATSAPP_URL } from './site';
+import { TELEGRAM_BOT_URL, WHATSAPP_URL } from './site';
 
 export const studio = {
   name: 'Forgebyte',
@@ -41,6 +41,7 @@ export const socials = [
   { name: 'YouTube', url: '#' },
   { name: 'Facebook', url: '#' },
   { name: 'WhatsApp', url: WHATSAPP_URL },
+  { name: 'Telegram', url: TELEGRAM_BOT_URL },
 ] as const;
 
 /* ------------------------------------------------------------------ */
