@@ -1,11 +1,17 @@
 // Receives the contact form: emails the enquiry to the studio (WORK_MAIL),
-// sends the visitor a confirmation, and adds a row to the enquiries Google
-// Sheet via Sheet Ninja. All settings come from env vars only.
+// sends the visitor a confirmation, adds a row to the enquiries Google Sheet
+// via Sheet Ninja, and — when set up — stores it (Neon) and posts it to the
+// work Telegram chat. All settings come from env vars only.
 
 import { BOOKING_URL, INBOX, sendMail, smtpConfigured } from '@/lib/mail';
 import { makeReference, pageLabel, studioNotification, visitorConfirmation } from '@/lib/emailTemplates';
 import { appendToSheet, istTimestamp, sheetConfigured } from '@/lib/sheet';
 import { clientIp, createRateLimiter } from '@/lib/rateLimit';
+import { dbConfigured } from '@/lib/db';
+import { linkConfigured, notifyConfigured, tgConfig } from '@/lib/telegram/config';
+import { maybeCleanup, saveSubmission } from '@/lib/telegram/store';
+import { notifyWork } from '@/lib/telegram/notify';
+import { signToken } from '@/lib/telegram/token';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -30,8 +36,9 @@ function field(data: FormData, name: keyof typeof MAX): string {
 }
 
 export async function POST(request: Request) {
-  if (!smtpConfigured && !sheetConfigured) {
-    console.error('Contact form: neither SMTP (SMTP_HOST/SMTP_USER/SMTP_PASS) nor SHEETNINJA_API_URL is set');
+  const telegramOn = notifyConfigured();
+  if (!smtpConfigured && !sheetConfigured && !telegramOn) {
+    console.error('Contact form: none of SMTP (SMTP_HOST/SMTP_USER/SMTP_PASS), SHEETNINJA_API_URL or Telegram (TELEGRAM_BOT_TOKEN/WORK_CHAT_ID/TELEGRAM_LINK_SECRET) is set');
     return Response.json({ error: 'The contact form is not configured yet.' }, { status: 503 });
   }
 
@@ -86,16 +93,30 @@ export async function POST(request: Request) {
     receivedAt: new Date(),
   };
 
-  // Email to the studio, confirmation to the visitor and the sheet row, all at
-  // once. The enquiry counts as received if it reached the studio by either
-  // route (email or sheet) — otherwise say so, and the visitor keeps their
-  // input to retry. Any single failure is logged.
+  // Stored first (when a database is set up): the Telegram buttons and the
+  // visitor's "Get updates on Telegram" link need its id. A database failure
+  // only costs those extras — the enquiry still goes out by email.
+  let submissionId: string | null = null;
+  if (dbConfigured()) {
+    try {
+      submissionId = await saveSubmission({ reference: enquiry.reference, name, email, phone, company, needs, budget, timeline, message, source });
+      void maybeCleanup();
+    } catch (err) {
+      console.error(`Contact form ${enquiry.reference}: database save failed`, err);
+    }
+  }
+
+  // Email to the studio, confirmation to the visitor, the sheet row and the
+  // Telegram work-chat post, all at once. The enquiry counts as received if
+  // it reached the studio by any route (email, sheet or Telegram) — otherwise
+  // say so, and the visitor keeps their input to retry. Any single failure is
+  // logged.
   const studio = studioNotification(enquiry);
   const confirmation = visitorConfirmation(enquiry, { bookingUrl: BOOKING_URL });
   const visitor = { name, address: email };
   const skipped = Promise.reject(new Error('not configured'));
   skipped.catch(() => {}); // settled below; silence the unhandled-rejection warning
-  const [toStudio, toVisitor, toSheet] = await Promise.allSettled([
+  const [toStudio, toVisitor, toSheet, toTelegram] = await Promise.allSettled([
     smtpConfigured ? sendMail({ to: INBOX, replyTo: visitor, ...studio }) : skipped,
     smtpConfigured ? sendMail({ to: visitor, replyTo: INBOX, ...confirmation }) : skipped,
     sheetConfigured
@@ -108,6 +129,7 @@ export async function POST(request: Request) {
           page: pageLabel(source),
         })
       : skipped,
+    telegramOn ? notifyWork(enquiry, submissionId) : skipped,
   ]);
 
   const log = (what: string, r: PromiseSettledResult<void>, configured: boolean) => {
@@ -116,13 +138,18 @@ export async function POST(request: Request) {
   log('studio email', toStudio, smtpConfigured);
   log('confirmation email', toVisitor, smtpConfigured);
   log('sheet row', toSheet, sheetConfigured);
+  log('Telegram work chat', toTelegram, telegramOn);
 
-  if (toStudio.status === 'rejected' && toSheet.status === 'rejected') {
+  if (toStudio.status === 'rejected' && toSheet.status === 'rejected' && toTelegram.status === 'rejected') {
     return Response.json({ error: 'Could not send your message right now.' }, { status: 502 });
   }
 
+  // the visitor's opt-in to a Telegram confirmation: a signed, 24-hour token
+  // that carries only the submission id
+  const telegramUrl = submissionId && linkConfigured() ? `https://t.me/${tgConfig().username}?start=${signToken('start', submissionId)}` : undefined;
+
   return Response.json(
-    { ok: true, reference: enquiry.reference, confirmationSent: toVisitor.status === 'fulfilled' },
+    { ok: true, reference: enquiry.reference, confirmationSent: toVisitor.status === 'fulfilled', telegramUrl },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }

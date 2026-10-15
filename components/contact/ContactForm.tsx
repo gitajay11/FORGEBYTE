@@ -19,7 +19,7 @@ type State =
   | { kind: 'idle' }
   | { kind: 'sending' }
   | { kind: 'error'; text: string }
-  | { kind: 'done'; reference: string; confirmationSent: boolean };
+  | { kind: 'done'; reference: string; confirmationSent: boolean; telegramUrl?: string };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_RE = /^\+?[\d\s().-]{7,24}$/;
@@ -97,7 +97,13 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
       if (!res.ok) throw new Error(body.error || 'Could not send your message right now.');
       track('form_submit', { source });
       // the form unmounts here, so "Send another message" starts from a clean form
-      setState({ kind: 'done', reference: body.reference ?? '', confirmationSent: body.confirmationSent !== false });
+      setState({
+        kind: 'done',
+        reference: body.reference ?? '',
+        confirmationSent: body.confirmationSent !== false,
+        // only a t.me link is ever shown
+        telegramUrl: typeof body.telegramUrl === 'string' && body.telegramUrl.startsWith('https://t.me/') ? body.telegramUrl : undefined,
+      });
     } catch (err) {
       // keep everything the visitor typed; offer a retry and the direct route
       setState({ kind: 'error', text: (err as Error).message });
@@ -116,6 +122,15 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
             ? <>We&apos;ve emailed you a copy of your message. We&apos;ll reply within {studio.replyWithin}.</>
             : <>Your message reached us, but the confirmation email didn&apos;t go through — we&apos;ll still reply within {studio.replyWithin}.</>}
         </p>
+        {state.telegramUrl && (
+          <div className="tg-optin">
+            <a className="btn btn-ghost tg-btn" href={state.telegramUrl} target="_blank" rel="noopener noreferrer" data-track="cta_click:telegram-optin">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.4 4.6-3.1 14.6c-.2 1-.8 1.3-1.7.8l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.8 8.8-7.9c.4-.3-.1-.5-.6-.2L6.2 13.1l-4.7-1.5c-1-.3-1-1 .2-1.5l18.4-7.1c.9-.3 1.6.2 1.3 1.6z" /></svg>
+              Get updates on Telegram
+            </a>
+            <p className="tg-note">Open the link, press <strong>Start</strong>, and our bot sends you a summary of your request. The link works for 24 hours.</p>
+          </div>
+        )}
         <button className="ulink" type="button" onClick={() => { setState({ kind: 'idle' }); started.current = false; }}>
           Send another message
         </button>

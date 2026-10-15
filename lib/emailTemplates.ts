@@ -74,7 +74,7 @@ export function pageLabel(source: string): string {
 }
 
 /** Digits for wa.me / tel:. A bare 10-digit number is assumed Indian (+91). */
-function phoneDigits(phone: string): string {
+export function phoneDigits(phone: string): string {
   const d = phone.replace(/\D/g, '');
   return d.length === 10 ? `91${d}` : d;
 }

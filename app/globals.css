@@ -1298,6 +1298,11 @@ fieldset.field{border:0;}
 .form-done{padding:var(--s-5) 0;}
 .form-done h3{margin-bottom:var(--s-4);}
 .form-done p{color:var(--text-2); margin-bottom:var(--s-5);}
+/* success screen: opt in to a Telegram confirmation (Telegram brand blue icon) */
+.tg-optin{display:flex; flex-direction:column; align-items:flex-start; gap:10px; margin-bottom:var(--s-5);}
+.tg-btn{gap:10px;}
+.tg-btn svg{width:18px; height:18px; flex:none; fill:#2AABEE;}
+.form-done .tg-note{font-size:0.875rem; color:var(--text-3); margin:0; max-width:44ch;}
 /* Email: the address is a mailto: link; the copy button sits beside it */
 .email-copy{display:inline-flex; flex-wrap:wrap; align-items:center; gap:6px; max-width:100%;}
 .email-link{font-size:1.05rem; overflow-wrap:break-word; min-width:0;}
