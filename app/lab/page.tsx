@@ -3,6 +3,7 @@ import { lab } from '@/lib/content';
 import { Words } from '@/components/motion/Text';
 import BrowserFrame from '@/components/BrowserFrame';
 import OpenChat from '@/components/lab/OpenChat';
+import VisitSite from '@/components/work/VisitSite';
 
 export const metadata: Metadata = {
   title: 'Demos',
@@ -29,12 +30,12 @@ export default function LabPage() {
               <h2 className="display-l" id={`lab-${l.slug}`} style={{ marginBottom: 'var(--s-5)' }}>{l.title}</h2>
               <p className="body" style={{ marginBottom: 'var(--s-6)' }}>{l.body}</p>
               <div style={{ marginBottom: 'var(--s-5)' }}>
-                <BrowserFrame src={l.image} alt={l.imageAlt} url={l.url} sizes="(max-width: 1023px) 92vw, 760px" />
+                <BrowserFrame src={l.image} alt={l.imageAlt} url={l.url} visitTitle={l.title} sizes="(max-width: 1023px) 92vw, 760px" />
               </div>
               {l.url.startsWith('#') ? (
                 <OpenChat>Try it — open the chat →</OpenChat>
               ) : (
-                <a href={l.url} target="_blank" rel="noopener" className="ulink">Open the demo ↗</a>
+                <VisitSite href={l.url} title={l.title} className="visit-btn" />
               )}
             </div>
           </article>

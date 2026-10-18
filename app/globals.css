@@ -840,7 +840,7 @@ html:not(.js) .hero .hero-meta{transform:none !important; opacity:1 !important;}
 .browser-bar .dots i{width:9px; height:9px; border-radius:50%; background:var(--graphite);}
 .browser-bar .address{flex:1; max-width:340px; margin:0 auto; height:22px; display:flex; align-items:center; justify-content:center;
   border-radius:6px; background:var(--bg-1); font-family:var(--font-mono-stack); font-size:11px; color:var(--text-2); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; padding:0 10px;}
-.browser-view{aspect-ratio:16/10; overflow:hidden;}
+.browser-view{position:relative; aspect-ratio:16/10; overflow:hidden;}
 .browser-view img{width:100%; height:100%; object-fit:cover; object-position:top; transition:transform 1.2s var(--ease-out);}
 a:hover .browser-view img,.browser:hover .browser-view img{transform:scale(1.025);}
 
@@ -1067,7 +1067,7 @@ html[data-motion="reduced"] .svc-tile[data-active="true"]::after,html[data-motio
 /* mouse and trackpad: the pill shows on hover or keyboard focus; touch: always */
 @media (hover:hover) and (pointer:fine){
   .visit-pill{opacity:0; translate:0 6px;}
-  .work-card:hover .visit-pill,.work-card:focus-within .visit-pill{opacity:1; translate:0 0;}
+  :is(.work-card,.lab-tile,.browser):is(:hover,:focus-within) .visit-pill{opacity:1; translate:0 0;}
 }
 
 /* Desktop with motion: pin + scroll-driven slide. The pin's height is pure

@@ -12,6 +12,7 @@ import ServiceMenu from '@/components/home/ServiceMenu';
 import HeroPoster from '@/components/home/HeroPoster';
 import BrowserFrame from '@/components/BrowserFrame';
 import WorkCarousel from '@/components/home/WorkCarousel';
+import VisitSite from '@/components/work/VisitSite';
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -289,10 +290,11 @@ export default function Home() {
           <div className="lab-strip section-body">
             {lab.map((l) => (
               <article className="lab-tile" key={l.slug}>
-                <BrowserFrame src={l.image} alt={l.imageAlt} url={l.url} sizes="(max-width: 899px) 92vw, 420px" />
+                <BrowserFrame src={l.image} alt={l.imageAlt} url={l.url} visitTitle={l.title} sizes="(max-width: 899px) 92vw, 420px" />
                 <span className="mono">{l.kind}</span>
                 <h3>{l.title}</h3>
                 <p>{l.body}</p>
+                {l.url.startsWith('https://') && <VisitSite href={l.url} title={l.title} className="visit-btn" />}
               </article>
             ))}
           </div>

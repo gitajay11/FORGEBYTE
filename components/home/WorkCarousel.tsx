@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import StatusBadge from '@/components/work/StatusBadge';
+import VisitSite from '@/components/work/VisitSite';
 
 export type WorkItem = {
   slug: string;
@@ -17,24 +18,6 @@ export type WorkItem = {
   /** the live site; left out when there is nothing public to visit yet */
   url?: string;
 };
-
-/** "Visit site ↗": a real link above the card's stretched link. It stops the
- *  click there so the card's own case-study link never fires as well. */
-function VisitSite({ it, className }: { it: WorkItem; className: string }) {
-  if (!it.url) return null;
-  return (
-    <a
-      className={className}
-      href={it.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`Visit ${it.title} (opens in new tab)`}
-      onClick={(e) => e.stopPropagation()}
-    >
-      Visit site <span aria-hidden="true">↗</span>
-    </a>
-  );
-}
 
 // Scroll-driven horizontal row of project cards.
 //
@@ -144,7 +127,7 @@ export default function WorkCarousel({ items }: { items: WorkItem[] }) {
             <article className="work-card" key={it.slug} role="listitem" data-active={i === active} aria-label={`${i + 1} of ${items.length}: ${it.title}`}>
               <div className="work-card-media">
                 <Image src={it.image} alt={it.imageAlt} width={1000} height={625} sizes="(max-width: 767px) 85vw, 620px" />
-                <VisitSite it={it} className="visit-pill" />
+                {it.url && <VisitSite href={it.url} title={it.title} className="visit-pill" />}
               </div>
               <div className="work-card-body section-body">
                 <div className="meta-row">
@@ -156,7 +139,7 @@ export default function WorkCarousel({ items }: { items: WorkItem[] }) {
                   <Link href={`/work/${it.slug}`} className="work-card-link" data-cursor="view">{it.title}</Link>
                 </h3>
                 <p>{it.oneLiner}</p>
-                <VisitSite it={it} className="visit-btn" />
+                {it.url && <VisitSite href={it.url} title={it.title} className="visit-btn" />}
                 <div className="work-card-foot">
                   <ul className="tags" aria-label="What we did">
                     {it.tags.map((t) => <li key={t}>{t}</li>)}

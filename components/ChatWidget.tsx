@@ -399,6 +399,12 @@ export default function ChatWidget() {
         </div>
       </div>
 
+      {/* a nudge beside the logo; the launcher itself is the accessible control */}
+      {!open && (
+        <button type="button" className="chat-nudge" tabIndex={-1} aria-hidden="true" onClick={() => setOpen(true)}>
+          Need Help?
+        </button>
+      )}
       <button
         type="button"
         className={`chat-launcher${open ? ' open' : ''}`}

@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import VisitSite from '@/components/work/VisitSite';
 
 /**
  * A screenshot inside a simple browser window, so it reads at a glance as
@@ -11,6 +12,7 @@ export default function BrowserFrame({
   sizes,
   priority = false,
   className = '',
+  visitTitle,
 }: {
   src: string;
   alt: string;
@@ -18,6 +20,8 @@ export default function BrowserFrame({
   sizes: string;
   priority?: boolean;
   className?: string;
+  /** set to the site's name to put a "Visit site ↗" pill on the preview */
+  visitTitle?: string;
 }) {
   const domain = url && !url.startsWith('#') ? url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') : 'forgebyte.online';
   return (
@@ -28,6 +32,7 @@ export default function BrowserFrame({
       </div>
       <div className="browser-view">
         <Image src={src} alt={alt} width={1000} height={625} sizes={sizes} priority={priority} />
+        {visitTitle && url?.startsWith('https://') && <VisitSite href={url} title={visitTitle} className="visit-pill" />}
       </div>
     </figure>
   );
