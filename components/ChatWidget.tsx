@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { TELEGRAM_BOT_URL, WHATSAPP_URL } from '@/lib/site';
 
@@ -52,6 +53,13 @@ const GREETING =
   "Hi! I can answer the usual questions about Forgebyte. Pick one below, or jump straight to a real conversation on WhatsApp.";
 
 type Message = { id: number; from: 'bot' | 'user'; text: string };
+
+const AI_LOGO = '/logo/ai-logo.png';
+
+/** The assistant's face: the same logo as the launcher, decorative here. */
+function BotAvatar({ className }: { className: string }) {
+  return <Image className={className} src={AI_LOGO} alt="" width={56} height={56} aria-hidden="true" />;
+}
 
 export default function ChatWidget() {
   const router = useRouter();
@@ -234,11 +242,8 @@ export default function ChatWidget() {
         aria-hidden={!open}
       >
         <div className="chat-head">
-          <span className="chat-head-dot" aria-hidden="true" />
-          <div>
-            <strong>Forgebyte</strong>
-            <span>Usually replies within a day</span>
-          </div>
+          <BotAvatar className="chat-avatar chat-avatar--head" />
+          <strong>Forgebyte</strong>
           <button
             type="button"
             className="chat-close"
@@ -277,17 +282,25 @@ export default function ChatWidget() {
         </div>
 
         <div className="chat-log" role="log" aria-live="polite" ref={logRef}>
-          {messages.map((m) => (
-            <p key={m.id} className={`chat-msg ${m.from}${m.from === 'bot' ? ' section-body' : ''}`}>
-              {m.text}
-            </p>
-          ))}
+          {messages.map((m) =>
+            m.from === 'bot' ? (
+              <div key={m.id} className="chat-row">
+                <BotAvatar className="chat-avatar" />
+                <p className="chat-msg bot section-body">{m.text}</p>
+              </div>
+            ) : (
+              <p key={m.id} className="chat-msg user">{m.text}</p>
+            )
+          )}
           {typing && (
-            <p className="chat-msg bot chat-typing" aria-label="Typing">
-              <span />
-              <span />
-              <span />
-            </p>
+            <div className="chat-row">
+              <BotAvatar className="chat-avatar" />
+              <p className="chat-msg bot chat-typing" aria-label="Typing">
+                <span />
+                <span />
+                <span />
+              </p>
+            </div>
           )}
         </div>
 
@@ -392,17 +405,10 @@ export default function ChatWidget() {
         ref={launcherRef}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-label={open ? 'Close chat' : 'Open chat'}
+        // closed, the logo's alt text names the button
+        aria-label={open ? 'Close chat' : undefined}
       >
-        <svg className="chat-icon-chat" viewBox="0 0 24 24" aria-hidden="true" fill="none">
-          <path
-            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <Image className="chat-logo" src={AI_LOGO} alt="Chat with our AI assistant" width={56} height={56} />
         <svg className="chat-icon-close" viewBox="0 0 24 24" aria-hidden="true" fill="none">
           <path
             d="M6 6l12 12M18 6L6 18"

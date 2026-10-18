@@ -182,6 +182,8 @@ export default function Home() {
             industry: cs.industry,
             status: cs.status,
             oneLiner: cs.oneLiner,
+            // nothing public to visit while a build is still in progress
+            url: cs.status !== 'In progress' && cs.url.startsWith('https://') ? cs.url : undefined,
             tags: cs.services.map((slug) => services.find((x) => x.slug === slug)?.short).filter((t): t is string => !!t),
           }))}
         />
