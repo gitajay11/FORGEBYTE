@@ -312,6 +312,16 @@ export const lab: LabItem[] = [
     imageAlt: 'Care Dental homepage: a smiling patient beside the headline "Dental Care"',
   },
   {
+    slug: 'aazhi',
+    title: 'AAZHI',
+    kind: 'Demo website',
+    body: 'A luxury tile and surfaces showroom website with curated collections, a tile calculator and an enquiry form. Built to show what a premium retail store site can look like.',
+    stack: ['Next.js', 'Tailwind'],
+    url: 'https://www.aazhi.forgebyte.online/',
+    image: '/work/aazhi.jpg',
+    imageAlt: 'AAZHI homepage: the headline "A World of Timeless Surfaces" beside marble and wood-finish tiles',
+  },
+  {
     slug: 'site-assistant',
     title: 'This site’s assistant',
     kind: 'Try it here',
