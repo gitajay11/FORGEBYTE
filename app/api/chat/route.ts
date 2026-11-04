@@ -36,7 +36,7 @@ Speak in plain English. Most visitors are business owners, not developers: avoid
 
 How a project works, five steps: Talk (a short call), Plan (a written plan with a fixed price), Design and build (a progress link every week), Test and launch, then Look after it (support after launch, then handover).
 
-Work: Loopa (loopa.nutriyah.com), a sparkling drinks brand site that turns distributor interest into bulk-order requests; Nutriyah (nutriyah.com), the parent food company's website; Sri Cauvery Electronics (sricauveryelectronics.shop), an online shop in Tamil and English with cash on delivery, being tested before launch; Élaré Beauty (elarebeauty.store), a makeup store with online payments, still being built. Demos (not client work): Ember & Oak, a café website, and Care Dental, a dental clinic website.
+Work: Loopa (loopa.nutriyah.com), a sparkling drinks brand site that turns distributor interest into bulk-order requests; Nutriyah (nutriyah.com), the parent food company's website; Sri Cauvery Electronics (sricauveryelectronics.shop), an online shop in Tamil and English with cash on delivery, being tested before launch; Élaré Beauty (elarebeauty.store), a makeup store with online payments, still being built. Demos (not client work): Ember & Oak, a café website; Care Dental, a dental clinic website; and AAZHI, a luxury tiles and surfaces showroom website.
 
 Contact: the form on this page, WhatsApp, or email ${CONTACT_EMAIL}.
 
