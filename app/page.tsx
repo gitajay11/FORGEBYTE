@@ -13,6 +13,7 @@ import HeroPoster from '@/components/home/HeroPoster';
 import BrowserFrame from '@/components/BrowserFrame';
 import WorkCarousel from '@/components/home/WorkCarousel';
 import VisitSite from '@/components/work/VisitSite';
+import Availability from '@/components/site/Availability';
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -66,7 +67,7 @@ export default function Home() {
 
         <div className="container hero-inner">
           <div className="hero-copy">
-            <p className="hero-eyebrow live hero-meta">Taking on new projects · {studio.availability}</p>
+            <p className="hero-eyebrow live hero-meta">Taking on new projects · <Availability initial={studio.availability} /></p>
             <h1 id="hero-title" className="display-xl">
               <span className="line l1"><span>We build</span></span>
               <span className="line l2"><span className="outline">things.</span></span>

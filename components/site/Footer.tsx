@@ -3,6 +3,7 @@ import { studio } from '@/lib/content';
 import { CONTACT_EMAIL, WHATSAPP_URL } from '@/lib/site';
 import { PrefToggles, StudioClock } from './FooterControls';
 import SocialLinks from './SocialLinks';
+import Availability from './Availability';
 import CopyEmail from '@/components/contact/CopyEmail';
 
 export default function Footer() {
@@ -42,7 +43,7 @@ export default function Footer() {
         <div className="footer-meta">
           <div className="group">
             <StudioClock />
-            <span className="mono live">Taking on new projects · {studio.availability}</span>
+            <span className="mono live">Taking on new projects · <Availability initial={studio.availability} /></span>
           </div>
           <div className="group">
             <PrefToggles />

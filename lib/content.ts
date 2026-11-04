@@ -9,6 +9,7 @@
 // docs/HANDOVER.md.
 
 import { TELEGRAM_BOT_URL, WHATSAPP_URL } from './site';
+import { quarterLabel } from './quarter';
 
 export const studio = {
   name: 'Forgebyte',
@@ -19,7 +20,9 @@ export const studio = {
   country: 'India',
   timeZone: 'Asia/Kolkata',
   tzLabel: 'India time (IST)',
-  availability: 'Q4 2026',
+  // the current quarter when the site is built (components/site/Availability
+  // keeps it current in the browser between deploys)
+  availability: quarterLabel(),
   replyWithin: '24–48 hours',
   idealClients: 'small businesses, startups and founders',
   github: 'https://github.com/gitajay11',
@@ -32,8 +35,9 @@ export const team = [
   { name: 'Parivalavan', short: 'Pari', display: 'Parivalavan (Pari)', role: 'Co-founder', initials: 'P' },
 ] as const;
 
-/** Social profiles shown as icons in the footer and phone menu.
- *  '#' = placeholder until the account exists (see docs/HANDOVER.md). */
+/** Social profiles shown as icons in the footer, contact block and phone menu.
+ *  '#' = no account yet: the icon is hidden until a real URL goes here
+ *  (see docs/HANDOVER.md). */
 export const socials = [
   { name: 'Instagram', url: '#' },
   { name: 'LinkedIn', url: studio.linkedin },

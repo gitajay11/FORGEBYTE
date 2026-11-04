@@ -6,8 +6,11 @@ import { HERO_STACKED } from '@/lib/heroLayout';
 import type { HeroScene } from '@/scenes/hero';
 
 const SEEN = 'fb-hero-seen';
-// Opening sequence (ms after the ABI intro hands over). Total < 2.4s.
-const AT = { text: 1000, meta: 1800, idle: 2400, sceneMs: 1800 };
+// Opening sequence (ms after the ABI intro hands over). Total 1.3s: the
+// headline rises while the intro fades out (0.7s), and the "Start a project"
+// button follows as the fade ends (it used to wait 1.8s). The headline is the
+// largest thing on screen, so how soon it shows is the page's load-speed score.
+const AT = { text: 0, meta: 700, idle: 1300, sceneMs: 1800 };
 
 type W = Window & { __introDone?: boolean };
 
