@@ -1387,7 +1387,8 @@ fieldset.field{border:0;}
 .footer-cta{grid-column:1 / span 6;}
 .footer-cta .h3{margin-bottom:var(--s-6); max-width:22ch;}
 .footer-cta .socials{margin-top:var(--s-6);}
-.footer-cols{grid-column:8 / span 5; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--s-6);}
+/* Pages takes only what its short words need, leaving room for the whole email address */
+.footer-cols{grid-column:8 / span 5; display:grid; grid-template-columns:auto minmax(0,1fr); gap:var(--s-6);}
 .footer-cols ul{display:flex; flex-direction:column; gap:3px; margin-top:8px;}
 /* 28px tall so each link is an easy tap target (they were 23px); the list gap
    shrinks to match, so the spacing looks the same */
@@ -1404,11 +1405,13 @@ fieldset.field{border:0;}
 @media (max-width:899px){
   .footer-cta,.footer-cols{grid-column:1 / -1;}
 }
-/* phones: Pages takes only what its short words need, so the email column
-   has room for the whole address beside its copy icon */
 @media (max-width:599px){
-  .footer-cols{grid-template-columns:auto minmax(0,1fr); column-gap:20px;}
+  .footer-cols{column-gap:20px;}
   .footer-cols .email-copy--sm .email-link{font-size:0.9rem;}
+}
+@media (max-width:359px){
+  .footer-cols{column-gap:12px;}
+  .footer-cols .email-copy--sm .email-link{font-size:0.8rem;}
 }
 
 /* =====================================================================

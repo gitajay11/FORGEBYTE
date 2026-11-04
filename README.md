@@ -187,7 +187,7 @@ Set these in Vercel (Settings → Environment Variables) and redeploy:
 | `SMTP_USER`   | `admin.forgebyte@gmail.com`    | required; the mailbox that sends                   |
 | `SMTP_PASS`   | app password                   | required; Gmail needs an App Password, not login   |
 | `MAIL_FROM`   | `Forgebyte <admin.forgebyte@gmail.com>` | optional; default `Forgebyte <SMTP_USER>`          |
-| `WORK_MAIL`   | `admin.forgebyte@gmail.com`    | optional; default `CONTACT_EMAIL` in `lib/site.ts` |
+| `WORK_MAIL`   | `admin.forgebyte@gmail.com`    | optional; where enquiries land, default `SMTP_USER` |
 | `BOOKING_URL` | `https://cal.com/forgebyte/30` | optional; without it "Book a call" opens WhatsApp  |
 | `SHEETNINJA_API_URL` | `https://api.sheetninja.io/{namespace}/{project}/{tab}` | optional; the tab's endpoint from the Sheet Ninja dashboard |
 | `SHEETNINJA_TOKEN`   | API token | only if protection is on for that endpoint |

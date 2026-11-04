@@ -15,8 +15,10 @@ const SMTP_PASS = env('SMTP_PASS');
 // overrides the guess for providers that do something else.
 const SMTP_SECURE = env('SMTP_SECURE') ? env('SMTP_SECURE').toLowerCase() === 'true' : SMTP_PORT === 465;
 
-/** Where enquiries land, and the Reply-To on the visitor's confirmation. */
-export const INBOX = env('WORK_MAIL') || CONTACT_EMAIL;
+/** Where enquiries land. CONTACT_EMAIL forwards to the mailbox that sends, and
+ *  Gmail can hide mail that comes back to the account that sent it, so the
+ *  default is that mailbox itself. */
+export const INBOX = env('WORK_MAIL') || SMTP_USER || CONTACT_EMAIL;
 // Most providers reject a From that isn't the authenticated mailbox, so the
 // default is the SMTP user; MAIL_FROM can set a display name or an alias the
 // account is allowed to send as.

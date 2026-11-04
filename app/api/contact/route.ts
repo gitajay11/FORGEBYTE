@@ -12,6 +12,7 @@ import { linkConfigured, notifyConfigured, tgConfig } from '@/lib/telegram/confi
 import { maybeCleanup, saveSubmission } from '@/lib/telegram/store';
 import { notifyWork } from '@/lib/telegram/notify';
 import { signToken } from '@/lib/telegram/token';
+import { CONTACT_EMAIL } from '@/lib/site';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -118,7 +119,7 @@ export async function POST(request: Request) {
   skipped.catch(() => {}); // settled below; silence the unhandled-rejection warning
   const [toStudio, toVisitor, toSheet, toTelegram] = await Promise.allSettled([
     smtpConfigured ? sendMail({ to: INBOX, replyTo: visitor, ...studio }) : skipped,
-    smtpConfigured ? sendMail({ to: visitor, replyTo: INBOX, ...confirmation }) : skipped,
+    smtpConfigured ? sendMail({ to: visitor, replyTo: CONTACT_EMAIL, ...confirmation }) : skipped,
     sheetConfigured
       ? appendToSheet({
           submittedAt: istTimestamp(enquiry.receivedAt),

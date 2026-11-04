@@ -13,7 +13,7 @@ What it does:
 - **Q&A from the website only.** The bot answers questions using the site's
   own content (`lib/content.ts`), with a "Read more" link to the section. Anything
   else gets: *"I can only answer questions about Forgebyte's website. For anything
-  else, contact admin.forgebyte@gmail.com."*
+  else, contact admin@forgebyte.online."*
 - Commands: `/start` `/services` `/work` `/contact` `/help` (and `/reset` to
   forget the conversation), plus a menu of common questions.
 
