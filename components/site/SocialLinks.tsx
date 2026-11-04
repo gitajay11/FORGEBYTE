@@ -39,10 +39,14 @@ const ICONS: Record<(typeof socials)[number]['name'], React.ReactNode> = {
   Telegram: <path d="M15 10l-4 4l6 6l4 -16l-18 7l4 2l2 6l3 -4" />,
 };
 
+// Profiles still set to '#' in lib/content.ts (accounts not made yet) are left
+// out, so no icon leads nowhere. Put the real URL there and the icon appears.
+const live = socials.filter((s) => s.url && s.url !== '#');
+
 export default function SocialLinks() {
   return (
     <ul className="socials" aria-label="Forgebyte on social media">
-      {socials.map((s) => (
+      {live.map((s) => (
         <li key={s.name}>
           <a
             className="social-link"

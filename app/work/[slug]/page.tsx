@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const cs = caseStudies.find((c) => c.slug === slug);
   if (!cs) return {};
   return {
-    title: `${cs.title} — our work`,
+    title: `${cs.title} case study`,
     description: `${cs.oneLiner} ${cs.problem}`.slice(0, 158),
     alternates: { canonical: `/work/${cs.slug}` },
     openGraph: { title: `${cs.title} — built by Forgebyte`, description: cs.oneLiner, url: `${SITE_URL}/work/${cs.slug}` },

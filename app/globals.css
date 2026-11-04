@@ -92,37 +92,28 @@ main{display:block;}
 .body-l{font-size:var(--fs-body-l); line-height:1.5; color:var(--text-2);}
 .body{font-size:var(--fs-body); line-height:1.6; color:var(--text-2); max-width:var(--measure);}
 /* The line under a section's heading (SectionLead), the same in every
-   section: a centred block, full lines justified and the last line centred
-   (under the centred title capsule), 20px below the heading. Sections keep
-   48px to their content. */
+   section: a centred block under the centred title capsule, 20px below the
+   heading. Sections keep 48px to their content. */
 .section-lead{
   margin-top:20px; margin-inline:auto; max-width:min(640px, 100%);
   font-size:clamp(1.0625rem, 1rem + 0.3vw, 1.25rem); font-weight:400; line-height:1.55; color:var(--text-2);
-  text-align:justify; text-align-last:center; text-justify:inter-word; hyphens:auto; -webkit-hyphens:auto;
+  text-align:center; text-wrap:pretty;
 }
 /* Body text, site-wide (.section-body on a block, or on a paragraph itself;
-   .list-prose for lists of full sentences): justified with hyphenation
-   (html lang="en"). Not headings, display-size statements, labels (.mono),
-   the big quoted brief, lists of short items, buttons or links. */
+   .list-prose for lists of full sentences): left-aligned. It used to be
+   justified, which opened wide gaps between words in narrow columns (the hero
+   line, phones). Not headings, display-size statements, labels (.mono), the
+   big quoted brief, lists of short items, buttons or links. */
 .section-body p:not(.mono):not(.brief),p.section-body,.section-body .list-prose > li{
-  text-align:justify; text-justify:inter-word; hyphens:auto; -webkit-hyphens:auto;
+  text-align:left; text-wrap:pretty;
 }
-/* a readable measure for justified text, unless the block sets a narrower one */
+/* a readable measure for body text, unless the block sets a narrower one */
 :where(.section-body p, p.section-body){max-width:min(68ch, 100%);}
-/* narrow phones: slightly smaller justified text, so lines hold more words
-   and the gaps between them stay small */
+/* narrow phones: slightly smaller body text */
 @media (max-width:399px){
   .section-body p:not(.mono):not(.brief),p.section-body{font-size:0.9375rem;}
   .manifesto-body.section-body p:not(.mono){font-size:1.0625rem;}
   .section-lead{font-size:1rem;}
-}
-/* Below 360px a few blocks leave gaps of 7+ spaces when justified, so they
-   fall back to left alignment: the About and Studio founder paragraphs (long,
-   unbreakable names) and the chat assistant's replies (a ~220px bubble). */
-@media (max-width:359px){
-  .manifesto-body.section-body p:not(.mono),
-  .founder-body.section-body p:not(.mono),
-  .chat-msg.section-body{text-align:left;}
 }
 /* large-type questions on project pages: a size down on narrow phones */
 @media (max-width:399px){ ol.questions > li{font-size:1.3rem;} }
@@ -804,6 +795,11 @@ html[data-motion="reduced"] #introOverlay .il-rest span{opacity:1; transform:non
 .hero[data-stage="text"] h1 .l4 > span{transition-delay:420ms;}
 .hero[data-stage="meta"] .hero-meta,
 .hero[data-stage="idle"] .hero-meta{opacity:1; transform:none;}
+/* The sub-headline is the page's largest text block, so it's what Google
+   times as "Largest Contentful Paint". Hidden until the sequence's last step,
+   it painted 3–6s after load; shown from the first paint (under the intro
+   overlay, so nothing visibly changes) it counts straight away. */
+.hero[data-stage] .hero-sub.hero-meta{opacity:1; transform:none; transition:none;}
 html:not(.js) .hero h1 .line > span,
 html:not(.js) .hero .hero-meta{transform:none !important; opacity:1 !important;}
 
@@ -1219,6 +1215,8 @@ html[data-motion="reduced"] .work-card:hover,html[data-motion="reduced"] .work-c
 .contact-layout{display:grid; grid-template-columns:repeat(12, minmax(0,1fr)); column-gap:var(--gutter); row-gap:var(--s-7); align-items:start;}
 .contact-info{grid-column:1 / span 5; display:flex; flex-direction:column;}
 .contact-info .contact-methods{margin-top:var(--s-6);}
+/* the heading here is left-aligned, so its lead line is too */
+.contact-info .section-lead{text-align:left; margin-inline:0;}
 .contact-head{font-size:clamp(2.5rem, 4.6vw, 4.75rem);}
 .contact-methods{display:flex; flex-direction:column;}
 .contact-method{display:flex; align-items:flex-start; gap:14px; padding-block:var(--s-4); border-top:1px solid var(--border);}
@@ -1314,6 +1312,7 @@ fieldset.field{border:0;}
 .trust li{display:inline-flex; align-items:center; gap:6px;}
 .trust svg{width:16px; height:16px; flex:none; fill:none; stroke:var(--lime-ink); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
 .form-actions .form-status{flex-basis:100%;}
+.form-privacy{flex-basis:100%; margin:0; font-size:0.8125rem; line-height:1.5; color:var(--text-3);}
 .form-actions .btn[aria-busy="true"]{cursor:progress; opacity:0.85;}
 .spinner{width:16px; height:16px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin 700ms linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -1363,6 +1362,17 @@ fieldset.field{border:0;}
 .coffee{font-size:var(--fs-body-l); color:var(--text-1);}
 @media (max-width:1023px){
   .contact-info,.contact-card{grid-column:1 / -1;}
+  /* One column: the form comes straight after the heading, and the other
+     ways to reach us (email, WhatsApp, Telegram, socials) follow it. They
+     used to come first, which put the form about two screens down on phones. */
+  .contact-info{display:contents;}
+  .contact-info > *{grid-column:1 / -1;}
+  .contact-head{order:1;}
+  .contact-info > .section-lead{order:2; margin-top:calc(20px - var(--s-6));}
+  .contact-card{order:3;}
+  .contact-info .contact-methods{order:4; margin-top:0;}
+  .contact-info > :not(.contact-head):not(.section-lead):not(.contact-methods){order:5;}
+  .contact-layout{row-gap:var(--s-6);}
 }
 @media (max-width:599px){
   .form{grid-template-columns:1fr;}
@@ -1378,12 +1388,15 @@ fieldset.field{border:0;}
 .footer-cta .h3{margin-bottom:var(--s-6); max-width:22ch;}
 .footer-cta .socials{margin-top:var(--s-6);}
 .footer-cols{grid-column:8 / span 5; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--s-6);}
-.footer-cols ul{display:flex; flex-direction:column; gap:8px; margin-top:12px;}
-.footer-cols a{color:var(--text-2);}
+.footer-cols ul{display:flex; flex-direction:column; gap:3px; margin-top:8px;}
+/* 28px tall so each link is an easy tap target (they were 23px); the list gap
+   shrinks to match, so the spacing looks the same */
+.footer-cols a{color:var(--text-2); display:inline-flex; align-items:center; min-height:28px;}
 .footer-cols a:hover{color:var(--text-1);}
 .footer-meta{display:flex; flex-wrap:wrap; justify-content:space-between; gap:16px 32px; margin-top:var(--s-8); padding-top:var(--s-5); border-top:1px solid var(--border);}
 .footer-meta .group{display:flex; flex-wrap:wrap; gap:12px 24px; align-items:center;}
-.toggle{display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono-stack); font-size:var(--fs-mono); letter-spacing:0.08em; text-transform:uppercase; color:var(--text-3);}
+.footer-meta a{display:inline-flex; align-items:center; min-height:28px;}
+.toggle{display:inline-flex; align-items:center; gap:8px; min-height:28px; font-family:var(--font-mono-stack); font-size:var(--fs-mono); letter-spacing:0.08em; text-transform:uppercase; color:var(--text-3);}
 .toggle b{font-weight:500; color:var(--text-1);}
 .toggle:hover b{color:var(--accent-blue);}
 /* the custom cursor only exists for mice and trackpads */

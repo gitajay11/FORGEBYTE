@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import Link from 'next/link';
 import { caseStudies, services } from '@/lib/content';
 import { Words } from '@/components/motion/Text';
@@ -24,10 +23,7 @@ export default function WorkPage() {
         </p>
       </section>
       <section className="container" style={{ paddingBottom: 'var(--section-y)' }} aria-label="All case studies">
-        {/* useSearchParams needs a Suspense boundary in a static page */}
-        <Suspense fallback={null}>
-          <WorkIndex items={caseStudies} services={services.map(({ slug, name }) => ({ slug, name }))} />
-        </Suspense>
+        <WorkIndex items={caseStudies} services={services.map(({ slug, name }) => ({ slug, name }))} />
       </section>
     </>
   );

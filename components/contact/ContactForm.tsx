@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { services, studio } from '@/lib/content';
 import { CONTACT_EMAIL } from '@/lib/site';
@@ -202,6 +203,9 @@ export default function ContactForm({ source = 'contact' }: { source?: string })
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>Reply within 24–48 hrs</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></svg>No spam</li>
         </ul>
+        <p className="form-privacy">
+          We use your details only to reply to this enquiry. <Link href="/privacy" className="ulink">How we handle them</Link>.
+        </p>
         <p className="form-status" role="status" aria-live="polite" data-tone={state.kind === 'error' ? 'error' : undefined}>
           {sending && 'Checking the kettle…'}
           {state.kind === 'error' && (

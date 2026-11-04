@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CaseStudy, Service } from '@/lib/content';
 import StatusBadge from './StatusBadge';
@@ -16,25 +16,44 @@ type Props = {
  * Work index: big titles, a preview that follows the pointer within bounds
  * (desktop), static posters on mobile, filters synced to the URL so a
  * filtered view can be shared.
+ *
+ * The filters are read from the URL after mount instead of with
+ * useSearchParams(): that hook makes a static page skip this component on the
+ * server, so the HTML (what search engines and no-JS visitors get) had no
+ * projects in it. Now the server renders every project and a shared filtered
+ * link narrows the list once the page loads.
  */
 export default function WorkIndex({ items, services }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-  const params = useSearchParams();
-  const service = params.get('service') ?? '';
-  const industry = params.get('industry') ?? '';
+  const [service, setService] = useState('');
+  const [industry, setIndustry] = useState('');
   const industries = useMemo(() => [...new Set(items.map((i) => i.industry))], [items]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setService(params.get('service') ?? '');
+    setIndustry(params.get('industry') ?? '');
+  }, []);
 
   const shown = items.filter(
     (i) => (!service || i.services.includes(service)) && (!industry || i.industry === industry)
   );
 
   const setFilter = (key: 'service' | 'industry', value: string) => {
-    const next = new URLSearchParams(params.toString());
+    const next = new URLSearchParams(window.location.search);
     if (!value || next.get(key) === value) next.delete(key);
     else next.set(key, value);
+    setService(next.get('service') ?? '');
+    setIndustry(next.get('industry') ?? '');
     const q = next.toString();
     router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
+  };
+
+  const clearFilters = () => {
+    setService('');
+    setIndustry('');
+    router.replace(pathname, { scroll: false });
   };
 
   // Pointer-following preview, clamped to the list's bounds
@@ -112,7 +131,7 @@ export default function WorkIndex({ items, services }: Props) {
         {!shown.length && (
           <li style={{ padding: '32px 0', color: 'var(--text-2)' }}>
             Nothing matches both filters yet.{' '}
-            <button type="button" className="ulink" onClick={() => router.replace(pathname, { scroll: false })}>
+            <button type="button" className="ulink" onClick={clearFilters}>
               Clear filters
             </button>
           </li>

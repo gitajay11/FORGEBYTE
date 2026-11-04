@@ -31,11 +31,12 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  // Browser tab reads just "FORGEBYTE" on every page: the template has no %s,
-  // so pages' own titles don't show. Share previews keep SITE_TITLE (below).
+  // Each page's own title + the brand ("Work | Forgebyte"), so search results
+  // and browser tabs say what the page is. The home page (same segment as
+  // this layout) and the 404 use the default.
   title: {
-    default: 'FORGEBYTE',
-    template: 'FORGEBYTE',
+    default: SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
