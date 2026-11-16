@@ -326,6 +326,16 @@ export const lab: LabItem[] = [
     imageAlt: 'AAZHI homepage: the headline "A World of Timeless Surfaces" beside marble and wood-finish tiles',
   },
   {
+    slug: 'interiors',
+    title: 'Interiors',
+    kind: 'Demo website',
+    body: 'An interior design studio website you can walk through in 3D, room by room, with a portfolio and consultation booking. Built to show what a design or architecture practice site can feel like.',
+    stack: ['Next.js', 'Three.js'],
+    url: 'https://interiors.forgebyte.online/',
+    image: '/work/interiors.jpg',
+    imageAlt: 'Interiors homepage: the headline "Spaces Designed Around You." in front of a 3D model of a house',
+  },
+  {
     slug: 'site-assistant',
     title: 'This site’s assistant',
     kind: 'Try it here',
