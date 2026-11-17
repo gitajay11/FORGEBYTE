@@ -247,7 +247,22 @@ export default function Nav() {
       <header className="nav" data-floating={scrolled} data-past-hero={pastHero || open}>
         <div className="container nav-inner">
           <div className="nav-brand">
-            <Link href="/" className="logo" aria-label="Forgebyte — home">
+            <Link
+              href="/"
+              className="logo"
+              aria-label="Forgebyte — home"
+              // already on the landing page: the link has nowhere to go, so
+              // scroll back to the top (and drop any #section from the URL)
+              onClick={(e) => {
+                if (!onHome || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                e.preventDefault();
+                setOpen(false);
+                const reduce = document.documentElement.dataset.motion === 'reduced' ||
+                  (document.documentElement.dataset.motion !== 'full' && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+                window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+                if (location.hash) history.replaceState(history.state, '', location.pathname);
+              }}
+            >
               <Logo priority />
             </Link>
             {/* the hero headline, carried into the bar once the hero is gone */}
